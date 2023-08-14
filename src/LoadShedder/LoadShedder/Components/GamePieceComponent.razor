@@ -1,0 +1,60 @@
+﻿<Card>
+    <CardTitle>@LoadedGamePiece.Name</CardTitle>
+        <CardBody>
+            <Row>
+                <Column>
+                    <Row Margin="Margin.Is2.FromTop">
+                        <Heading Size="HeadingSize.Is5"> Game Piece Type</Heading>
+                        <Span>@(Enum.GetName(typeof(GamePieceTypes), LoadedGamePiece.GamePieceType) ?? "UNKNOWN Type")</Span>
+                    </Row>
+                    <Row Margin="Margin.Is2.FromTop">
+                        <Column>
+                            <Heading Size="HeadingSize.Is5"> Description</Heading>
+                            <Span>@LoadedGamePiece.Description</Span>
+                        </Column>
+                    </Row>
+                    <Row Margin="Margin.Is2.FromTop">
+                        <Column>
+                            <Heading Size="HeadingSize.Is5"> Resistors Combo</Heading>
+                            <Span>Combo Value is: @(Math.Round((double)LoadedGamePiece.ResistorsCombo,2)) Ohm</Span>
+                            <Span>@(Enum.GetName(typeof(ResistorsCombos), LoadedGamePiece.ResistorsCombo) ?? "UNKNOWN Combo")</Span>
+                        </Column>
+                    </Row>
+                    <Row Margin="Margin.Is2.FromTop">
+                        <Column>
+                            <Heading Size="HeadingSize.Is5"> Energy Value</Heading>
+                            <Span>@(LoadedGamePiece.EnergyValue > 1000 ? $"{LoadedGamePiece.EnergyValue / 1000} MW" : $"{LoadedGamePiece.EnergyValue} kW")</Span>
+                        </Column>
+                    </Row>
+                    <Row Margin="Margin.Is2.FromTop">
+                        <Column>
+                            <ResistorComboComponent LoadedGamePiece="@LoadedGamePiece" />
+                        </Column>
+                    </Row>
+                    <Row Margin="Margin.Is2.FromTop">
+                        <Column>
+                            <Heading Size="HeadingSize.Is5"> Current through resistors</Heading>
+                            <Span>@LoadedGamePiece.GetGamePieceCurrent() A</Span>
+                        </Column>
+                    </Row>
+                    <Row Margin="Margin.Is2.FromTop">
+                        <Column>
+                            <Heading Size="HeadingSize.Is5"> Expected ADC value in mV for Vref 5V</Heading>
+                            <Span>@LoadedGamePiece.GetGamePieceResistorVoltage() mV</Span>
+                        </Column>
+                    </Row>
+                    <Row Margin="Margin.Is2.FromTop">
+                        <Column>
+                            <Heading Size="HeadingSize.Is5"> Expected Main ADC resistor value in mV for Vref 5V</Heading>
+                            <Span>@LoadedGamePiece.GetMainResistorVoltage() mV</Span>
+                        </Column>
+                    </Row>
+            </Column>
+        </Row>
+
+    </CardBody>
+</Card>
+@code {
+    [Parameter]
+    public GamePiece LoadedGamePiece { get; set; } = new GamePiece();
+}

@@ -1,0 +1,83 @@
+﻿@using Newtonsoft.Json;
+@inject HttpClient client
+
+<Row Margin="Margin.Is2.FromTop">
+    <Column Flex="Flex.JustifyContent.Center">
+        <Heading Size="HeadingSize.Is3">Actual Board Bilance</Heading>
+    </Column>
+</Row>
+
+<Row Margin="Margin.Is1.FromTop">
+    <Column Flex="Flex.JustifyContent.Center">
+        @if (Bilance >= 1000)
+        {
+            <Span TextColor="TextColor.Dark" TextWeight="TextWeight.Bold">
+                @($"{(Math.Round((Bilance / 1000), 4))} MW")
+            </Span>
+        }
+        else if (Bilance < 1000 && Bilance > 0) 
+        {
+            <Span TextColor="TextColor.Dark" TextWeight="TextWeight.Bold">
+                    @($"{Math.Round(Bilance, 4)} kW")
+            </Span>
+        }
+        else if (Bilance == 0)
+        {
+            <Span TextColor="TextColor.Success" TextWeight="TextWeight.Bold">
+                @($"{Math.Round(Bilance, 4)} kW")
+            </Span>
+        }
+        else if (Bilance < 0 && Bilance > -1000) 
+        {
+            <Span TextColor="TextColor.Danger" TextWeight="TextWeight.Bold">
+                    @($"{Math.Round(Bilance, 4)} kW")
+            </Span>
+        }
+        else if (Bilance <= -1000)
+        {
+            <Span TextColor="TextColor.Danger" TextWeight="TextWeight.Bold">
+                    @($"{(Math.Round((Bilance / 1000), 4))} MW")
+            </Span>
+        }
+    </Column>
+</Row>
+
+@code {
+    [Parameter]
+    public string BoardId { get; set; } = "testBoard";
+    [Parameter]
+    public double OnBilanceChanged { get; set; }
+    [Parameter]
+    public double Bilance { get; set; } = 0.0;
+    [Parameter] public double BilanceSources { get; set; } = 0.0;
+    [Parameter] public double BilanceConsumers { get; set; } = 0.0;
+
+    public string ApiCommand { get; set; } = "/api/NewDeviceData";
+    
+    public async Task Refresh()
+    {
+        await GetBilance();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task<double> GetBilance()
+    {
+        var response = client.GetStringAsync($"api/GetBoardBilance/{BoardId}");
+        Bilance = double.Parse(await response, System.Globalization.CultureInfo.InvariantCulture);
+        return Bilance;
+    }
+
+    private async Task<double> GetBilanceForSources()
+    {
+        var response = client.GetStringAsync($"api/GetBoardSourcesBilance/{BoardId}");
+        BilanceSources = double.Parse(await response, System.Globalization.CultureInfo.InvariantCulture);
+        return BilanceSources;
+    }
+
+    private async Task<double> GetBilanceForConsumers()
+    {
+        var response = client.GetStringAsync($"api/GetBoardConsumersBilance/{BoardId}");
+        BilanceConsumers = double.Parse(await response, System.Globalization.CultureInfo.InvariantCulture);
+        return BilanceConsumers;
+    }
+}

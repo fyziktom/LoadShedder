@@ -1,0 +1,93 @@
+﻿@inject HttpClient Http
+
+<Row>
+    <Column>
+        <Field>
+            <FieldBody>
+                <Addons>
+                    <Addon AddonType="AddonType.Start">
+                        <Dropdown Display="Display.Block">
+                            <DropdownToggle Color="Color.Light">
+                                <Icon Name="IconName.Star" IconStyle="IconStyle.Solid" IconSize="IconSize.Small" Margin="Margin.Is1.FromEnd" />
+                            </DropdownToggle>
+                            <DropdownMenu MaxMenuHeight="350px">
+                                @foreach (var player in Players.Values)
+                                {
+                                    <DropdownItem Value="@player.Name" Clicked="@((e) => onSelectHandler(player.Id))">
+                                        <Field>
+                                            <FieldLabel>@player.Name</FieldLabel>
+                                            <FieldHelp>@player.Id</FieldHelp>
+                                        </Field>
+                                    </DropdownItem>
+                                }
+                            </DropdownMenu>
+                        </Dropdown>
+                    </Addon>
+                    <Addon AddonType="AddonType.Body">
+                        <Tooltip Text="Click to copy to clipboard" Placement="TooltipPlacement.Bottom">
+                            <Heading Margin="Margin.Is3.FromStart.Is2.FromTop" 
+                                     Size="HeadingSize.Is6" 
+                                     CopyToClipboard="true" 
+                                     TextOverflow="TextOverflow.Wrap">
+                                    @if (!string.IsNullOrEmpty(Id) && Id != "Please select")
+                                    {
+                                        @Name
+                                    }
+                                    else
+                                    {
+                                        @("Please select")
+                                    }
+                                    </Heading>
+                        </Tooltip>
+                    </Addon>
+                </Addons>
+            </FieldBody>
+        </Field>
+    </Column>
+</Row>
+
+@code {
+    [Parameter] public string ApiCommand { get; set; } = "api/GetPlayers";
+    [Parameter] public string Id { get; set; } = "Please select";
+    [Parameter] public EventCallback<string> IdChanged { get; set; }
+
+    public Dictionary<string, Player> Players { get; set; } = new Dictionary<string, Player>();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+            await getData();
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    public string Name
+    {
+        get
+        {
+            if (!string.IsNullOrEmpty(Id) && Id != "Please select")
+                if (Players.TryGetValue(Id, out var obj))
+                    return obj.Name;
+            return "Please select";
+        }
+    }
+
+    private async Task getData()
+    {
+        var result = await Http.GetFromJsonAsync<Dictionary<string, Player>>(ApiCommand);
+        if (result != null)
+            Players = result;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task onSelectHandler(string id)
+    {
+        if (!string.IsNullOrEmpty(id))
+            Id = id;
+        else
+            Id = string.Empty;
+        await IdChanged.InvokeAsync(Id);
+        await InvokeAsync(StateHasChanged);
+    }
+}

@@ -1,0 +1,29 @@
+﻿@inject HttpClient Http
+
+<Heading Size="HeadingSize.Is3">Resistors Combos</Heading>
+<Div>
+    @foreach(var gamepiece in GamePieces)
+    {
+        <GamePieceComponent LoadedGamePiece="@gamepiece.Value" />
+    }
+</Div>
+
+@code {
+    Dictionary< ResistorsCombos, GamePiece> GamePieces = new Dictionary<ResistorsCombos, GamePiece>();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await getGamePieces();
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private async Task getGamePieces()
+    {
+        var result = await Http.GetFromJsonAsync<Dictionary<ResistorsCombos, GamePiece>>("api/GetGamePieces");
+        if (result != null)
+            GamePieces = result;
+
+        await InvokeAsync(StateHasChanged);
+
+    }
+}

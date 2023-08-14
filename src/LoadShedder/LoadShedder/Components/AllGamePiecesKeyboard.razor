@@ -1,0 +1,192 @@
+﻿@using Newtonsoft.Json;
+@inject HttpClient Http
+<Row>
+    <Column>
+
+        <Row Margin="Margin.Is2.FromTop">
+            <Column>
+                <Heading Size="HeadingSize.Is4">Producers</Heading>
+            </Column>
+        </Row>
+        <Row Margin="Margin.Is2.FromTop">
+            <Column>
+                @foreach(var gamepiece in Sources)
+                {
+                    @if (!gamepiece.IsPlugged)
+                    {
+                        <Button Clicked="@(() => PlacePiece(gamepiece.ResistorsCombo))" 
+                                Color="Color.Primary" 
+                                Style="width:250px"
+                                Margin="Margin.Is2.FromStart.Is2.FromEnd.Is2.FromTop.Is2.FromBottom">
+                            <Icon Name="IconName.BatteryFull" Margin="Margin.Is2.FromEnd" />
+                                    <small>Plug @gamepiece.Name - @(gamepiece.EnergyValue / 1000) MW</small>  
+                        </Button>
+                    }
+                    else
+                    {
+                        <Button Clicked="@(() => RemovePiece(gamepiece.ResistorsCombo))"
+                                Color="Color.Secondary"
+                                Style="width:250px"
+                                Margin="Margin.Is2.FromStart.Is2.FromEnd.Is2.FromTop.Is2.FromBottom">
+                                    <Icon Name="IconName.BatteryFull" Margin="Margin.Is2.FromEnd" />
+                                    <small>Unplug @gamepiece.Name - @(gamepiece.EnergyValue / 1000) MW</small>
+                        </Button>
+                    }
+                }
+            </Column>
+        </Row>
+        <Row Margin="Margin.Is2.FromTop">
+            <Column>
+                <Heading Size="HeadingSize.Is4">Consumers</Heading>
+            </Column>
+        </Row>
+        <Row Margin="Margin.Is1.FromTop">
+            <Column>
+                @foreach (var gamepiece in Consumers)
+                {
+                    @if (!gamepiece.IsPlugged)
+                    {
+                        <Button Clicked="@(() => PlacePiece(gamepiece.ResistorsCombo))"
+                                Color="Color.Primary"
+                                Style="width:250px"
+                                Margin="Margin.Is2.FromStart.Is2.FromEnd.Is2.FromTop.Is2.FromBottom">
+                                    <Icon Name="IconName.Hotel" Margin="Margin.Is2.FromEnd" />
+                                    <small>Plug @gamepiece.Name - @(gamepiece.EnergyValue / 1000) MW</small>
+                        </Button>
+                    }
+                    else
+                    {
+                        <Button Clicked="@(() => RemovePiece(gamepiece.ResistorsCombo))"
+                                Color="Color.Secondary"
+                                Style="width:250px"
+                                Margin="Margin.Is2.FromStart.Is2.FromEnd.Is2.FromTop.Is2.FromBottom">
+                                    <Icon Name="IconName.Hotel" Margin="Margin.Is2.FromEnd" />
+                                    <small>Unplug @gamepiece.Name - @(gamepiece.EnergyValue / 1000) MW</small>
+                        </Button>
+                    }
+                }
+            </Column>
+        </Row>
+
+    </Column>
+</Row>
+
+@code {
+    [Parameter]
+    public EventCallback<string> OnBoardChanged { get; set; }
+    [Parameter] public string DeviceId { get; set; } = "test";
+    [Parameter] public string GameBoardId { get; set; } = "testBoard";
+
+    public string ApiCommand { get; set; } = "/api/NewDeviceData";
+
+    public int[] Board { get; set; } = new int[16];
+
+    public List<GamePiece> Sources 
+    {
+        get => GamePieces.Values.Where(p => p.GamePieceType == GamePieceTypes.Source).ToList();
+    }
+    public List<GamePiece> Consumers
+    {
+        get => GamePieces.Values.Where(p => p.GamePieceType == GamePieceTypes.Consumer).ToList();
+    }
+
+    Dictionary<ResistorsCombos, GamePiece> GamePieces = new Dictionary<ResistorsCombos, GamePiece>();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+            await getGamePieces();
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private async Task getGamePieces()
+    {
+        var result = await Http.GetFromJsonAsync<Dictionary<ResistorsCombos, GamePiece>>("api/GetGamePieces");
+        if (result != null)
+            GamePieces = result;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task PlacePiece(ResistorsCombos gamePieceId)
+    {
+        var index = -1;
+        for(int i = 0; i < Board.Length; i++)
+        {
+            if (Board[i] == 0)
+            {
+                index = i;
+                break;
+            }
+        }
+
+        if (index >= 0)
+        {
+            if (GamePieces.TryGetValue(gamePieceId, out var gamePiece))
+            {
+                Board[index] = (int)gamePiece.GetGamePieceResistorVoltage();
+                gamePiece.IsPlugged = true;
+            }
+            await ProcessRequest();
+        }
+    }
+
+    private async Task RemovePiece(ResistorsCombos gamePieceId)
+    {
+        var index = -1;
+        if (GamePieces.TryGetValue(gamePieceId, out var gamePiece))
+        {
+            for (int i = 0; i < Board.Length; i++)
+            {
+                if (Board[i] == (int)gamePiece.GetGamePieceResistorVoltage())
+                {
+                    index = i;
+                    break;
+                }
+            }
+
+            if (index >= 0)
+            {
+                Board[index] = 0;
+                gamePiece.IsPlugged = false;
+                await ProcessRequest();
+            }
+        }
+    }
+
+    private async Task ProcessRequest()
+    {
+
+        await SendData();
+        await InvokeAsync(StateHasChanged);
+        await OnBoardChanged.InvokeAsync("BoardChanged");
+    }
+
+    private async Task<string> SendData()
+    {
+        var obj = new
+        {
+            id = DeviceId,
+            data = Board
+        };
+
+        var cnt = JsonConvert.SerializeObject(obj);
+
+        using (var content = new StringContent(cnt, System.Text.Encoding.UTF8, "application/json"))
+        {
+            HttpResponseMessage result = await Http.PostAsync("/" + ApiCommand.TrimStart('/'), content);
+            if (result.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var returnStr = await result.Content.ReadAsStringAsync();
+
+                if (returnStr != null)
+                    return returnStr;
+                else
+                    return "ERROR:Cannot read return message.";
+            }
+        }
+
+        return string.Empty;
+    }
+}

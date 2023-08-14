@@ -1,0 +1,27 @@
+﻿
+<Row>
+    <Column>Resistors in combo</Column>
+</Row>
+<Row>
+    <Column>
+        <ListGroup>
+        @foreach (var resistor in ResistorsDecomposed)
+        {
+            <ListGroupItem>@(Enum.GetName(typeof(Resistors), resistor))</ListGroupItem>
+        }
+        </ListGroup>
+    </Column>
+</Row>
+
+@code {
+    [Parameter]
+    public GamePiece LoadedGamePiece { get; set; } = new GamePiece();
+    public List<Resistors> ResistorsDecomposed
+    {
+        get
+        {
+            var res = GamePiece.DecomposeComboIntoResistors(LoadedGamePiece.ResistorsCombo);
+            return res;
+        }
+    }
+}

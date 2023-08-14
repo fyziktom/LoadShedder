@@ -1,0 +1,90 @@
+﻿@inject HttpClient Http
+
+<Row>
+    <Column>
+        <Field>
+            <FieldBody>
+                <Addons>
+                    <Addon AddonType="AddonType.Start">
+                        <Dropdown Display="Display.Block">
+                            <DropdownToggle Color="Color.Light">
+                                <Icon Name="IconName.Star" IconStyle="IconStyle.Solid" IconSize="IconSize.Small" Margin="Margin.Is1.FromEnd" />
+                            </DropdownToggle>
+                            <DropdownMenu MaxMenuHeight="350px">
+                                @foreach (var piece in GamePieces.Values)
+                                {
+                                    <DropdownItem Value="@piece.Name" Clicked="@((e) => onSelectHandler(piece.ResistorsCombo))">
+                                        <Field>
+                                            <FieldLabel>@piece.Name - @(piece.EnergyValue / 1000) MW</FieldLabel>
+                                            <FieldHelp>@piece.Id</FieldHelp>
+                                        </Field>
+                                    </DropdownItem>
+                                }
+                            </DropdownMenu>
+                        </Dropdown>
+                    </Addon>
+                    <Addon AddonType="AddonType.Body">
+                        <Tooltip Text="Click to copy to clipboard" Placement="TooltipPlacement.Bottom">
+                            <Heading Margin="Margin.Is3.FromStart.Is2.FromTop" 
+                                     Size="HeadingSize.Is6" 
+                                     CopyToClipboard="true" 
+                                     TextOverflow="TextOverflow.Wrap">
+                                    @if (Id != ResistorsCombos.None)
+                                    {
+                                        @Name
+                                    }
+                                    else
+                                    {
+                                        @("Please select")
+                                    }
+                                    </Heading>
+                        </Tooltip>
+                    </Addon>
+                </Addons>
+            </FieldBody>
+        </Field>
+    </Column>
+</Row>
+
+@code {
+    [Parameter] public string ApiCommand { get; set; } = "api/GetGamePieces";
+    [Parameter] public ResistorsCombos Id { get; set; } = ResistorsCombos.None;
+    [Parameter] public EventCallback<ResistorsCombos> IdChanged { get; set; }
+
+    public Dictionary<ResistorsCombos, GamePiece> GamePieces { get; set; } = new Dictionary<ResistorsCombos, GamePiece>();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+            await getData();
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    public string Name
+    {
+        get
+        {
+            if (Id != ResistorsCombos.None)
+                if (GamePieces.TryGetValue(Id, out var obj))
+                    return obj.Name;
+            return "Please select";
+        }
+    }
+
+    private async Task getData()
+    {
+        var result = await Http.GetFromJsonAsync<Dictionary<ResistorsCombos, GamePiece>>(ApiCommand);
+        if (result != null)
+            GamePieces = result;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task onSelectHandler(ResistorsCombos id)
+    {
+        Id = id;
+        await IdChanged.InvokeAsync(Id);
+        await InvokeAsync(StateHasChanged);
+    }
+}
