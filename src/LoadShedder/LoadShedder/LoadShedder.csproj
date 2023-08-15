@@ -9,7 +9,9 @@
   <ItemGroup>
     <PackageReference Include="Blazorise" Version="1.2.5" />
     <PackageReference Include="Blazorise.Bootstrap" Version="1.2.5" />
+    <PackageReference Include="Blazorise.Components" Version="1.2.5" />
     <PackageReference Include="Blazorise.Icons.FontAwesome" Version="1.2.5" />
+    <PackageReference Include="Blazorise.Snackbar" Version="1.2.5" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="6.5.0" />
   </ItemGroup>

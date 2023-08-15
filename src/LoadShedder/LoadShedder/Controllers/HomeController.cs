@@ -733,7 +733,7 @@ namespace LoadShedder.Controllers
         {
             try
             {
-                if (!string.IsNullOrEmpty(id))
+                if (string.IsNullOrEmpty(id))
                     return string.Empty;
 
                 if (MainDataContext.Games.TryRemove(id, out var game))
@@ -754,7 +754,7 @@ namespace LoadShedder.Controllers
         {
             try
             {
-                if (!string.IsNullOrEmpty(id))
+                if (string.IsNullOrEmpty(id))
                     return string.Empty;
 
                 if (MainDataContext.GameBoards.TryRemove(id, out var board))
@@ -780,7 +780,7 @@ namespace LoadShedder.Controllers
         {
             try
             {
-                if (!string.IsNullOrEmpty(id))
+                if (string.IsNullOrEmpty(id))
                     return string.Empty;
 
                 if (MainDataContext.Players.TryRemove(id, out var player))
@@ -799,6 +799,8 @@ namespace LoadShedder.Controllers
             }
         }
 
+        #region GamePlay
+
         [AllowCrossSiteJsonAttribute]
         [HttpGet]
         [Route("StartGame/{id}")]
@@ -806,7 +808,7 @@ namespace LoadShedder.Controllers
         {
             try
             {
-                if (!string.IsNullOrEmpty(id))
+                if (string.IsNullOrEmpty(id))
                     return "ERROR_NO_ID";
 
                 if (MainDataContext.Games.TryGetValue(id, out var game))
@@ -830,7 +832,7 @@ namespace LoadShedder.Controllers
         {
             try
             {
-                if (!string.IsNullOrEmpty(id))
+                if (string.IsNullOrEmpty(id))
                     return "ERROR_NO_ID";
 
                 if (MainDataContext.Games.TryGetValue(id, out var game))
@@ -847,7 +849,6 @@ namespace LoadShedder.Controllers
             }
         }
 
-        #region GamePlay
 
         [AllowCrossSiteJsonAttribute]
         [HttpGet]

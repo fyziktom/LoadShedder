@@ -38,6 +38,7 @@ builder.Services
     .AddFontAwesomeIcons();
 
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<AppData>();
 builder.Services.AddHostedService<LoadShedderCoreService>();
 
 var app = builder.Build();

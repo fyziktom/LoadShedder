@@ -10,8 +10,8 @@
     public enum GameTimePenalty
     {
         NONE = 0,
-        TEN_SECONDS = 10000,
-        FIFTHTEEN_SECONDS = 15000
+        TEN_SECONDS = 10,
+        FIFTHTEEN_SECONDS = 15
     }
 
     public class PlayerGameData : GameTime

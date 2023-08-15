@@ -175,6 +175,7 @@ namespace LoadShedder.Models
 
         public string StartGame()
         {
+            
             if (GameBoardIds == null || GameBoardIds.Count == 0)
                 return "No boards in the game. Please add boards first";
 
@@ -188,6 +189,7 @@ namespace LoadShedder.Models
                 return "You have more devices in the game, but the game type is singleplayer. " +
                        "Please keep just one board to start the game or change game type to singleplayer. " +
                        "Otherwise game will take just first board as main player.";
+            
 
             IsEndGame = false;
             IsPlaying = true;
@@ -201,6 +203,9 @@ namespace LoadShedder.Models
             {
                 if (MainDataContext.GameBoards.TryGetValue(boardId, out var b))
                 {
+                    b.NewDataLoaded -= GameBoard_NewDataLoaded;
+                    b.NewDataLoaded += GameBoard_NewDataLoaded;
+                    
                     if (!string.IsNullOrEmpty(b.PlayerId))
                     {
                         var pgm = new PlayerGameData()
@@ -212,8 +217,11 @@ namespace LoadShedder.Models
                         };
                         pgm.ChangePlayStage(GamePlayStage.Start);
 
-                        PlayersGameData.Add(b.PlayerId, pgm);
-
+                        if (!PlayersGameData.ContainsKey(b.PlayerId))
+                            PlayersGameData.Add(b.PlayerId, pgm);
+                        else
+                            PlayersGameData[b.PlayerId].ChangePlayStage(GamePlayStage.Start);
+                        
                         GameRespondingAction?.Invoke(this, new GameResponseActionEventArgs()
                         {
                             Action = GameResponseActions.StartingWithoutSources,
@@ -320,7 +328,7 @@ namespace LoadShedder.Models
                 if (bilanceConsumers > 0)
                 {
                     // select the type of the penalty
-                    pgm.ActualGameTimePenalty = GameTimePenalty.TEN_SECONDS;
+                    pgm.ActualGameTimePenalty = GameTimePenalty.FIFTHTEEN_SECONDS;
                     // change the play stage of the player to Penalty
                     pgm.ChangePlayStage(GamePlayStage.TimePenalty);
 
@@ -339,9 +347,8 @@ namespace LoadShedder.Models
 
                     return;
                 }
-
                 // when they reach the 75MW it will move them to the next level
-                if (bilanceSources > 75000) 
+                else if (bilanceSources > 75000) 
                 {
                     pgm.ChangePlayStage(GamePlayStage.LoadOfConsumers);
 
@@ -355,6 +362,21 @@ namespace LoadShedder.Models
                         ActualBilanceSources = bilanceSources,
                         ActualBilanceConsumers = bilanceConsumers,
                         ActualBilance = bilance
+                    });
+                }
+                else
+                {
+                    GameRespondingAction?.Invoke(this, new GameResponseActionEventArgs()
+                    {
+                        Action = GameResponseActions.StartingWithoutSources,
+                        BoardId = boardId,
+                        PlayerId = playerId,
+                        GameId = Id,
+                        Stage = pgm.ActualGamePlayStage,
+                        ActualBilanceSources = bilanceSources,
+                        ActualBilanceConsumers = bilanceConsumers,
+                        ActualBilance = bilance,
+                        RestOfThePenalty = 0
                     });
                 }
             }
@@ -371,9 +393,9 @@ namespace LoadShedder.Models
 
                 pgm.LoadNewBilances(bilanceSources, bilanceConsumers, bilance);
 
-                if (bilance < 10000 && bilance >= 0) // next level is when they will plug enough of consumers to have just 10MW over production
+                if (bilance < 5000 && bilance >= 0) // next level is when they will plug enough of consumers to have just 10MW over production
                 {
-                    pgm.ChangePlayStage(GamePlayStage.LoadOfConsumers);
+                    pgm.ChangePlayStage(GamePlayStage.BalancingOfNetwork);
 
                     GameRespondingAction?.Invoke(this, new GameResponseActionEventArgs()
                     {
@@ -505,7 +527,8 @@ namespace LoadShedder.Models
 
                 pgm.LoadNewBilances(bilanceSources, bilanceConsumers, bilance);
 
-                if (pgm.GamePenaltyStartTime < DateTime.UtcNow)
+                if (pgm.GamePenaltyStartTime < DateTime.UtcNow && 
+                    (DateTime.UtcNow - pgm.GamePenaltyStartTime).TotalSeconds < (double)pgm.ActualGameTimePenalty)
                 {
                     // still waiting for the running out of penalty
 
@@ -517,7 +540,7 @@ namespace LoadShedder.Models
                         PlayerId = playerId,
                         GameId = Id,
                         Stage = pgm.ActualGamePlayStage,
-                        RestOfThePenalty = (DateTime.UtcNow - pgm.GamePenaltyStartTime).TotalSeconds,
+                        RestOfThePenalty = (double)pgm.ActualGameTimePenalty - (DateTime.UtcNow - pgm.GamePenaltyStartTime).TotalSeconds,
                         ActualBilanceSources = bilanceSources,
                         ActualBilanceConsumers = bilanceConsumers,
                         ActualBilance = bilance

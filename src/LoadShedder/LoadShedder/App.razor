@@ -1,4 +1,8 @@
-﻿<Router AppAssembly="@typeof(App).Assembly">
+﻿@using Newtonsoft.Json;
+@inject HttpClient Http
+@inject AppData AppData
+
+<Router AppAssembly="@typeof(App).Assembly">
     <Found Context="routeData">
         <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
         <FocusOnNavigate RouteData="@routeData" Selector="h1" />
@@ -10,10 +14,76 @@
         </LayoutView>
     </NotFound>
 </Router>
+<NotificationProvider />
 
 @code {
+
+    [Inject] INotificationService NotificationService { get; set; }
+
+    private Timer _timer;
+
     protected override Task OnAfterRenderAsync(bool firstRender)
     {
+        if (firstRender)
+            _timer = new Timer(async (e) => { await PollEvents(); }, null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
+
         return base.OnAfterRenderAsync(firstRender);
     }
+
+    private async Task PollEvents()
+    {
+        var response = await Http.GetStringAsync("api/GetGameResponseAction");
+        if (response == null)
+            return;
+        GameResponseActionEventArgs data = null;
+        try
+        {
+            data = JsonConvert.DeserializeObject<GameResponseActionEventArgs>(response);
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine("Cannot parse the event args data from the Game Response Actions Event." + ex.Message);
+        }
+
+        if (data == null)
+            return;
+
+        if (data.Action != GameResponseActions.BlackOut && data.Action != GameResponseActions.BlackoutRecovery)
+        {
+            if (AppData.GameResponseDataHistory.TryGetValue(data.BoardId, out var h))
+            {
+                if (h.Action == data.Action &&
+                    h.RestOfThePenalty == data.RestOfThePenalty &&
+                    h.ActualBilanceConsumers == data.ActualBilanceConsumers &&
+                    h.ActualBilanceSources == data.ActualBilanceSources &&
+                    h.ActualBilance == data.ActualBilance)
+                    return;
+            }
+            await NotificationService.Info($"{data.PlayerId} - {Enum.GetName(typeof(GameResponseActions), data.Action)}", "Game Info");// +
+                                           //$"Bilance: {data.ActualBilance}, " + 
+                                           //$"Bilance Sources: {data.ActualBilanceSources}, " +
+                                           //$"Bilance Consumers: {data.ActualBilanceConsumers}", "Game Info"); 
+        }
+        else
+        {
+            if (AppData.GameResponseDataHistory.TryGetValue(data.BoardId, out var h))
+            {
+                if (h.Action == data.Action && 
+                    h.RestOfThePenalty == data.RestOfThePenalty &&
+                    h.ActualBilanceConsumers == data.ActualBilanceConsumers &&
+                    h.ActualBilanceSources == data.ActualBilanceSources &&
+                    h.ActualBilance == data.ActualBilance)
+                    return;
+            }
+            await NotificationService.Error($"{data.PlayerId} - {Enum.GetName(typeof(GameResponseActions), data.Action)}", "Blackout"); //+
+                                            //$"Bilance: {data.ActualBilance}, " + 
+                                            //$"Bilance Sources: {data.ActualBilanceSources}, " + 
+                                            //$"Bilance Consumers: {data.ActualBilanceConsumers}", "Blackout");
+        }
+
+        AppData.GameResponseDataHistory.TryRemove(data.BoardId, out var history);
+        AppData.GameResponseDataHistory.TryAdd(data.BoardId, data);
+
+    }
+    
 }

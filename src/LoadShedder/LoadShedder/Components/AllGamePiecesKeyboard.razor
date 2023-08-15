@@ -79,7 +79,7 @@
 
     public string ApiCommand { get; set; } = "/api/NewDeviceData";
 
-    public int[] Board { get; set; } = new int[16];
+    public int[] Board { get; set; } = new int[32];
 
     public List<GamePiece> Sources 
     {
@@ -92,12 +92,29 @@
 
     Dictionary<ResistorsCombos, GamePiece> GamePieces = new Dictionary<ResistorsCombos, GamePiece>();
 
+    private Timer _timer;
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
+        {
             await getGamePieces();
+            _timer = new Timer(async (e) => { await PeriodicPost(); }, null, TimeSpan.Zero, TimeSpan.FromSeconds(2));
+        }
 
         await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private async Task PeriodicPost()
+    {
+        try
+        {
+            await SendData();
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine("Cannot send periodic data: \n" + ex.Message);
+        }
     }
 
     private async Task getGamePieces()

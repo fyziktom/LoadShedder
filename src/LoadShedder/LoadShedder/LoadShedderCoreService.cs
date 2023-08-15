@@ -85,7 +85,14 @@ namespace LoadShedder
 
             try
             {
-
+                if (!MainDataContext.Players.ContainsKey("fyziktom"))
+                {
+                    MainDataContext.Players.TryAdd("fyziktom", new Models.Player()
+                    {
+                        Id = "fyziktom",
+                        Name = "Tomas Svoboda"
+                    });
+                }
                 if (!MainDataContext.Devices.ContainsKey("test"))
                 {
                     MainDataContext.Devices.TryAdd("test", new Models.Device()
@@ -101,10 +108,25 @@ namespace LoadShedder
                     {
                         DeviceId = "test",
                         Id = "testBoard",
-                        Name = "Test Board"
+                        Name = "Test Board",
+                        PlayerId = "fyziktom"
                     });
                 }
-                
+
+                if (!MainDataContext.Games.ContainsKey("testGame"))
+                {
+                    MainDataContext.Games.TryAdd("testGame", new Models.Game()
+                    {
+                        Id = "testBoard",
+                        GameBoardIds = new List<string>() { "testBoard" }
+                    });
+                }
+                else
+                {
+                    if (MainDataContext.Games.TryGetValue("testGame", out var game))
+                        game.PlayersGameData.Clear();
+                }
+
             }
             catch (Exception ex)
             {
@@ -179,7 +201,7 @@ namespace LoadShedder
 
         private void Game_GameRespondingAction(object? sender, GameResponseActionEventArgs e)
         {
-            
+            MainDataContext.GameResponseActions.Enqueue(e);
         }
 
         public override async Task StopAsync(CancellationToken cancellationToken)
