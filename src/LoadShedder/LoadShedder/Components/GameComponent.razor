@@ -52,7 +52,7 @@
     <Column Flex="Flex.JustifyContent.Center">
         @if (RestOfThePenalty > 0)
         {
-            <Heading Size="HeadingSize.Is3" TextColor="TextColor.Danger">Rest of penalty: @RestOfThePenalty seconds</Heading>
+            <Heading Size="HeadingSize.Is3" TextColor="TextColor.Danger">Rest of penalty: @(Math.Round(RestOfThePenalty,0)) seconds</Heading>
         }
     </Column>
 </Row>
@@ -98,12 +98,13 @@
                 await GameOver.InvokeAsync(GameId);
             }
 
-            await InvokeAsync(StateHasChanged);
         }
         catch(Exception ex)
         {
             Console.WriteLine("Cannot refresh game component state: \n" + ex.Message);
         }
+
+        await InvokeAsync(StateHasChanged);
     }
 
     public GameResponseActions GameResponseAction

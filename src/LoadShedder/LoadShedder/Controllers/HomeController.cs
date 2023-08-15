@@ -111,7 +111,7 @@ namespace LoadShedder.Controllers
         {
             try
             {
-                if (!string.IsNullOrEmpty(id))
+                if (string.IsNullOrEmpty(id))
                     return new Game();
 
                 if (MainDataContext.Games.TryGetValue(id, out var game))
@@ -132,7 +132,7 @@ namespace LoadShedder.Controllers
         {
             try
             {
-                if (!string.IsNullOrEmpty(id))
+                if (string.IsNullOrEmpty(id))
                     return new Player();
 
                 if (MainDataContext.Players.TryGetValue(id, out var player))
@@ -153,7 +153,7 @@ namespace LoadShedder.Controllers
         {
             try
             {
-                if (!string.IsNullOrEmpty(id))
+                if (string.IsNullOrEmpty(id))
                     return new GameBoard();
 
                 if (MainDataContext.GameBoards.TryGetValue(id, out var board))
@@ -174,7 +174,7 @@ namespace LoadShedder.Controllers
         {
             try
             {
-                if (!string.IsNullOrEmpty(id))
+                if (string.IsNullOrEmpty(id))
                     return new Device();
 
                 if (MainDataContext.Devices.TryGetValue(id, out var device))
@@ -195,7 +195,7 @@ namespace LoadShedder.Controllers
         {
             try
             {
-                if (!string.IsNullOrEmpty(id))
+                if (string.IsNullOrEmpty(id))
                     return string.Empty;
 
                 if (MainDataContext.Devices.TryGetValue(id, out var device))
@@ -216,7 +216,7 @@ namespace LoadShedder.Controllers
         {
             try
             {
-                if (!string.IsNullOrEmpty(id))
+                if (string.IsNullOrEmpty(id))
                     return string.Empty;
 
                 if (MainDataContext.Devices.TryGetValue(id, out var device))
@@ -237,7 +237,7 @@ namespace LoadShedder.Controllers
         {
             try
             {
-                if (!string.IsNullOrEmpty(id))
+                if (string.IsNullOrEmpty(id))
                     return null;
 
                 if (MainDataContext.GameBoards.TryGetValue(id, out var board))

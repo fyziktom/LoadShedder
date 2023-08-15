@@ -32,10 +32,19 @@
 
     private async Task PollEvents()
     {
-        var response = await Http.GetStringAsync("api/GetGameResponseAction");
-        if (response == null)
-            return;
-        GameResponseActionEventArgs data = null;
+        var response = string.Empty;
+
+        try
+        {
+            response = await Http.GetStringAsync("api/GetGameResponseAction");
+            if (response == null)
+                return;
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine("Cannot request the game response actions: \n" + ex.Message);
+        }
+        GameResponseActionEventArgs? data = null;
         try
         {
             data = JsonConvert.DeserializeObject<GameResponseActionEventArgs>(response);
@@ -48,37 +57,50 @@
         if (data == null)
             return;
 
+
+        var playername = string.Empty;
+        try
+        {
+            var player = await Http.GetFromJsonAsync<Player>($"api/GetPlayer/{data.PlayerId}");
+            if (player != null)
+                playername = player.Name;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Cannot get the player info: \n" + ex.Message);
+        }
+
         if (data.Action != GameResponseActions.BlackOut && data.Action != GameResponseActions.BlackoutRecovery)
         {
             if (AppData.GameResponseDataHistory.TryGetValue(data.BoardId, out var h))
             {
-                if (h.Action == data.Action &&
-                    h.RestOfThePenalty == data.RestOfThePenalty &&
-                    h.ActualBilanceConsumers == data.ActualBilanceConsumers &&
-                    h.ActualBilanceSources == data.ActualBilanceSources &&
-                    h.ActualBilance == data.ActualBilance)
+                if (h.Action == data.Action && h.Stage == data.Stage)
                     return;
             }
-            await NotificationService.Info($"{data.PlayerId} - {Enum.GetName(typeof(GameResponseActions), data.Action)}", "Game Info");// +
-                                           //$"Bilance: {data.ActualBilance}, " + 
-                                           //$"Bilance Sources: {data.ActualBilanceSources}, " +
-                                           //$"Bilance Consumers: {data.ActualBilanceConsumers}", "Game Info"); 
+
+            if (!string.IsNullOrEmpty(playername))
+                await NotificationService.Info($"{playername} - {Enum.GetName(typeof(GameResponseActions), data.Action)}", "Game Info");
+            else    
+                await NotificationService.Info($"{data.PlayerId} - {Enum.GetName(typeof(GameResponseActions), data.Action)}", "Game Info");
         }
-        else
+        else if (data.Action != GameResponseActions.BlackOut)
         {
             if (AppData.GameResponseDataHistory.TryGetValue(data.BoardId, out var h))
             {
-                if (h.Action == data.Action && 
+                if (h.Action == data.Action &&
+                    h.Stage == data.Stage &&
                     h.RestOfThePenalty == data.RestOfThePenalty &&
                     h.ActualBilanceConsumers == data.ActualBilanceConsumers &&
                     h.ActualBilanceSources == data.ActualBilanceSources &&
                     h.ActualBilance == data.ActualBilance)
                     return;
             }
-            await NotificationService.Error($"{data.PlayerId} - {Enum.GetName(typeof(GameResponseActions), data.Action)}", "Blackout"); //+
-                                            //$"Bilance: {data.ActualBilance}, " + 
-                                            //$"Bilance Sources: {data.ActualBilanceSources}, " + 
-                                            //$"Bilance Consumers: {data.ActualBilanceConsumers}", "Blackout");
+
+            
+            if (!string.IsNullOrEmpty(playername))
+                await NotificationService.Error($"{playername} - {Enum.GetName(typeof(GameResponseActions), data.Action)}", "Blackout");
+            else    
+                await NotificationService.Error($"{data.PlayerId} - {Enum.GetName(typeof(GameResponseActions), data.Action)}", "Blackout");
         }
 
         AppData.GameResponseDataHistory.TryRemove(data.BoardId, out var history);
