@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.33711.374
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoadShedder", "LoadShedder\LoadShedder.csproj", "{08B76C56-524A-43A2-A525-160BFCFD5977}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LoadShedder", "LoadShedder\LoadShedder.csproj", "{08B76C56-524A-43A2-A525-160BFCFD5977}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VEDriversLite.EntitiesBlocks", "..\..\..\repositories\VEF_1\VirtualEconomyFramework\VEDriversLite.EntitiesBlocks\VEDriversLite.EntitiesBlocks.csproj", "{D9D79AAC-88C4-4196-8349-33CAA3E126DA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LoadShedderSimulator", "LoadShedderSimulator\LoadShedderSimulator.csproj", "{22FB95D3-65E9-4AED-8FEE-D945A8FB7A68}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoadShedderSimulator", "LoadShedderSimulator\LoadShedderSimulator.csproj", "{22FB95D3-65E9-4AED-8FEE-D945A8FB7A68}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VEDriversLite.EntitiesBlocks", "..\..\..\VEF_1\VirtualEconomyFramework\VEDriversLite.EntitiesBlocks\VEDriversLite.EntitiesBlocks.csproj", "{6D531BDF-BA03-41A4-A4CC-E778C18A83AD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,14 +19,14 @@ Global
 		{08B76C56-524A-43A2-A525-160BFCFD5977}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{08B76C56-524A-43A2-A525-160BFCFD5977}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{08B76C56-524A-43A2-A525-160BFCFD5977}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D9D79AAC-88C4-4196-8349-33CAA3E126DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D9D79AAC-88C4-4196-8349-33CAA3E126DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D9D79AAC-88C4-4196-8349-33CAA3E126DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D9D79AAC-88C4-4196-8349-33CAA3E126DA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{22FB95D3-65E9-4AED-8FEE-D945A8FB7A68}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{22FB95D3-65E9-4AED-8FEE-D945A8FB7A68}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{22FB95D3-65E9-4AED-8FEE-D945A8FB7A68}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{22FB95D3-65E9-4AED-8FEE-D945A8FB7A68}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6D531BDF-BA03-41A4-A4CC-E778C18A83AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D531BDF-BA03-41A4-A4CC-E778C18A83AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D531BDF-BA03-41A4-A4CC-E778C18A83AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D531BDF-BA03-41A4-A4CC-E778C18A83AD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

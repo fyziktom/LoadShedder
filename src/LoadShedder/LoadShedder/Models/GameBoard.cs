@@ -52,6 +52,8 @@ namespace LoadShedder.Models
         [JsonIgnore]
         public IEntity Root { get; set; } = new BaseEntity();
 
+        public event EventHandler<string> NewDataLoaded;
+
         [JsonIgnore]
         private DateTime start = new DateTime(2023, 8, 13);
         [JsonIgnore]
@@ -140,7 +142,12 @@ namespace LoadShedder.Models
 
         public bool RefreshBoardStatusFromDeviceData()
         {
-            return AddGamePiecesToBoard();
+            if(AddGamePiecesToBoard())
+            {
+                NewDataLoaded?.Invoke(this, Id); 
+                return true;
+            }
+            return false;
         }
 
         /// <summary>

@@ -9,36 +9,128 @@
 
 <Row Margin="Margin.Is1.FromTop">
     <Column Flex="Flex.JustifyContent.Center">
-        @if (Bilance >= 1000)
+        <Row>
+            <Column>
+                <Span>Bilance Sources</Span>
+            </Column>
+        </Row>
+        <Row>
+            <Column>
+                @if (BilanceSources >= 1000)
+                {
+                    <Span TextColor="TextColor.Dark" TextWeight="TextWeight.Bold">
+                        @($"{(Math.Round((BilanceSources / 1000), 4))} MW")
+                    </Span>
+                }
+                else if (BilanceSources < 1000 && BilanceSources > 0)
+                {
+                    <Span TextColor="TextColor.Dark" TextWeight="TextWeight.Bold">
+                        @($"{Math.Round(BilanceSources, 4)} kW")
+                    </Span>
+                }
+                else if (BilanceSources == 0)
+                {
+                    <Span TextColor="TextColor.Success" TextWeight="TextWeight.Bold">
+                        @($"{Math.Round(BilanceSources, 4)} kW")
+                    </Span>
+                }
+                else if (BilanceSources < 0 && BilanceSources > -1000)
+                {
+                    <Span TextColor="TextColor.Danger" TextWeight="TextWeight.Bold">
+                        @($"{Math.Round(BilanceSources, 4)} kW")
+                    </Span>
+                }
+                else if (BilanceSources <= -1000)
+                {
+                    <Span TextColor="TextColor.Danger" TextWeight="TextWeight.Bold">
+                        @($"{(Math.Round((BilanceSources / 1000), 4))} MW")
+                    </Span>
+                }
+            </Column>
+        </Row>
+    </Column>
+    <Column Flex="Flex.JustifyContent.Center">
+        <Row>
+            <Column>
+                <Span>Bilance Consumers</Span>
+            </Column>
+        </Row>
+        <Row>
+            <Column>
+        @if (BilanceConsumers >= 1000)
         {
             <Span TextColor="TextColor.Dark" TextWeight="TextWeight.Bold">
-                @($"{(Math.Round((Bilance / 1000), 4))} MW")
+                @($"{(Math.Round((BilanceConsumers / 1000), 4))} MW")
             </Span>
         }
-        else if (Bilance < 1000 && Bilance > 0) 
+        else if (BilanceConsumers < 1000 && BilanceConsumers > 0)
         {
             <Span TextColor="TextColor.Dark" TextWeight="TextWeight.Bold">
-                    @($"{Math.Round(Bilance, 4)} kW")
+                @($"{Math.Round(BilanceConsumers, 4)} kW")
             </Span>
         }
-        else if (Bilance == 0)
+        else if (BilanceConsumers == 0)
         {
             <Span TextColor="TextColor.Success" TextWeight="TextWeight.Bold">
-                @($"{Math.Round(Bilance, 4)} kW")
+                @($"{Math.Round(BilanceConsumers, 4)} kW")
             </Span>
         }
-        else if (Bilance < 0 && Bilance > -1000) 
+        else if (BilanceConsumers < 0 && BilanceConsumers > -1000)
         {
             <Span TextColor="TextColor.Danger" TextWeight="TextWeight.Bold">
-                    @($"{Math.Round(Bilance, 4)} kW")
+                @($"{Math.Round(BilanceConsumers, 4)} kW")
             </Span>
         }
-        else if (Bilance <= -1000)
+        else if (BilanceConsumers <= -1000)
         {
             <Span TextColor="TextColor.Danger" TextWeight="TextWeight.Bold">
-                    @($"{(Math.Round((Bilance / 1000), 4))} MW")
+                @($"{(Math.Round((BilanceConsumers / 1000), 4))} MW")
             </Span>
         }
+        </Column>
+        </Row>
+    </Column>
+    <Column Flex="Flex.JustifyContent.Center">
+        <Row>
+            <Column>
+                <Span>Total Bilance</Span>
+            </Column>
+        </Row>
+        <Row>
+            <Column>
+                @if (Bilance >= 1000)
+                {
+                    <Span TextColor="TextColor.Dark" TextWeight="TextWeight.Bold">
+                        @($"{(Math.Round((Bilance / 1000), 4))} MW")
+                    </Span>
+                }
+                else if (Bilance < 1000 && Bilance > 0)
+                {
+                    <Span TextColor="TextColor.Dark" TextWeight="TextWeight.Bold">
+                        @($"{Math.Round(Bilance, 4)} kW")
+                    </Span>
+                }
+                else if (Bilance == 0)
+                {
+                    <Span TextColor="TextColor.Success" TextWeight="TextWeight.Bold">
+                        @($"{Math.Round(Bilance, 4)} kW")
+                    </Span>
+                }
+                else if (Bilance < 0 && Bilance > -1000)
+                {
+                    <Span TextColor="TextColor.Danger" TextWeight="TextWeight.Bold">
+                        @($"{Math.Round(Bilance, 4)} kW")
+                    </Span>
+                }
+                else if (Bilance <= -1000)
+                {
+                    <Span TextColor="TextColor.Danger" TextWeight="TextWeight.Bold">
+                        @($"{(Math.Round((Bilance / 1000), 4))} MW")
+                    </Span>
+                }
+
+            </Column>
+        </Row>
     </Column>
 </Row>
 
@@ -57,6 +149,8 @@
     public async Task Refresh()
     {
         await GetBilance();
+        await GetBilanceForSources();
+        await GetBilanceForConsumers();
         await InvokeAsync(StateHasChanged);
     }
 

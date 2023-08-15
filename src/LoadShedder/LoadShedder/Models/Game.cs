@@ -1,4 +1,5 @@
 ﻿using LoadShedder.Common;
+using System.Security.Cryptography.X509Certificates;
 
 namespace LoadShedder.Models
 {
@@ -13,10 +14,58 @@ namespace LoadShedder.Models
         MULTIPLAYER_BALANCING_SCORE
     }
 
+    public enum GamePlayStage
+    {
+        None,
+        Start,
+        LoadOfSources,
+        LoadOfConsumers,
+        BalancingOfNetwork,
+        TimePenalty,
+        End
+    }
+
+    public enum GameResponseActions
+    {
+        None,
+        StartingWithoutSources,
+        BlackOut,
+        BlackoutRecovery,
+        Overproduction,
+        Overconsumption,
+        EndOfTheGame_Success,
+        EndOfTheGame_Loose,
+    }
+
+    public class GameResponseActionEventArgs
+    {
+        public GameResponseActions Action { get; set; } = GameResponseActions.None;
+        public GamePlayStage Stage { get; set; } = GamePlayStage.None;
+        public string PlayerId { get; set; } = string.Empty;
+        public string GameId { get; set; } = string.Empty;
+        public string BoardId { get; set; } = string.Empty;
+        /// <summary>
+        /// Rest of the time penalty in the seconds
+        /// </summary>
+        public double RestOfThePenalty { get; set; } = 0.0;
+        /// <summary>
+        /// Actual bilance of sources for the GameBoard
+        /// </summary>
+        public double ActualBilanceSources { get; set; } = 0.0;
+        /// <summary>
+        /// Actual bilance of consumers for the GameBoard
+        /// </summary>
+        public double ActualBilanceConsumers { get; set; } = 0.0;
+        /// <summary>
+        /// Actual total bilance for the GameBoard
+        /// </summary>
+        public double ActualBilance { get; set; } = 0.0;
+    }
+
     /// <summary>
     /// Instance of one game. It can be singleplayer or multiplayer
     /// </summary>
-    public class Game
+    public class Game : GameTime
     {
         /// <summary>
         /// Unique ID of the game
@@ -56,19 +105,11 @@ namespace LoadShedder.Models
         /// List of GameBoards in this game. Each Game Board has device Id inside
         /// </summary>
         public List<string> GameBoardIds { get; set; } = new List<string>();
-
         /// <summary>
-        /// Start time of the game
+        /// Data about the players progress in the game
+        /// These objects contains also history of bilancing for each player
         /// </summary>
-        public DateTime StartTime { get; set; } = DateTime.UtcNow;
-        /// <summary>
-        /// End time if the game has already ended. Otherwise there is the max value
-        /// </summary>
-        public DateTime EndTime { get; set; } = DateTime.MaxValue;
-        /// <summary>
-        /// Elapsed time of the game
-        /// </summary>
-        public TimeSpan ElapsedTime { get => DateTime.UtcNow - StartTime; }
+        public Dictionary<string, PlayerGameData> PlayersGameData { get; set; } = new Dictionary<string, PlayerGameData>();
         /// <summary>
         /// Indicates if the game is running
         /// </summary>
@@ -77,6 +118,11 @@ namespace LoadShedder.Models
         /// Indicates when the game is already at the end
         /// </summary>
         public bool IsEndGame { get; set; } = false;
+
+        /// <summary>
+        /// When the game needs to tell other classes that happened something important
+        /// </summary>
+        public event EventHandler<GameResponseActionEventArgs> GameRespondingAction;
 
         /// <summary>
         /// Add board to the game
@@ -92,7 +138,12 @@ namespace LoadShedder.Models
                 return false;
 
             GameBoardIds.Add(boardId);
-
+            if (MainDataContext.GameBoards.TryGetValue(boardId, out var b))
+            {
+                b.NewDataLoaded -= GameBoard_NewDataLoaded;
+                b.NewDataLoaded += GameBoard_NewDataLoaded;
+            }
+            
             return true;
         }
 
@@ -108,7 +159,18 @@ namespace LoadShedder.Models
             if (!GameBoardIds.Contains(boardId))
                 return false;
             GameBoardIds.Remove(boardId);
+            if (MainDataContext.GameBoards.TryGetValue(boardId, out var b))
+                b.NewDataLoaded -= GameBoard_NewDataLoaded;
+
             return true;
+        }
+
+        /// <summary>
+        /// Clear dictionary with the Players Game Data
+        /// </summary>
+        public void ClearGameData()
+        {
+            PlayersGameData.Clear();
         }
 
         public string StartGame()
@@ -134,8 +196,39 @@ namespace LoadShedder.Models
             EndTime = DateTime.MaxValue;
             StartTime = DateTime.UtcNow;
 
+            // add PlayerGameData for each board/player and change the GamePlayStage for them to Start
+            foreach(var boardId in GameBoardIds)
+            {
+                if (MainDataContext.GameBoards.TryGetValue(boardId, out var b))
+                {
+                    if (!string.IsNullOrEmpty(b.PlayerId))
+                    {
+                        var pgm = new PlayerGameData()
+                        {
+                            StartTime = StartTime,
+                            PlayerId = b.PlayerId,
+                            GameId = Id,
+
+                        };
+                        pgm.ChangePlayStage(GamePlayStage.Start);
+
+                        PlayersGameData.Add(b.PlayerId, pgm);
+
+                        GameRespondingAction?.Invoke(this, new GameResponseActionEventArgs()
+                        {
+                            Action = GameResponseActions.StartingWithoutSources,
+                            BoardId = boardId,
+                            PlayerId = b.PlayerId,
+                            GameId = Id,
+                            Stage = pgm.ActualGamePlayStage
+                        });
+                    }
+                }
+            }
+
             return "OK";
         }
+
 
         public string EndGame()
         {
@@ -149,6 +242,321 @@ namespace LoadShedder.Models
             }
 
             return "OK";
+        }
+
+        private void GameBoard_NewDataLoaded(object? sender, string e)
+        {
+            ProcessGameLogic(e);
+        }
+
+        private void ProcessGameLogic(string boardId)
+        {
+            if (!IsPlaying)
+                return;
+            if (IsEndGame)
+                return;
+            if (MainDataContext.GameBoards.TryGetValue(boardId, out var b))
+            {
+                if (!string.IsNullOrEmpty(b.PlayerId))
+                {
+                    if (PlayersGameData.TryGetValue(b.PlayerId, out var pgm))
+                    {
+                        switch (pgm.ActualGamePlayStage)
+                        {
+                            case GamePlayStage.None:
+                                return;
+                            case GamePlayStage.Start:
+                                Stage_StartGame(b.PlayerId, boardId, pgm);
+                                break;
+                            case GamePlayStage.LoadOfSources:
+                                Stage_LoadOfSources(b.PlayerId, boardId, pgm);
+                                break;
+                            case GamePlayStage.LoadOfConsumers:
+                                Stage_LoadOfConsumers(b.PlayerId, boardId, pgm);
+                                break;
+                            case GamePlayStage.BalancingOfNetwork:
+                                Stage_BalancingOfNetwork(b.PlayerId, boardId, pgm);
+                                break;
+                            case GamePlayStage.TimePenalty:
+                                Stage_TimePenalty(b.PlayerId, boardId, pgm);
+                                break;
+                            case GamePlayStage.End:
+                                Stage_EndOfGame(b.PlayerId, boardId, pgm);
+                                break;
+                        }
+                    }
+                }
+            }
+        }
+
+        private void Stage_StartGame(string playerId, string boardId, PlayerGameData pgm)
+        {
+            if (pgm.ActualGamePlayStage != GamePlayStage.LoadOfSources)
+            {
+                pgm.ChangePlayStage(GamePlayStage.LoadOfSources);
+
+                GameRespondingAction?.Invoke(this, new GameResponseActionEventArgs()
+                {
+                    Action = GameResponseActions.StartingWithoutSources,
+                    BoardId = boardId,
+                    PlayerId = playerId,
+                    GameId = Id,
+                    Stage = pgm.ActualGamePlayStage
+                });
+            }
+        }
+
+        private void Stage_LoadOfSources(string playerId, string boardId, PlayerGameData pgm)
+        {
+            if (MainDataContext.GameBoards.TryGetValue(boardId, out var b))
+            {
+                var bilanceSources = b.GetActualBilanceForSources();
+                var bilanceConsumers = b.GetActualBilanceForConsumers();
+                var bilance = b.GetActualBilance();
+
+                pgm.LoadNewBilances(bilanceSources, bilanceConsumers, bilance);
+
+                // if the player plug the consumer before the grid has 75MW it will cause the blackout
+                if (bilanceConsumers > 0)
+                {
+                    // select the type of the penalty
+                    pgm.ActualGameTimePenalty = GameTimePenalty.TEN_SECONDS;
+                    // change the play stage of the player to Penalty
+                    pgm.ChangePlayStage(GamePlayStage.TimePenalty);
+
+                    // inform UI about the caused blackout for the player
+                    GameRespondingAction?.Invoke(this, new GameResponseActionEventArgs()
+                    {
+                        Action = GameResponseActions.BlackOut,
+                        BoardId = boardId,
+                        PlayerId = playerId,
+                        GameId = Id,
+                        Stage = pgm.ActualGamePlayStage,
+                        ActualBilanceSources = bilanceSources,
+                        ActualBilanceConsumers = bilanceConsumers,
+                        ActualBilance = bilance
+                    });
+
+                    return;
+                }
+
+                // when they reach the 75MW it will move them to the next level
+                if (bilanceSources > 75000) 
+                {
+                    pgm.ChangePlayStage(GamePlayStage.LoadOfConsumers);
+
+                    GameRespondingAction?.Invoke(this, new GameResponseActionEventArgs()
+                    {
+                        Action = GameResponseActions.Overproduction,
+                        BoardId = boardId,
+                        PlayerId = playerId,
+                        GameId = Id,
+                        Stage = pgm.ActualGamePlayStage,
+                        ActualBilanceSources = bilanceSources,
+                        ActualBilanceConsumers = bilanceConsumers,
+                        ActualBilance = bilance
+                    });
+                }
+            }
+
+        }
+
+        private void Stage_LoadOfConsumers(string playerId, string boardId, PlayerGameData pgm)
+        {
+            if (MainDataContext.GameBoards.TryGetValue(boardId, out var b))
+            {
+                var bilanceSources = b.GetActualBilanceForSources();
+                var bilanceConsumers = b.GetActualBilanceForConsumers();
+                var bilance = b.GetActualBilance();
+
+                pgm.LoadNewBilances(bilanceSources, bilanceConsumers, bilance);
+
+                if (bilance < 10 && bilance >= 0) // next level is when they will plug enough of consumers to have just 10MW over production
+                {
+                    pgm.ChangePlayStage(GamePlayStage.LoadOfConsumers);
+
+                    GameRespondingAction?.Invoke(this, new GameResponseActionEventArgs()
+                    {
+                        Action = GameResponseActions.Overproduction,
+                        BoardId = boardId,
+                        PlayerId = playerId,
+                        GameId = Id,
+                        Stage = pgm.ActualGamePlayStage,
+                        ActualBilanceSources = bilanceSources,
+                        ActualBilanceConsumers = bilanceConsumers,
+                        ActualBilance = bilance
+                    });
+                }
+                else if (bilance < 0) // if the bilance will drop under zero you have a blackout
+                {
+                    pgm.ActualGameTimePenalty = GameTimePenalty.FIFTHTEEN_SECONDS;
+                    pgm.ChangePlayStage(GamePlayStage.TimePenalty);
+
+                    GameRespondingAction?.Invoke(this, new GameResponseActionEventArgs()
+                    {
+                        Action = GameResponseActions.BlackOut,
+                        BoardId = boardId,
+                        PlayerId = playerId,
+                        GameId = Id,
+                        Stage = pgm.ActualGamePlayStage,
+                        RestOfThePenalty = (double)pgm.ActualGameTimePenalty,
+                        ActualBilanceSources = bilanceSources,
+                        ActualBilanceConsumers = bilanceConsumers,
+                        ActualBilance = bilance
+                    });
+                }
+            }
+        }
+
+        private void Stage_BalancingOfNetwork(string playerId, string boardId, PlayerGameData pgm)
+        {
+            if (MainDataContext.GameBoards.TryGetValue(boardId, out var b))
+            {
+                var bilanceSources = b.GetActualBilanceForSources();
+                var bilanceConsumers = b.GetActualBilanceForConsumers();
+                var bilance = b.GetActualBilance();
+
+                var response = GameResponseActions.Overproduction;
+
+                if (bilance < 0)
+                    response = GameResponseActions.Overconsumption;
+
+                
+                pgm.LoadNewBilances(bilanceSources, bilanceConsumers, bilance);
+
+                if (bilance == 0) // next level is when they will plug enough of consumers to have just 10MW over production
+                {
+                    pgm.ChangePlayStage(GamePlayStage.End);
+
+                    GameRespondingAction?.Invoke(this, new GameResponseActionEventArgs()
+                    {
+                        Action = GameResponseActions.EndOfTheGame_Success,
+                        BoardId = boardId,
+                        PlayerId = playerId,
+                        GameId = Id,
+                        Stage = pgm.ActualGamePlayStage,
+                        ActualBilanceSources = bilanceSources,
+                        ActualBilanceConsumers = bilanceConsumers,
+                        ActualBilance = bilance
+                    });
+                }
+                else if (bilance < -5) // too large overconsumption
+                {
+                    pgm.ActualGameTimePenalty = GameTimePenalty.FIFTHTEEN_SECONDS;
+                    pgm.ChangePlayStage(GamePlayStage.TimePenalty);
+
+                    GameRespondingAction?.Invoke(this, new GameResponseActionEventArgs()
+                    {
+                        Action = GameResponseActions.BlackOut,
+                        BoardId = boardId,
+                        PlayerId = playerId,
+                        GameId = Id,
+                        Stage = pgm.ActualGamePlayStage,
+                        RestOfThePenalty = (double)pgm.ActualGameTimePenalty,
+                        ActualBilanceSources = bilanceSources,
+                        ActualBilanceConsumers = bilanceConsumers,
+                        ActualBilance = bilance
+                    });
+
+                }
+                else if (bilance > 15) // too large overproduction
+                {
+                    pgm.ActualGameTimePenalty = GameTimePenalty.FIFTHTEEN_SECONDS;
+                    pgm.ChangePlayStage(GamePlayStage.TimePenalty);
+
+                    GameRespondingAction?.Invoke(this, new GameResponseActionEventArgs()
+                    {
+                        Action = GameResponseActions.BlackOut,
+                        BoardId = boardId,
+                        PlayerId = playerId,
+                        GameId = Id,
+                        Stage = pgm.ActualGamePlayStage,
+                        RestOfThePenalty = (double)pgm.ActualGameTimePenalty,
+                        ActualBilanceSources = bilanceSources,
+                        ActualBilanceConsumers = bilanceConsumers,
+                        ActualBilance = bilance
+                    });
+                }
+                else
+                {
+                    // nothing extra out of the balance. Just inform the UI about the actual stage
+                    GameRespondingAction?.Invoke(this, new GameResponseActionEventArgs()
+                    {
+                        Action = response,
+                        BoardId = boardId,
+                        PlayerId = playerId,
+                        GameId = Id,
+                        Stage = pgm.ActualGamePlayStage,
+                        ActualBilanceSources = bilanceSources,
+                        ActualBilanceConsumers = bilanceConsumers,
+                        ActualBilance = bilance
+                    });
+                }
+            }
+        }
+
+        private void Stage_TimePenalty(string playerId, string boardId, PlayerGameData pgm)
+        {
+            if (MainDataContext.GameBoards.TryGetValue(boardId, out var b))
+            {
+                var bilanceSources = b.GetActualBilanceForSources();
+                var bilanceConsumers = b.GetActualBilanceForConsumers();
+                var bilance = b.GetActualBilance();
+
+                pgm.LoadNewBilances(bilanceSources, bilanceConsumers, bilance);
+
+                if (pgm.GamePenaltyStartTime < DateTime.UtcNow)
+                {
+                    // still waiting for the running out of penalty
+
+                    // inform UI about the rest of the penalty time
+                    GameRespondingAction?.Invoke(this, new GameResponseActionEventArgs()
+                    {
+                        Action = GameResponseActions.BlackoutRecovery,
+                        BoardId = boardId,
+                        PlayerId = playerId,
+                        GameId = Id,
+                        Stage = pgm.ActualGamePlayStage,
+                        RestOfThePenalty = (DateTime.UtcNow - pgm.GamePenaltyStartTime).TotalSeconds,
+                        ActualBilanceSources = bilanceSources,
+                        ActualBilanceConsumers = bilanceConsumers,
+                        ActualBilance = bilance
+                    });
+                }
+                else
+                {
+                    // get stage which was before the penalty
+                    var prevStage = pgm.GamePlayStagesHistory.OrderBy(s => s.Key).Skip(pgm.GamePlayStagesHistory.Count - 2).First().Value;
+
+                    // change player stage
+                    pgm.ChangePlayStage(prevStage);
+                    pgm.ActualGameTimePenalty = GameTimePenalty.NONE;
+
+                    var response = GameResponseActions.Overproduction;
+                    if (bilance < 0)
+                        response = GameResponseActions.Overconsumption;
+
+                    GameRespondingAction?.Invoke(this, new GameResponseActionEventArgs()
+                    {
+                        Action = response,
+                        BoardId = boardId,
+                        PlayerId = playerId,
+                        GameId = Id,
+                        Stage = pgm.ActualGamePlayStage,
+                        RestOfThePenalty = 0,
+                        ActualBilanceSources = bilanceSources,
+                        ActualBilanceConsumers = bilanceConsumers,
+                        ActualBilance = bilance
+                    });
+
+                }
+            }
+
+        }
+
+        private void Stage_EndOfGame(string playerId, string boardId, PlayerGameData pgm)
+        {
+
         }
 
     }
