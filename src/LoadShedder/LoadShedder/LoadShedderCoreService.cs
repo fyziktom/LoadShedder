@@ -114,6 +114,8 @@ namespace LoadShedder
             await Console.Out.WriteLineAsync("");
             await Console.Out.WriteLineAsync("");
             await Console.Out.WriteLineAsync("Starting main loop...");
+            var savetimes = 3;
+
             try
             {
                 _ = Task.Run(async () =>
@@ -124,21 +126,37 @@ namespace LoadShedder
                         {
                             try
                             {
-                                FileHelpers.WriteTextToFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Players.json"), 
-                                                            JsonConvert.SerializeObject(MainDataContext.Players, Formatting.Indented));
-                                FileHelpers.WriteTextToFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Games.json"),
-                                                            JsonConvert.SerializeObject(MainDataContext.Games, Formatting.Indented));
-                                FileHelpers.WriteTextToFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Devices.json"),
-                                                            JsonConvert.SerializeObject(MainDataContext.Devices, Formatting.Indented));
-                                FileHelpers.WriteTextToFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "GameBoards.json"),
-                                                            JsonConvert.SerializeObject(MainDataContext.GameBoards, Formatting.Indented));
+                                if (savetimes <= 0)
+                                {
+                                    FileHelpers.WriteTextToFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Players.json"),
+                                                                JsonConvert.SerializeObject(MainDataContext.Players, Formatting.Indented));
+                                    FileHelpers.WriteTextToFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Games.json"),
+                                                                JsonConvert.SerializeObject(MainDataContext.Games, Formatting.Indented));
+                                    FileHelpers.WriteTextToFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Devices.json"),
+                                                                JsonConvert.SerializeObject(MainDataContext.Devices, Formatting.Indented));
+                                    FileHelpers.WriteTextToFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "GameBoards.json"),
+                                                                JsonConvert.SerializeObject(MainDataContext.GameBoards, Formatting.Indented));
+                                    savetimes = 3;
+                                }
+                                else
+                                {
+                                    savetimes--;
+                                }
+
+
+                                // recconect the events 
+                                foreach(var game in MainDataContext.Games.Values)
+                                {
+                                    game.GameRespondingAction -= Game_GameRespondingAction;
+                                    game.GameRespondingAction += Game_GameRespondingAction;
+                                }
                             }
                             catch (Exception ex)
                             {
                                 Console.WriteLine("Cannot save server state to the file.");
                             }
 
-                            await Task.Delay(15000);
+                            await Task.Delay(10000);
 
                         }
                         catch (Exception ex)
@@ -157,6 +175,11 @@ namespace LoadShedder
                 lifetime.StopApplication();
             }
 
+        }
+
+        private void Game_GameRespondingAction(object? sender, GameResponseActionEventArgs e)
+        {
+            
         }
 
         public override async Task StopAsync(CancellationToken cancellationToken)

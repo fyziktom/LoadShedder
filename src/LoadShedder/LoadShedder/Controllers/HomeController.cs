@@ -847,6 +847,8 @@ namespace LoadShedder.Controllers
             }
         }
 
+        #region GamePlay
+
         [AllowCrossSiteJsonAttribute]
         [HttpGet]
         [Route("GetGameActualRunningTime/{id}")]
@@ -867,5 +869,28 @@ namespace LoadShedder.Controllers
                 throw new HttpResponseException((HttpStatusCode)501, $"Cannot end game id: {id}!");
             }
         }
+
+        [AllowCrossSiteJsonAttribute]
+        [HttpGet]
+        [Route("GetGameResponseAction")]
+        public GameResponseActionEventArgs? GetGameResponseAction()
+        {
+            try
+            {
+                if (MainDataContext.GameResponseActions.Count > 0)
+                {
+                    MainDataContext.GameResponseActions.TryDequeue(out var action);
+                    return action;
+                }
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw new HttpResponseException((HttpStatusCode)501, $"Cannot get Game Response Action!");
+            }
+        }
+
+        #endregion
     }
 }

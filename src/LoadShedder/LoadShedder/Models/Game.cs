@@ -371,7 +371,7 @@ namespace LoadShedder.Models
 
                 pgm.LoadNewBilances(bilanceSources, bilanceConsumers, bilance);
 
-                if (bilance < 10 && bilance >= 0) // next level is when they will plug enough of consumers to have just 10MW over production
+                if (bilance < 10000 && bilance >= 0) // next level is when they will plug enough of consumers to have just 10MW over production
                 {
                     pgm.ChangePlayStage(GamePlayStage.LoadOfConsumers);
 
@@ -440,7 +440,7 @@ namespace LoadShedder.Models
                         ActualBilance = bilance
                     });
                 }
-                else if (bilance < -5) // too large overconsumption
+                else if (bilance < -5000) // too large overconsumption
                 {
                     pgm.ActualGameTimePenalty = GameTimePenalty.FIFTHTEEN_SECONDS;
                     pgm.ChangePlayStage(GamePlayStage.TimePenalty);
@@ -459,7 +459,7 @@ namespace LoadShedder.Models
                     });
 
                 }
-                else if (bilance > 15) // too large overproduction
+                else if (bilance > 15000) // too large overproduction
                 {
                     pgm.ActualGameTimePenalty = GameTimePenalty.FIFTHTEEN_SECONDS;
                     pgm.ChangePlayStage(GamePlayStage.TimePenalty);

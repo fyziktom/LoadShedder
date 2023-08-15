@@ -42,5 +42,9 @@ namespace LoadShedder.Common
         /// Dictionary of all gameboards.
         /// </summary>
         public static ConcurrentDictionary<string, GameBoard> GameBoards { get; set; } = new ConcurrentDictionary<string, GameBoard>();
+        /// <summary>
+        /// Place for storing all the game actions before the UI will dequeue them.
+        /// </summary>
+        public static ConcurrentQueue<GameResponseActionEventArgs> GameResponseActions { get; set; } = new ConcurrentQueue<GameResponseActionEventArgs>();
     }
 }
