@@ -1,0 +1,125 @@
+﻿<Container Fluid Margin="Margin.Is4.FromBottom">
+     <Steps SelectedStep="@selectedStep" SelectedStepChanged="@OnSelectedStepChanged">
+         <Items>
+             <Step Name="stepIntro">Intro</Step>
+             <Step Name="stepGame">Game</Step>
+             <Step Name="stepFinish">Finish</Step>
+         </Items>
+         <Content>
+             <StepPanel Name="stepIntro">
+                 <GameStartComponent GameStarted="@gameStartedHandler" GameId="@GameId" />
+             </StepPanel>
+             <StepPanel Name="stepGame">
+                 <GameComponent GameId="@GameId" GameBoardId="@BoardId" GameEndedSuccsess="onGameEndedSuccesHandler" GameOver="onGameOverHandler" />
+             </StepPanel>
+
+             <StepPanel Name="stepFinish">
+                 @if (IsGameSuccess)
+                 {
+                      <Row Margin="Margin.Is2.FromStart">
+                         <Column Flex="Flex.JustifyContent.Center">
+                             <Heading Size="HeadingSize.Is3">Congratulations!</Heading>
+                         </Column>
+                     </Row>
+                    <Row Margin="Margin.Is2.FromStart">
+                        <Column Flex="Flex.JustifyContent.Center">
+                            <Heading Size="HeadingSize.Is3">You have successfully finished the game!</Heading>
+                        </Column>
+                    </Row>
+
+                    <Row Margin="Margin.Is2.FromStart">
+                        <Column Flex="Flex.JustifyContent.Center">
+                            <Button Color="Color.Primary" Clicked="PlayAgain" Block>Click here to play again</Button>
+                        </Column>
+                    </Row>
+                 }
+             </StepPanel>
+         </Content>
+     </Steps>
+ </Container>
+
+ }
+
+@code {
+    [Inject] INotificationService? NotificationService { get; set; }
+    [Inject] public IMessageService? MessageService { get; set; }
+
+    [Parameter] public string GameId { get; set; } = "testGame";
+    [Parameter] public string BoardId { get; set; } = "testBoard";
+    [Parameter] public string PlayerId { get; set; } = "fyziktom";
+    [Parameter] public string PlayerName { get; set; } = "fyziktom";
+    [Parameter] public EventCallback<string> PlayerNameChanged { get; set; }
+    [Parameter] public EventCallback<string> GameIdChanged { get; set; }
+    [Parameter] public EventCallback<string> PlayerIdChanged { get; set; }
+    [Parameter] public EventCallback<string> BoardIdChanged { get; set; }
+    [Parameter] public EventCallback<string> GameStarted { get; set; }
+
+    public bool IsGameEnded = false;
+    public bool IsGameStarted = false;
+    public bool IsGameSuccess = false;
+    public bool IsGameOver = false;
+
+    string selectedStep = "stepIntro";
+
+    private async Task gameStartedHandler(string gameId)
+    {
+        selectedStep = "stepGame";
+        IsGameEnded = false;
+        IsGameStarted = true;
+        IsGameSuccess = false;
+        IsGameOver = false;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task onGameEndedSuccesHandler(string gameId)
+    {
+        selectedStep = "stepFinish";
+        IsGameEnded = true;
+        IsGameStarted = false;
+        IsGameSuccess = true;
+        IsGameOver = false;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task onGameOverHandler(string gameId)
+    {
+        selectedStep = "stepFinish";
+        IsGameEnded = true;
+        IsGameStarted = false;
+        IsGameSuccess = false;
+        IsGameOver = true;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private Task OnSelectedStepChanged(string name)
+    {
+        selectedStep = name;
+        return Task.CompletedTask;
+    }
+
+    private async Task PlayAgain(MouseEventArgs e)
+    {
+        selectedStep = "stepIntro";
+        IsGameEnded = false;
+        IsGameStarted = false;
+        IsGameSuccess = false;
+        IsGameOver = false;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    void NextStep(string[] args)
+    {
+        if (selectedStep == "stepIntro")
+            selectedStep = "stepGame";
+        else if (selectedStep == "stepGame")
+            selectedStep = "stepFinish";
+    }
+
+    void PreviousStep(string[] args)
+    {
+        if (selectedStep == "stepFinish")
+            selectedStep = "stepIntro";
+        else if (selectedStep == "stepGame")
+            selectedStep = "stepIntro";
+    }
+}

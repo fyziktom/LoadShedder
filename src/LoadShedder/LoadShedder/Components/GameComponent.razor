@@ -1,0 +1,147 @@
+﻿@inject HttpClient Http
+@inject AppData AppData
+
+<Row Margin="Margin.Is2.FromTop.Is2.FromBottom.Is5.FromStart">
+    <Column Flex="Flex.JustifyContent.Center">
+        @if (GameResponseAction == GameResponseActions.EndOfTheGame_Success)
+        {
+            <Heading Size="HeadingSize.Is3" TextColor="TextColor.Success">
+                Succesfull end of the game. You have reached 0 bilance.
+            </Heading>
+        }
+        else
+        {
+            <Span>
+                Game Response Action: @(
+            Enum.GetName(typeof(GameResponseActions), GameResponseAction) ?? "Waiting for start"
+            )
+            </Span>
+        }
+    </Column>
+</Row>
+<Row Margin="Margin.Is2.FromTop.Is2.FromBottom.Is5.FromStart">
+    <Column Flex="Flex.JustifyContent.Center">
+        Game Response Action: @(
+        Enum.GetName(typeof(GamePlayStage), GameStage) ?? "Waiting for start"
+        )
+    </Column>
+</Row>
+<Row Margin="Margin.Is2.FromTop.Is2.FromBottom.Is5.FromStart">
+    <Column Flex="Flex.JustifyContent.Center">
+        @if (GameStage == GamePlayStage.Start || GameStage == GamePlayStage.LoadOfSources)
+        {
+            <Span>
+                Please Start adding the Sources until you will reach 75 MW. You cannot add consumers otherwise it will cause a blackout.
+            </Span>
+        }
+        else if (GameStage == GamePlayStage.LoadOfConsumers)
+        {
+            <Span>
+                Now you can start adding the consumers until you will keep the total bilance under 10MW, but you cannot go to the minus bilance.
+            </Span>
+        }
+        else if (GameStage == GamePlayStage.BalancingOfNetwork)
+        {
+            <Span>
+                Try to keep the balance of the network as long as possible. You can add and remove the sources and consumers.You need to try to find the combination to reach 0 bilance to finish the game.
+            </Span>
+        }
+    </Column>
+</Row>
+<Row Margin="Margin.Is2.FromTop.Is2.FromBottom.Is5.FromStart">
+    <Column Flex="Flex.JustifyContent.Center">
+        @if (RestOfThePenalty > 0)
+        {
+            <Heading Size="HeadingSize.Is3" TextColor="TextColor.Danger">Rest of penalty: @RestOfThePenalty seconds</Heading>
+        }
+    </Column>
+</Row>
+
+<BilanceDisplay @ref="bilanceDisplayRef" BoardId="@GameBoardId" />
+
+<Row Margin="Margin.Is2.FromTop.Is2.FromBottom.Is5.FromStart">
+    <Column Flex="Flex.JustifyContent.Center">
+        <AllGamePiecesKeyboard OnBoardChanged="@onBoardChangedHandler" GameBoardId="@GameBoardId" />
+    </Column>
+</Row>
+
+@code {
+    BilanceDisplay? bilanceDisplayRef;
+    [Parameter] public string GameBoardId { get; set; } = "testBoard";
+    [Parameter] public string GameId { get; set; } = "testGame";
+    [Parameter] public EventCallback<string> GameEndedSuccsess { get; set; }
+    [Parameter] public EventCallback<string> GameOver { get; set; }
+
+    private Timer _timer;
+
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+            _timer = new Timer(async (e) => { await Refresh(); }, null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
+        return base.OnAfterRenderAsync(firstRender);
+    }
+
+    public async Task Refresh()
+    {
+        try
+        {
+            if (GameResponseAction == GameResponseActions.EndOfTheGame_Success)
+            {
+                _timer.Dispose();
+                _timer = null;
+                await GameEndedSuccsess.InvokeAsync(GameId);
+            }
+            else if (GameResponseAction == GameResponseActions.EndOfTheGame_Loose)
+            {
+                _timer.Dispose();
+                _timer = null;
+                await GameOver.InvokeAsync(GameId);
+            }
+
+            await InvokeAsync(StateHasChanged);
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine("Cannot refresh game component state: \n" + ex.Message);
+        }
+    }
+
+    public GameResponseActions GameResponseAction
+    {
+        get
+        {
+            if (AppData.GameResponseDataHistory.TryGetValue(GameBoardId, out var response))
+                return response.Action;
+            else
+                return GameResponseActions.StartingWithoutSources;
+        }
+    }
+
+    public GamePlayStage GameStage
+    {
+        get
+        {
+            if (AppData.GameResponseDataHistory.TryGetValue(GameBoardId, out var response))
+                return response.Stage;
+            else
+                return GamePlayStage.None;
+        }
+    }
+
+    public double RestOfThePenalty
+    {
+        get
+        {
+            if (AppData.GameResponseDataHistory.TryGetValue(GameBoardId, out var response))
+                return response.RestOfThePenalty;
+            else
+                return 0.0;
+        }
+    }
+
+    public async Task onBoardChangedHandler(string message)
+    {
+        if (bilanceDisplayRef != null)
+            await bilanceDisplayRef.Refresh();
+    }
+}

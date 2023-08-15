@@ -1,0 +1,194 @@
+﻿@using Newtonsoft.Json;
+@inject HttpClient Http
+@inject AppData AppData
+
+<Row Margin="Margin.Is2.FromTop">
+    <Column Flex="Flex.JustifyContent.Center">
+        <Heading Size="HeadingSize.Is2">Load Shedder Game</Heading>
+    </Column>
+</Row>
+
+<Row>
+    <Column Flex="Flex.JustifyContent.Center">
+        <Span>Welcome in the Load Shedder game.</Span>
+    </Column>
+</Row>
+<Row>
+    <Column Flex="Flex.JustifyContent.Center">
+        <Span>You can test the balancing of the energetic grid with this game.</Span>
+    </Column>
+</Row>
+<Row>
+    <Column Flex="Flex.JustifyContent.Center">
+        <Span>Please enter your name or nickname before you will start the game</Span>
+    </Column>
+</Row>
+
+<Field>
+    <FieldLabel>Your name or Nickname</FieldLabel>
+    <TextEdit Placeholder="Enter name or nickname" @bind-Text="PlayerName" @onchange="playerNameChanged" />
+    @if (!string.IsNullOrEmpty(PlayerName))
+    {
+        <FieldHelp>
+            Please fill unique name or nickname
+        </FieldHelp>
+    }
+</Field>
+
+<Row Margin="Margin.Is2.FromTop.Is2.FromBottom">
+    <Column Flex="Flex.JustifyContent.Center">
+        <Button Color="Color.Primary" Clicked="StartGame" Loading="@isLoading" Block>Start Game</Button>
+    </Column>
+</Row>
+
+@code {
+    [Parameter] public string GameId { get; set; } = "testGame";
+    [Parameter] public string BoardId { get; set; } = "testBoard";
+    [Parameter] public string PlayerId { get; set; } = "fyziktom";
+    [Parameter] public string PlayerName { get; set; } = "fyziktom";
+    [Parameter] public EventCallback<string> PlayerNameChanged { get; set; }
+    [Parameter] public EventCallback<string> GameIdChanged { get; set; }
+    [Parameter] public EventCallback<string> PlayerIdChanged { get; set; }
+    [Parameter] public EventCallback<string> BoardIdChanged { get; set; }
+    [Parameter] public EventCallback<string> GameStarted { get; set; }
+
+    private bool isLoading = false;
+
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        return base.OnAfterRenderAsync(firstRender);
+    }
+
+    private async Task playerNameChanged(ChangeEventArgs e)
+    {
+        if (e != null && e.Value != null)
+            await PlayerNameChanged.InvokeAsync((string)e.Value);
+    }
+
+    private async Task onGameChangedHandler(string id)
+    {
+        if (id != null)
+            GameId = id;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task<string> AddPlayer()
+    {
+        var obj = new
+        {
+            name = PlayerName,
+            description = "",
+            boardid = BoardId
+        };
+
+        var cnt = JsonConvert.SerializeObject(obj);
+
+        using (var content = new StringContent(cnt, System.Text.Encoding.UTF8, "application/json"))
+        {
+            HttpResponseMessage result = await Http.PostAsync("api/AddPlayer", content);
+            if (result.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var returnStr = await result.Content.ReadAsStringAsync();
+
+                if (returnStr != null)
+                {
+                    Console.WriteLine("AddPlayer response: " + returnStr);
+                    await PlayerIdChanged.InvokeAsync(PlayerId);
+                    await AddPlayerToBoard(returnStr);
+                    return returnStr;
+                }
+                else
+                    return "ERROR:Cannot read return message.";
+            }
+        }
+
+        return string.Empty;
+    }
+
+    private async Task<string> AddPlayerToBoard(string playerId)
+    {
+        var obj = new
+        {
+            gameboardid = BoardId,
+            playerid = playerId
+        };
+
+        var cnt = JsonConvert.SerializeObject(obj);
+
+        using (var content = new StringContent(cnt, System.Text.Encoding.UTF8, "application/json"))
+        {
+            HttpResponseMessage result = await Http.PostAsync("api/AddPlayerToGameBoard", content);
+            if (result.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var returnStr = await result.Content.ReadAsStringAsync();
+
+                if (returnStr != null)
+                {
+                    Console.WriteLine("AddPlayerToBoard response: " + returnStr);
+                    return returnStr;
+                }
+                else
+                    return "ERROR:Cannot read return message.";
+            }
+        }
+
+        return string.Empty;
+    }
+
+    private async Task<string> AddGame()
+    {
+        var obj = new
+        {
+            name = PlayerName,
+            gameboards = new List<string> { BoardId }
+        };
+
+        var cnt = JsonConvert.SerializeObject(obj);
+
+        using (var content = new StringContent(cnt, System.Text.Encoding.UTF8, "application/json"))
+        {
+            HttpResponseMessage result = await Http.PostAsync("api/AddGame", content);
+            if (result.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var returnStr = await result.Content.ReadAsStringAsync();
+
+                if (returnStr != null)
+                {
+                    Console.WriteLine("AddGame response: " + returnStr);
+                    GameId = returnStr;
+                    await GameIdChanged.InvokeAsync(GameId);
+                    return returnStr;
+                }
+                else
+                    return "ERROR:Cannot read return message.";
+            }
+        }
+
+        return string.Empty;
+    }
+
+    public async Task StartGame()
+    {
+        try
+        {
+            isLoading = true;
+
+            await AddPlayer();
+            await AddGame();
+
+            var response = await Http.GetStringAsync($"api/StartGame/{GameId}");
+            Console.WriteLine("Start game response:" + response);
+            if (response == "OK")
+            {
+                await Task.Delay(1000);
+                isLoading = false;
+                await GameStarted.InvokeAsync(GameId);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Cannot start the game: \n" + ex.Message);
+        }
+    }
+}
