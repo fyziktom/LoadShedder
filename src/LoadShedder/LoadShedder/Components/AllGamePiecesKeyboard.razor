@@ -2,72 +2,77 @@
 @inject HttpClient Http
 <Row>
     <Column>
-
         <Row Margin="Margin.Is2.FromTop">
             <Column>
-                <Heading Size="HeadingSize.Is4">Producers</Heading>
-            </Column>
-        </Row>
-        <Row Margin="Margin.Is2.FromTop">
-            <Column>
-                @foreach(var gamepiece in Sources)
-                {
-                    @if (!gamepiece.IsPlugged)
-                    {
-                        <Button Clicked="@(() => PlacePiece(gamepiece.ResistorsCombo))" 
-                                Color="Color.Primary" 
-                                Style="width:250px"
-                                Margin="Margin.Is2.FromStart.Is2.FromEnd.Is2.FromTop.Is2.FromBottom">
-                            <Icon Name="IconName.BatteryFull" Margin="Margin.Is2.FromEnd" />
-                                    <small>Plug @gamepiece.Name - @(gamepiece.EnergyValue / 1000) MW</small>  
-                        </Button>
-                    }
-                    else
-                    {
-                        <Button Clicked="@(() => RemovePiece(gamepiece.ResistorsCombo))"
-                                Color="Color.Secondary"
-                                Style="width:250px"
-                                Margin="Margin.Is2.FromStart.Is2.FromEnd.Is2.FromTop.Is2.FromBottom">
+                <Row Margin="Margin.Is2.FromTop">
+                    <Column>
+                        <Heading Size="HeadingSize.Is4">Producers</Heading>
+                    </Column>
+                </Row>
+        
+                <Row Margin="Margin.Is2.FromTop">
+                    <Column>
+                        @foreach(var gamepiece in Sources)
+                        {
+                            @if (!gamepiece.IsPlugged)
+                            {
+                                <Button Clicked="@(() => PlacePiece(gamepiece.ResistorsCombo))" 
+                                        Color="Color.Primary" 
+                                        Style="width:250px"
+                                        Margin="Margin.Is2.FromStart.Is2.FromEnd.Is2.FromTop.Is2.FromBottom">
                                     <Icon Name="IconName.BatteryFull" Margin="Margin.Is2.FromEnd" />
-                                    <small>Unplug @gamepiece.Name - @(gamepiece.EnergyValue / 1000) MW</small>
-                        </Button>
-                    }
-                }
+                                            <small>Plug @gamepiece.Name - @(gamepiece.EnergyValue / 1000) MW</small>  
+                                </Button>
+                            }
+                            else
+                            {
+                                <Button Clicked="@(() => RemovePiece(gamepiece.ResistorsCombo))"
+                                        Color="Color.Secondary"
+                                        Style="width:250px"
+                                        Margin="Margin.Is2.FromStart.Is2.FromEnd.Is2.FromTop.Is2.FromBottom">
+                                            <Icon Name="IconName.BatteryFull" Margin="Margin.Is2.FromEnd" />
+                                            <small>Unplug @gamepiece.Name - @(gamepiece.EnergyValue / 1000) MW</small>
+                                </Button>
+                            }
+                        }
+                    </Column>
+                </Row>
             </Column>
-        </Row>
-        <Row Margin="Margin.Is2.FromTop">
             <Column>
-                <Heading Size="HeadingSize.Is4">Consumers</Heading>
+                <Row Margin="Margin.Is2.FromTop">
+                    <Column>
+                        <Heading Size="HeadingSize.Is4">Consumers</Heading>
+                    </Column>
+                </Row>
+                <Row Margin="Margin.Is1.FromTop">
+                    <Column>
+                        @foreach (var gamepiece in Consumers)
+                        {
+                            @if (!gamepiece.IsPlugged)
+                            {
+                                <Button Clicked="@(() => PlacePiece(gamepiece.ResistorsCombo))"
+                                        Color="Color.Primary"
+                                        Style="width:250px"
+                                        Margin="Margin.Is2.FromStart.Is2.FromEnd.Is2.FromTop.Is2.FromBottom">
+                                            <Icon Name="IconName.Hotel" Margin="Margin.Is2.FromEnd" />
+                                            <small>Plug @gamepiece.Name - @(gamepiece.EnergyValue / 1000) MW</small>
+                                </Button>
+                            }
+                            else
+                            {
+                                <Button Clicked="@(() => RemovePiece(gamepiece.ResistorsCombo))"
+                                        Color="Color.Secondary"
+                                        Style="width:250px"
+                                        Margin="Margin.Is2.FromStart.Is2.FromEnd.Is2.FromTop.Is2.FromBottom">
+                                            <Icon Name="IconName.Hotel" Margin="Margin.Is2.FromEnd" />
+                                            <small>Unplug @gamepiece.Name - @(gamepiece.EnergyValue / 1000) MW</small>
+                                </Button>
+                            }
+                        }
+                    </Column>
+                </Row>
             </Column>
         </Row>
-        <Row Margin="Margin.Is1.FromTop">
-            <Column>
-                @foreach (var gamepiece in Consumers)
-                {
-                    @if (!gamepiece.IsPlugged)
-                    {
-                        <Button Clicked="@(() => PlacePiece(gamepiece.ResistorsCombo))"
-                                Color="Color.Primary"
-                                Style="width:250px"
-                                Margin="Margin.Is2.FromStart.Is2.FromEnd.Is2.FromTop.Is2.FromBottom">
-                                    <Icon Name="IconName.Hotel" Margin="Margin.Is2.FromEnd" />
-                                    <small>Plug @gamepiece.Name - @(gamepiece.EnergyValue / 1000) MW</small>
-                        </Button>
-                    }
-                    else
-                    {
-                        <Button Clicked="@(() => RemovePiece(gamepiece.ResistorsCombo))"
-                                Color="Color.Secondary"
-                                Style="width:250px"
-                                Margin="Margin.Is2.FromStart.Is2.FromEnd.Is2.FromTop.Is2.FromBottom">
-                                    <Icon Name="IconName.Hotel" Margin="Margin.Is2.FromEnd" />
-                                    <small>Unplug @gamepiece.Name - @(gamepiece.EnergyValue / 1000) MW</small>
-                        </Button>
-                    }
-                }
-            </Column>
-        </Row>
-
     </Column>
 </Row>
 

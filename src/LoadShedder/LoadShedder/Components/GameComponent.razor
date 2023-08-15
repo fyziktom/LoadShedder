@@ -37,7 +37,7 @@
         else if (GameStage == GamePlayStage.LoadOfConsumers)
         {
             <Span>
-                Now you can start adding the consumers until you will keep the total bilance under 10MW, but you cannot go to the minus bilance.
+                Now you can start adding the consumers until you will keep the total bilance under 5MW, but you cannot go to the minus bilance.
             </Span>
         }
         else if (GameStage == GamePlayStage.BalancingOfNetwork)
@@ -59,7 +59,7 @@
 
 <BilanceDisplay @ref="bilanceDisplayRef" BoardId="@GameBoardId" />
 
-<Row Margin="Margin.Is2.FromTop.Is2.FromBottom.Is5.FromStart">
+<Row Margin="Margin.Is2.FromTop.Is2.FromBottom.Is2.FromStart">
     <Column Flex="Flex.JustifyContent.Center">
         <AllGamePiecesKeyboard OnBoardChanged="@onBoardChangedHandler" GameBoardId="@GameBoardId" />
     </Column>
