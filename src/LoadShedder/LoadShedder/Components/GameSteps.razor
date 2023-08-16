@@ -29,7 +29,11 @@
                             <Heading Size="HeadingSize.Is3">You have successfully finished the game!</Heading>
                         </Column>
                     </Row>
-
+                    <Row Margin="Margin.Is4.FromStart.Is4.FromEnd">
+                        <Column Flex="Flex.JustifyContent.Center">
+                            <Heading Size="HeadingSize.Is5">Your time is: @(Math.Round(ElapsedTime,0)) seconds!</Heading>
+                        </Column>
+                    </Row>
                     <Row Margin="Margin.Is2.FromStart">
                         <Column Flex="Flex.JustifyContent.Center">
                             <Button Color="Color.Primary" Clicked="PlayAgain" Block>Click here to play again</Button>
@@ -59,6 +63,18 @@
     public bool IsGameStarted = false;
     public bool IsGameSuccess = false;
     public bool IsGameOver = false;
+
+    public double ElapsedTime
+    {
+        get
+        {
+            if (AppData.GameResponseDataHistory.TryGetValue(GameId, out var response))
+                return response.ActualElapsedGameTime;
+            else
+                return 0.0;
+        }
+    }
+
 
     GameComponent? gameComponentRef;
 

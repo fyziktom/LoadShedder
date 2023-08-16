@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Newtonsoft.Json;
 using System.Net;
+using VEDriversLite.Common;
 
 namespace LoadShedder.Controllers
 {
@@ -889,6 +890,48 @@ namespace LoadShedder.Controllers
             catch (Exception ex)
             {
                 throw new HttpResponseException((HttpStatusCode)501, $"Cannot get Game Response Action!");
+            }
+        }
+
+        [AllowCrossSiteJsonAttribute]
+        [HttpGet]
+        [Route("GetGameStoredData")]
+        public Dictionary<string, GameStoredData> GetGameStoredData()
+        {
+            try
+            {
+                var response = new Dictionary<string, GameStoredData>();
+
+                var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Players");
+                if (Directory.Exists(path))
+                {
+                    foreach(var dir in Directory.EnumerateDirectories(path))
+                    {
+                        foreach(var file in Directory.EnumerateFiles(dir))
+                        {
+                            try
+                            {
+                                var filecontent = FileHelpers.ReadTextFromFile(file);
+                                if (!string.IsNullOrEmpty(filecontent))
+                                {
+                                    var gsd = JsonConvert.DeserializeObject<GameStoredData>(filecontent);
+                                    if (gsd != null)
+                                        response.TryAdd(gsd.GameId, gsd);
+                                }
+                            }
+                            catch(Exception ex)
+                            {
+                                Console.WriteLine("Cannot get the file from game stored data. \n" + ex.Message);
+                            }
+                        }
+                    }
+                }
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                throw new HttpResponseException((HttpStatusCode)501, $"Cannot get Game Stored Data!");
             }
         }
 

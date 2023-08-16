@@ -1,0 +1,73 @@
+﻿@inject HttpClient Http
+
+<Row Margin="Margin.Is2.FromTop.Is2.FromBottom">
+    <Column Flex="Flex.JustifyContent.Center">
+            <Heading Size="HeadingSize.Is3" TextColor="TextColor.Primary">Game Score Board</Heading>        
+    </Column>
+</Row>
+
+<Row Margin="Margin.Is2.FromTop.Is2.FromBottom">
+    <Column>
+        <Row Margin="Margin.Is2.FromTop.Is2.FromBottom">
+            <Column Flex="Flex.JustifyContent.Center">
+                <Heading Size="HeadingSize.Is3">Position</Heading>
+            </Column>
+            <Column Flex="Flex.JustifyContent.Center">
+                <Heading Size="HeadingSize.Is3">Name</Heading>
+            </Column>
+            <Column Flex="Flex.JustifyContent.Center">
+                <Heading Size="HeadingSize.Is3">Time [s]</Heading>
+            </Column>
+        </Row>
+        
+        @foreach(var data in SortedData)
+        {
+            <Row Margin="Margin.Is2.FromTop.Is2.FromBottom">
+                <Column Flex="Flex.JustifyContent.Center">
+                    <Heading Size="HeadingSize.Is5">@(SortedData.IndexOf(data) + 1)</Heading>
+                </Column>
+                <Column Flex="Flex.JustifyContent.Center">
+                    <Heading Size="HeadingSize.Is5">@data.PlayerName</Heading>
+                </Column>
+                <Column Flex="Flex.JustifyContent.Center">
+                    <Heading Size="HeadingSize.Is5">@(Math.Round(data.ElapsedTime,0))</Heading>
+                </Column>
+            </Row>
+            <Divider />
+        }
+    </Column>
+</Row>
+
+@code {
+
+    public Dictionary<string, GameStoredData> Data = new Dictionary<string, GameStoredData>();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await getGameStoredData();
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    public List<GameStoredData> SortedData
+    {
+        get
+        {
+            return Data.Values.OrderBy(d => d.ElapsedTime).ToList();
+        }
+    }
+
+    private async Task getGameStoredData()
+    {
+        try
+        {
+            var result = await Http.GetFromJsonAsync<Dictionary<string, GameStoredData>>("api/GetGameStoredData");
+            if (result != null)
+                Data = result;
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine("Cannot get GameStoredData request response: \n" + ex.Message);
+        }
+        await InvokeAsync(StateHasChanged);
+    }
+}

@@ -1,5 +1,8 @@
 ﻿using LoadShedder.Common;
+using Newtonsoft.Json;
+using System.Numerics;
 using System.Security.Cryptography.X509Certificates;
+using VEDriversLite.Common;
 
 namespace LoadShedder.Models
 {
@@ -37,6 +40,16 @@ namespace LoadShedder.Models
         EndOfTheGame_Loose,
     }
 
+    public class GameStoredData
+    {
+        public string PlayerName { get; set; } = string.Empty;
+        public string PlayerId { get; set; } = string.Empty;
+        public string GameBoardId { get; set; } = string.Empty;
+        public string GameId { get; set; } = string.Empty;
+        public double ElapsedTime { get; set; } = 0.0;
+        public PlayerGameData PlayerGameData { get; set; } = new PlayerGameData();
+
+    }
     public class GameResponseActionEventArgs
     {
         public GameResponseActions Action { get; set; } = GameResponseActions.None;
@@ -615,6 +628,24 @@ namespace LoadShedder.Models
         {
             IsEndGame = true;
             EndGame();
+
+            if (MainDataContext.Players.TryGetValue(playerId, out var player))
+            {
+                var gsd = new GameStoredData()
+                {
+                    PlayerName = player.Name,
+                    PlayerId = playerId,
+                    GameId = Id,
+                    GameBoardId = boardId,
+                    ElapsedTime = ElapsedTime.TotalSeconds,
+                    PlayerGameData = pgm
+                };
+
+                FileHelpers.CheckOrCreateTheFolder(AppDomain.CurrentDomain.BaseDirectory, "Players");
+                FileHelpers.CheckOrCreateTheFolder(AppDomain.CurrentDomain.BaseDirectory, $"Players/Player-{player.Name}-{playerId}");
+                FileHelpers.WriteTextToFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"Players/Player-{player.Name}-{playerId}/Game-{Id}-data-{DateTime.UtcNow.ToString("yyyy-MM-dd_hh-mm-ss-ff")}.json"),
+                                                                JsonConvert.SerializeObject(gsd, Formatting.Indented));
+            }
         }
 
         private GameResponseActions GetResponseAction(double bilance)

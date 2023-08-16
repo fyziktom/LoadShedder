@@ -136,10 +136,16 @@
 
     private async Task getGamePieces()
     {
-        var result = await Http.GetFromJsonAsync<Dictionary<ResistorsCombos, GamePiece>>("api/GetGamePieces");
-        if (result != null)
-            GamePieces = result;
-
+        try
+        {
+            var result = await Http.GetFromJsonAsync<Dictionary<ResistorsCombos, GamePiece>>("api/GetGamePieces");
+            if (result != null)
+                GamePieces = result;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Cannot get GamePieces request response: \n" + ex.Message);
+        }
         await InvokeAsync(StateHasChanged);
     }
 
