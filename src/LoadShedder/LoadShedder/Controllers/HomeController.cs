@@ -874,15 +874,21 @@ namespace LoadShedder.Controllers
 
         [AllowCrossSiteJsonAttribute]
         [HttpGet]
-        [Route("GetGameResponseAction")]
-        public GameResponseActionEventArgs? GetGameResponseAction()
+        [Route("GetGameResponseAction/{gameId}")]
+        public GameResponseActionEventArgs? GetGameResponseAction(string gameId)
         {
             try
             {
                 if (MainDataContext.GameResponseActions.Count > 0)
                 {
-                    MainDataContext.GameResponseActions.TryDequeue(out var action);
-                    return action;
+                    if (MainDataContext.GameResponseActions.TryGetValue(gameId, out var que))
+                    {
+                        if (que.Count > 0)
+                        {
+                            que.TryDequeue(out var action);
+                            return action;
+                        }
+                    }
                 }
 
                 return null;

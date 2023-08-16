@@ -36,7 +36,7 @@
 
         try
         {
-            response = await Http.GetStringAsync("api/GetGameResponseAction");
+            response = await Http.GetStringAsync($"api/GetGameResponseAction/{AppData.ActualRunningGameId}");
             if (response == null)
                 return;
         }

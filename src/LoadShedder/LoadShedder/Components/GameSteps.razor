@@ -10,10 +10,12 @@
          </Items>
          <Content>
              <StepPanel Name="stepIntro">
-                 <GameStartComponent GameStarted="@gameStartedHandler" />
+                 <GameStartComponent GameStarted="@gameStartedHandler" BoardIdChanged="onBoardIdChangedHandler" />
              </StepPanel>
              <StepPanel Name="stepGame">
-                 <GameComponent @ref=gameComponentRef GameBoardId="@BoardId" GameEndedSuccsess="onGameEndedSuccesHandler" GameOver="onGameOverHandler" />
+                 <GameComponent @ref=gameComponentRef GameBoardId="@BoardId" 
+                                                      GameEndedSuccsess="onGameEndedSuccesHandler" 
+                                                      GameOver="onGameOverHandler" />
              </StepPanel>
 
              <StepPanel Name="stepFinish">
@@ -21,12 +23,12 @@
                  {
                       <Row Margin="Margin.Is2.FromStart">
                          <Column Flex="Flex.JustifyContent.Center">
-                             <Heading Size="HeadingSize.Is3">Congratulations!</Heading>
+                            <Heading Size="HeadingSize.Is3" TextColor="TextColor.Success">Congratulations!</Heading>
                          </Column>
                      </Row>
                     <Row Margin="Margin.Is2.FromStart">
                         <Column Flex="Flex.JustifyContent.Center">
-                            <Heading Size="HeadingSize.Is3">You have successfully finished the game!</Heading>
+                            <Heading Size="HeadingSize.Is3" TextColor="TextColor.Success">You have successfully finished the game!</Heading>
                         </Column>
                     </Row>
                     <Row Margin="Margin.Is4.FromStart.Is4.FromEnd">
@@ -50,6 +52,7 @@
     [Inject] public IMessageService? MessageService { get; set; }
 
     [Parameter] public string GameId { get; set; } = "testGame";
+    [Parameter] public string DeviceId { get; set; } = "test";
     [Parameter] public string BoardId { get; set; } = "testBoard";
     [Parameter] public string PlayerId { get; set; } = "fyziktom";
     [Parameter] public string PlayerName { get; set; } = "fyziktom";
@@ -80,11 +83,27 @@
 
     string selectedStep = "stepIntro";
 
-    private async Task gameStartedHandler(string gameId)
+
+    private async Task onBoardIdChangedHandler(string boardId)
+    {
+        BoardId = boardId;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task gameStartedHandler(StartGameInfo info)
     {
         if (gameComponentRef != null)
-            await gameComponentRef.NewGame(gameId);
-        GameId = gameId;
+            await gameComponentRef.NewGame(info.GameId, info.GameBoardId, info.DeviceId);
+        GameId = info.GameId;
+        BoardId = info.GameBoardId;
+        DeviceId = info.DeviceId;
+        PlayerId = info.PlayerId;
+
+        AppData.ActualRunningDeviceId = DeviceId;
+        AppData.ActualRunningGameId = GameId;
+        AppData.ActualRunningGameBoardId = BoardId;
+        AppData.ActualRunningPlayerId = PlayerId;
+        AppData.ActualRunningPlayerName = PlayerName;
 
         selectedStep = "stepGame";
         IsGameEnded = false;
@@ -101,9 +120,9 @@
         IsGameStarted = false;
         IsGameSuccess = true;
         IsGameOver = false;
-        await EndGame();
+        //await EndGame();
         await InvokeAsync(StateHasChanged);
-    }
+    } 
 
     private async Task onGameOverHandler(string gameId)
     {
@@ -112,7 +131,7 @@
         IsGameStarted = false;
         IsGameSuccess = false;
         IsGameOver = true;
-        await EndGame();
+        //await EndGame();
         await InvokeAsync(StateHasChanged);
     }
 
@@ -127,8 +146,8 @@
         if (await EndGameRequest())
         {
             AppData.GameResponseDataHistory.TryRemove(GameId, out var response);
-            if (gameComponentRef != null)
-                await gameComponentRef.NewGame(GameId);
+            //if (gameComponentRef != null)
+            //    await gameComponentRef.NewGame(GameId);
         }
 
     }
@@ -161,7 +180,8 @@
         IsGameSuccess = false;
         IsGameOver = false;
         AppData.GameResponseDataHistory.TryRemove(GameId, out var response);
-        
+
+        GameId = "default";
         await InvokeAsync(StateHasChanged);
     }
 

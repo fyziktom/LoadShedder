@@ -1,0 +1,113 @@
+﻿@using Newtonsoft.Json;
+@inject HttpClient client
+
+<Row Margin="Margin.Is2.FromTop">
+    <Column Flex="Flex.JustifyContent.Center">
+        <Chart @ref="barChart" Type="ChartType.Bar" TItem="double" Style="max-height:200px;max-width:650px;" />
+    </Column>
+</Row>
+
+
+@code {
+    [Parameter]
+    public string BoardId { get; set; } = "testBoard";
+    [Parameter]
+    public double OnBilanceChanged { get; set; }
+    [Parameter]
+    public double Bilance { get; set; } = 0.0;
+    [Parameter] public double BilanceSources { get; set; } = 0.0;
+    [Parameter] public double BilanceConsumers { get; set; } = 0.0;
+
+    Chart<double> barChart;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await HandleRedraw();
+        }
+    }
+
+    async Task HandleRedraw()
+    {
+        await barChart.Clear();
+
+        await barChart.AddLabelsDatasetsAndUpdate(Labels, GetBarChartDataset());
+    }
+
+    private BarChartDataset<double> GetBarChartDataset()
+    {
+        return new()
+            {
+                Label = "Actual Bilance in MW",
+                Data = new List<double> { BilanceSources / 1000, Bilance / 1000, Math.Abs(BilanceConsumers / 1000) },
+                BackgroundColor = backgroundColors,
+                BorderColor = borderColors,
+                BorderWidth = 1
+            };
+    }
+
+    string[] Labels = { "BilanceSources", "Bilance", "BilanceConsumers" };
+    List<string> backgroundColors = new List<string> { ChartColor.FromRgba(255, 99, 132, 0.2f), ChartColor.FromRgba(54, 162, 235, 0.2f), ChartColor.FromRgba(255, 206, 86, 0.2f) };
+    List<string> borderColors = new List<string> { ChartColor.FromRgba(255, 99, 132, 1f), ChartColor.FromRgba(54, 162, 235, 1f), ChartColor.FromRgba(255, 206, 86, 1f) };
+
+    public async Task Refresh(string boardId)
+    {
+        if (!string.IsNullOrEmpty(boardId))
+            BoardId = boardId;
+
+        await GetBilance();
+        await GetBilanceForSources();
+        await GetBilanceForConsumers();
+        await HandleRedraw();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task<double> GetBilance()
+    {
+        try
+        {
+            var response = client.GetStringAsync($"api/GetBoardBilance/{BoardId}");
+            Bilance = double.Parse(await response, System.Globalization.CultureInfo.InvariantCulture);
+            return Bilance;
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine("Cannot get board bilance");
+        }
+
+        return 0.0;
+    }
+
+    private async Task<double> GetBilanceForSources()
+    {
+        try
+        {
+            var response = client.GetStringAsync($"api/GetBoardSourcesBilance/{BoardId}");
+            BilanceSources = double.Parse(await response, System.Globalization.CultureInfo.InvariantCulture);
+            return BilanceSources;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Cannot get board bilance");
+        }
+
+        return 0.0;
+    }
+
+    private async Task<double> GetBilanceForConsumers()
+    {
+        try
+        {
+            var response = client.GetStringAsync($"api/GetBoardConsumersBilance/{BoardId}");
+            BilanceConsumers = double.Parse(await response, System.Globalization.CultureInfo.InvariantCulture);
+            return BilanceConsumers;
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine("Cannot get board bilance");
+        }
+
+        return 0.0;
+    }
+}

@@ -18,20 +18,16 @@
             </Span>
         }
     </Column>
-</Row>
-<Row Margin="Margin.Is2.FromTop.Is2.FromBottom.Is5.FromStart">
     <Column Flex="Flex.JustifyContent.Center">
         Level: @(
         Enum.GetName(typeof(GamePlayStage), GameStage) ?? "Waiting for start"
         )
     </Column>
-</Row>
-<Row Margin="Margin.Is2.FromTop.Is2.FromBottom.Is5.FromStart">
     <Column Flex="Flex.JustifyContent.Center">
         Elapsed: @(Math.Round(ElapsedTime, 0)) seconds
     </Column>
 </Row>
-<Row Margin="Margin.Is2.FromTop.Is2.FromBottom.Is5.FromStart">
+<Row Margin="Margin.Is3.FromTop.Is2.FromBottom.Is5.FromStart">
     <Column Flex="Flex.JustifyContent.Center">
         @if (GameStage == GamePlayStage.Start || GameStage == GamePlayStage.LoadOfSources)
         {
@@ -62,38 +58,56 @@
     </Column>
 </Row>
 
-<BilanceDisplay @ref="bilanceDisplayRef" BoardId="@GameBoardId" />
+<GraphBilanceDisplay @ref="graphBilanceDisplayRef" />
+<BilanceDisplay @ref="bilanceDisplayRef" />
 
 <Row Margin="Margin.Is2.FromTop.Is2.FromBottom.Is2.FromStart">
     <Column Flex="Flex.JustifyContent.Center">
-        <AllGamePiecesKeyboard @ref=allGamePiecesKeyboardRef OnBoardChanged="@onBoardChangedHandler" GameBoardId="@GameBoardId" />
+        <AllGamePiecesKeyboard @ref=allGamePiecesKeyboardRef OnBoardChanged="@onBoardChangedHandler" />
     </Column>
 </Row>
 
 @code {
     BilanceDisplay? bilanceDisplayRef;
+    GraphBilanceDisplay? graphBilanceDisplayRef;
     [Parameter] public string GameBoardId { get; set; } = "testBoard";
     [Parameter] public string GameId { get; set; } = "testGame";
+    [Parameter] public string DeviceId { get; set; } = "test";
     [Parameter] public EventCallback<string> GameEndedSuccsess { get; set; }
     [Parameter] public EventCallback<string> GameOver { get; set; }
 
     private Timer _timer;
     AllGamePiecesKeyboard? allGamePiecesKeyboardRef;
 
-    protected override Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
+        {
             _timer = new Timer(async (e) => { await Refresh(); }, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(500));
-        return base.OnAfterRenderAsync(firstRender);
+
+            if (allGamePiecesKeyboardRef != null)
+                await allGamePiecesKeyboardRef.ClearKeyboard(GameBoardId, DeviceId);
+
+        }
+        await base.OnAfterRenderAsync(firstRender);
     }
 
-    public async Task NewGame(string gameId)
+    public async Task NewGame(string gameId, string boardId, string deviceId)
     {
+        if (!string.IsNullOrEmpty(boardId))
+            GameBoardId = boardId;
         if (!string.IsNullOrEmpty(gameId))
             GameId = gameId;
+        if (!string.IsNullOrEmpty(deviceId))
+            DeviceId = deviceId;
 
         if (allGamePiecesKeyboardRef != null)
-            await allGamePiecesKeyboardRef.ClearKeyboard();
+            await allGamePiecesKeyboardRef.ClearKeyboard(GameBoardId, DeviceId);
+
+        if (bilanceDisplayRef != null)
+            await bilanceDisplayRef.Refresh(GameBoardId);
+        if (graphBilanceDisplayRef != null)
+            await graphBilanceDisplayRef.Refresh(GameBoardId);
 
         await InvokeAsync(StateHasChanged);
         //_timer = new Timer(async (e) => { await Refresh(); }, null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
@@ -107,17 +121,21 @@
             {
                 //_timer.Dispose();
                 //_timer = null;
-                await GameEndedSuccsess.InvokeAsync(GameId);
+
                 if (allGamePiecesKeyboardRef != null)
-                    await allGamePiecesKeyboardRef.ClearKeyboard();
+                    await allGamePiecesKeyboardRef.ClearKeyboard(GameBoardId, DeviceId);
+
+                await GameEndedSuccsess.InvokeAsync(GameId);
             }
             else if (GameResponseAction == GameResponseActions.EndOfTheGame_Loose)
             {
                 //_timer.Dispose();
                 //_timer = null;
-                await GameOver.InvokeAsync(GameId);
+
                 if (allGamePiecesKeyboardRef != null)
-                    await allGamePiecesKeyboardRef.ClearKeyboard();
+                    await allGamePiecesKeyboardRef.ClearKeyboard(GameBoardId, DeviceId);
+
+                await GameOver.InvokeAsync(GameId);
             }
 
         }
@@ -176,6 +194,8 @@
     public async Task onBoardChangedHandler(string message)
     {
         if (bilanceDisplayRef != null)
-            await bilanceDisplayRef.Refresh();
+            await bilanceDisplayRef.Refresh(GameBoardId);
+        if (graphBilanceDisplayRef != null)
+            await graphBilanceDisplayRef.Refresh(GameBoardId);
     }
 }

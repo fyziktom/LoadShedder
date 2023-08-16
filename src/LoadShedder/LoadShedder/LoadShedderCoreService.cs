@@ -201,7 +201,14 @@ namespace LoadShedder
 
         private void Game_GameRespondingAction(object? sender, GameResponseActionEventArgs e)
         {
-            MainDataContext.GameResponseActions.Enqueue(e);
+            if (MainDataContext.GameResponseActions.TryGetValue(e.GameId, out var que))
+                que.Enqueue(e);
+            else
+            {
+                var q = new ConcurrentQueue<GameResponseActionEventArgs>();
+                q.Enqueue(e);
+                MainDataContext.GameResponseActions.TryAdd(e.GameId, q);
+            }
         }
 
         public override async Task StopAsync(CancellationToken cancellationToken)

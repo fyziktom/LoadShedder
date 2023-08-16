@@ -43,14 +43,16 @@
 
 @code {
     [Parameter] public string GameId { get; set; } = "testGame";
+    [Parameter] public string DeviceId { get; set; } = "test";
     [Parameter] public string BoardId { get; set; } = "testBoard";
     [Parameter] public string PlayerId { get; set; } = "fyziktom";
     [Parameter] public string PlayerName { get; set; } = "fyziktom";
     [Parameter] public EventCallback<string> PlayerNameChanged { get; set; }
     [Parameter] public EventCallback<string> GameIdChanged { get; set; }
+    [Parameter] public EventCallback<string> DeviceIdChanged { get; set; }
     [Parameter] public EventCallback<string> PlayerIdChanged { get; set; }
     [Parameter] public EventCallback<string> BoardIdChanged { get; set; }
-    [Parameter] public EventCallback<string> GameStarted { get; set; }
+    [Parameter] public EventCallback<StartGameInfo> GameStarted { get; set; }
 
     private bool isLoading = false;
 
@@ -95,7 +97,74 @@
                 {
                     Console.WriteLine("AddPlayer response: " + returnStr);
                     await PlayerIdChanged.InvokeAsync(PlayerId);
-                    await AddPlayerToBoard(returnStr);
+                    await AddDevice(returnStr);
+                    return returnStr;
+                }
+                else
+                    return "ERROR:Cannot read return message.";
+            }
+        }
+
+        return string.Empty;
+    }
+
+    private async Task<string> AddDevice(string playerId)
+    {
+        var obj = new
+        {
+            name = "default_device"
+        };
+
+        var cnt = JsonConvert.SerializeObject(obj);
+
+        using (var content = new StringContent(cnt, System.Text.Encoding.UTF8, "application/json"))
+        {
+            HttpResponseMessage result = await Http.PostAsync("api/AddDevice", content);
+            if (result.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var returnStr = await result.Content.ReadAsStringAsync();
+
+                if (returnStr != null)
+                {
+                    Console.WriteLine("AddDevice response: " + returnStr);
+                    await DeviceIdChanged.InvokeAsync(DeviceId);
+                    DeviceId = returnStr;
+                    await AddGameBoard(returnStr, playerId);
+                    return returnStr;
+                }
+                else
+                    return "ERROR:Cannot read return message.";
+            }
+        }
+
+        return string.Empty;
+    }
+
+    private async Task<string> AddGameBoard(string deviceId, string playerId)
+    {
+        var obj = new
+        {
+            name = PlayerName,
+            description = "",
+            playerid = playerId,
+            deviceid = deviceId
+        };
+
+        var cnt = JsonConvert.SerializeObject(obj);
+
+        using (var content = new StringContent(cnt, System.Text.Encoding.UTF8, "application/json"))
+        {
+            HttpResponseMessage result = await Http.PostAsync("api/AddGameBoard", content);
+            if (result.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var returnStr = await result.Content.ReadAsStringAsync();
+
+                if (returnStr != null)
+                {
+                    Console.WriteLine("AddPlayer response: " + returnStr);
+                    BoardId = returnStr;
+                    await BoardIdChanged.InvokeAsync(BoardId);
+                    //await AddPlayerToBoard(returnStr);
                     return returnStr;
                 }
                 else
@@ -183,7 +252,14 @@
             {
                 await Task.Delay(100);
                 isLoading = false;
-                await GameStarted.InvokeAsync(GameId);
+                await GameStarted.InvokeAsync(new StartGameInfo()
+                    {
+                        DeviceId = DeviceId,
+                        GameId = GameId,
+                        GameBoardId = BoardId,
+                        PlayerId = PlayerId,
+                        PlayerName = PlayerName
+                    });
             }
         }
         catch (Exception ex)

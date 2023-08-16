@@ -1,12 +1,12 @@
 ﻿@using Newtonsoft.Json;
 @inject HttpClient client
-
+<!--
 <Row Margin="Margin.Is2.FromTop">
     <Column Flex="Flex.JustifyContent.Center">
         <Heading Size="HeadingSize.Is3">Actual Board Bilance</Heading>
     </Column>
 </Row>
-
+-->
 <Row Margin="Margin.Is1.FromTop">
     <Column Flex="Flex.JustifyContent.Center">
         <Row>
@@ -146,8 +146,11 @@
 
     public string ApiCommand { get; set; } = "/api/NewDeviceData";
 
-    public async Task Refresh()
+    public async Task Refresh(string boardId)
     {
+        if (!string.IsNullOrEmpty(boardId))
+            BoardId = boardId;
+
         await GetBilance();
         await GetBilanceForSources();
         await GetBilanceForConsumers();

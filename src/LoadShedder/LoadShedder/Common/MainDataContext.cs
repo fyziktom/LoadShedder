@@ -45,6 +45,6 @@ namespace LoadShedder.Common
         /// <summary>
         /// Place for storing all the game actions before the UI will dequeue them.
         /// </summary>
-        public static ConcurrentQueue<GameResponseActionEventArgs> GameResponseActions { get; set; } = new ConcurrentQueue<GameResponseActionEventArgs>();
+        public static ConcurrentDictionary<string, ConcurrentQueue<GameResponseActionEventArgs>> GameResponseActions { get; set; } = new ConcurrentDictionary<string, ConcurrentQueue<GameResponseActionEventArgs>>();
     }
 }

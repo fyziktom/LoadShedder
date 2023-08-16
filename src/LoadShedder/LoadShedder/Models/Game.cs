@@ -39,7 +39,14 @@ namespace LoadShedder.Models
         EndOfTheGame_Success,
         EndOfTheGame_Loose,
     }
-
+    public class StartGameInfo
+    {
+        public string GameId { get; set; } = string.Empty;
+        public string GameBoardId { get; set; } = string.Empty;
+        public string DeviceId { get; set; } = string.Empty;
+        public string PlayerId { get; set; } = string.Empty;
+        public string PlayerName { get; set; } = string.Empty;
+    }
     public class GameStoredData
     {
         public string PlayerName { get; set; } = string.Empty;
