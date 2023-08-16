@@ -14,10 +14,7 @@
     <PackageReference Include="Blazorise.Snackbar" Version="1.2.5" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="6.5.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\..\VEF_1\VirtualEconomyFramework\VEDriversLite.EntitiesBlocks\VEDriversLite.EntitiesBlocks.csproj" />
+    <PackageReference Include="VEFramework.VEDriversLite.EntitiesBlocks" Version="0.4.0" />
   </ItemGroup>
 
 </Project>
