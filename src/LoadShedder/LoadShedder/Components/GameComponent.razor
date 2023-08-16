@@ -21,9 +21,14 @@
 </Row>
 <Row Margin="Margin.Is2.FromTop.Is2.FromBottom.Is5.FromStart">
     <Column Flex="Flex.JustifyContent.Center">
-        Game Response Action: @(
+        Level: @(
         Enum.GetName(typeof(GamePlayStage), GameStage) ?? "Waiting for start"
         )
+    </Column>
+</Row>
+<Row Margin="Margin.Is2.FromTop.Is2.FromBottom.Is5.FromStart">
+    <Column Flex="Flex.JustifyContent.Center">
+        Elapsed: @(Math.Round(ElapsedTime, 0)) seconds
     </Column>
 </Row>
 <Row Margin="Margin.Is2.FromTop.Is2.FromBottom.Is5.FromStart">
@@ -61,7 +66,7 @@
 
 <Row Margin="Margin.Is2.FromTop.Is2.FromBottom.Is2.FromStart">
     <Column Flex="Flex.JustifyContent.Center">
-        <AllGamePiecesKeyboard OnBoardChanged="@onBoardChangedHandler" GameBoardId="@GameBoardId" />
+        <AllGamePiecesKeyboard @ref=allGamePiecesKeyboardRef OnBoardChanged="@onBoardChangedHandler" GameBoardId="@GameBoardId" />
     </Column>
 </Row>
 
@@ -73,12 +78,25 @@
     [Parameter] public EventCallback<string> GameOver { get; set; }
 
     private Timer _timer;
+    AllGamePiecesKeyboard? allGamePiecesKeyboardRef;
 
     protected override Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
-            _timer = new Timer(async (e) => { await Refresh(); }, null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
+            _timer = new Timer(async (e) => { await Refresh(); }, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(500));
         return base.OnAfterRenderAsync(firstRender);
+    }
+
+    public async Task NewGame(string gameId)
+    {
+        if (!string.IsNullOrEmpty(gameId))
+            GameId = gameId;
+
+        if (allGamePiecesKeyboardRef != null)
+            await allGamePiecesKeyboardRef.ClearKeyboard();
+
+        await InvokeAsync(StateHasChanged);
+        //_timer = new Timer(async (e) => { await Refresh(); }, null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
     }
 
     public async Task Refresh()
@@ -87,15 +105,19 @@
         {
             if (GameResponseAction == GameResponseActions.EndOfTheGame_Success)
             {
-                _timer.Dispose();
-                _timer = null;
+                //_timer.Dispose();
+                //_timer = null;
                 await GameEndedSuccsess.InvokeAsync(GameId);
+                if (allGamePiecesKeyboardRef != null)
+                    await allGamePiecesKeyboardRef.ClearKeyboard();
             }
             else if (GameResponseAction == GameResponseActions.EndOfTheGame_Loose)
             {
-                _timer.Dispose();
-                _timer = null;
+                //_timer.Dispose();
+                //_timer = null;
                 await GameOver.InvokeAsync(GameId);
+                if (allGamePiecesKeyboardRef != null)
+                    await allGamePiecesKeyboardRef.ClearKeyboard();
             }
 
         }
@@ -107,11 +129,22 @@
         await InvokeAsync(StateHasChanged);
     }
 
+    public double ElapsedTime
+    {
+        get
+        {
+            if (AppData.GameResponseDataHistory.TryGetValue(GameId, out var response))
+                return response.ActualElapsedGameTime;
+            else
+                return 0.0;
+        }
+    }
+
     public GameResponseActions GameResponseAction
     {
         get
         {
-            if (AppData.GameResponseDataHistory.TryGetValue(GameBoardId, out var response))
+            if (AppData.GameResponseDataHistory.TryGetValue(GameId, out var response))
                 return response.Action;
             else
                 return GameResponseActions.StartingWithoutSources;
@@ -122,7 +155,7 @@
     {
         get
         {
-            if (AppData.GameResponseDataHistory.TryGetValue(GameBoardId, out var response))
+            if (AppData.GameResponseDataHistory.TryGetValue(GameId, out var response))
                 return response.Stage;
             else
                 return GamePlayStage.None;
@@ -133,7 +166,7 @@
     {
         get
         {
-            if (AppData.GameResponseDataHistory.TryGetValue(GameBoardId, out var response))
+            if (AppData.GameResponseDataHistory.TryGetValue(GameId, out var response))
                 return response.RestOfThePenalty;
             else
                 return 0.0;

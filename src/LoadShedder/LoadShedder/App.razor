@@ -25,7 +25,7 @@
     protected override Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
-            _timer = new Timer(async (e) => { await PollEvents(); }, null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
+            _timer = new Timer(async (e) => { await PollEvents(); }, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(500));
 
         return base.OnAfterRenderAsync(firstRender);
     }
@@ -72,20 +72,26 @@
 
         if (data.Action != GameResponseActions.BlackOut && data.Action != GameResponseActions.BlackoutRecovery)
         {
-            if (AppData.GameResponseDataHistory.TryGetValue(data.BoardId, out var h))
+            var sendinfo = true;
+            if (AppData.GameResponseDataHistory.TryGetValue(data.GameId, out var h))
             {
                 if (h.Action == data.Action && h.Stage == data.Stage)
-                    return;
+                    sendinfo = false;              
+
             }
 
-            if (!string.IsNullOrEmpty(playername))
-                await NotificationService.Info($"{playername} - {Enum.GetName(typeof(GameResponseActions), data.Action)}", "Game Info");
-            else    
-                await NotificationService.Info($"{data.PlayerId} - {Enum.GetName(typeof(GameResponseActions), data.Action)}", "Game Info");
+            if(sendinfo)
+            {
+                if (!string.IsNullOrEmpty(playername))
+                    await NotificationService.Info($"{playername} - {Enum.GetName(typeof(GameResponseActions), data.Action)}", "Game Info");
+                else    
+                    await NotificationService.Info($"{data.PlayerId} - {Enum.GetName(typeof(GameResponseActions), data.Action)}", "Game Info");
+            }
         }
         else if (data.Action != GameResponseActions.BlackOut)
         {
-            if (AppData.GameResponseDataHistory.TryGetValue(data.BoardId, out var h))
+            var sendinfo = true;
+            if (AppData.GameResponseDataHistory.TryGetValue(data.GameId, out var h))
             {
                 if (h.Action == data.Action &&
                     h.Stage == data.Stage &&
@@ -93,18 +99,22 @@
                     h.ActualBilanceConsumers == data.ActualBilanceConsumers &&
                     h.ActualBilanceSources == data.ActualBilanceSources &&
                     h.ActualBilance == data.ActualBilance)
-                    return;
+                    sendinfo = false;
             }
 
-            
-            if (!string.IsNullOrEmpty(playername))
-                await NotificationService.Error($"{playername} - {Enum.GetName(typeof(GameResponseActions), data.Action)}", "Blackout");
-            else    
-                await NotificationService.Error($"{data.PlayerId} - {Enum.GetName(typeof(GameResponseActions), data.Action)}", "Blackout");
+            if (sendinfo)
+            {
+                if (!string.IsNullOrEmpty(playername))
+                    await NotificationService.Error($"{playername} - {Enum.GetName(typeof(GameResponseActions), data.Action)}", "Blackout");
+                else    
+                    await NotificationService.Error($"{data.PlayerId} - {Enum.GetName(typeof(GameResponseActions), data.Action)}", "Blackout");
+            }
         }
 
-        AppData.GameResponseDataHistory.TryRemove(data.BoardId, out var history);
-        AppData.GameResponseDataHistory.TryAdd(data.BoardId, data);
+        AppData.GameResponseDataHistory.TryRemove(data.GameId, out var history);
+        AppData.GameResponseDataHistory.TryAdd(data.GameId, data);
+
+        await InvokeAsync(StateHasChanged);
 
     }
     

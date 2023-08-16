@@ -104,10 +104,22 @@
         if (firstRender)
         {
             await getGamePieces();
-            _timer = new Timer(async (e) => { await PeriodicPost(); }, null, TimeSpan.Zero, TimeSpan.FromSeconds(2));
+            _timer = new Timer(async (e) => { await PeriodicPost(); }, null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
         }
 
         await base.OnAfterRenderAsync(firstRender);
+    }
+
+    public async Task ClearKeyboard()
+    {
+        for (int i = 0; i < Board.Length; i++)
+            Board[i] = 0;
+
+        foreach(var gp in GamePieces.Values)
+            gp.IsPlugged = false;
+
+        await ProcessRequest();
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task PeriodicPost()

@@ -60,6 +60,10 @@ namespace LoadShedder.Models
         /// Actual total bilance for the GameBoard
         /// </summary>
         public double ActualBilance { get; set; } = 0.0;
+        /// <summary>
+        /// Elapsed time in seconds
+        /// </summary>
+        public double ActualElapsedGameTime { get; set; } = 0.0;
     }
 
     /// <summary>
@@ -221,14 +225,15 @@ namespace LoadShedder.Models
                             PlayersGameData.Add(b.PlayerId, pgm);
                         else
                             PlayersGameData[b.PlayerId].ChangePlayStage(GamePlayStage.Start);
-                        
+
                         GameRespondingAction?.Invoke(this, new GameResponseActionEventArgs()
                         {
                             Action = GameResponseActions.StartingWithoutSources,
                             BoardId = boardId,
                             PlayerId = b.PlayerId,
                             GameId = Id,
-                            Stage = pgm.ActualGamePlayStage
+                            Stage = pgm.ActualGamePlayStage,
+                            ActualElapsedGameTime = ElapsedTime.TotalSeconds
                         });
                     }
                 }
@@ -243,7 +248,13 @@ namespace LoadShedder.Models
             if (!IsPlaying) 
                 return "Game is not running now.";
 
-            if (!IsEndGame)
+            foreach (var boardId in GameBoardIds)
+            {
+                if (MainDataContext.GameBoards.TryGetValue(boardId, out var b))
+                    b.NewDataLoaded -= GameBoard_NewDataLoaded;
+            }
+
+            if (IsEndGame)
             {
                 IsPlaying = false;
                 EndTime = DateTime.UtcNow;
@@ -299,19 +310,17 @@ namespace LoadShedder.Models
 
         private void Stage_StartGame(string playerId, string boardId, PlayerGameData pgm)
         {
-            if (pgm.ActualGamePlayStage != GamePlayStage.LoadOfSources)
-            {
-                pgm.ChangePlayStage(GamePlayStage.LoadOfSources);
+            pgm.ChangePlayStage(GamePlayStage.LoadOfSources);
 
-                GameRespondingAction?.Invoke(this, new GameResponseActionEventArgs()
-                {
-                    Action = GameResponseActions.StartingWithoutSources,
-                    BoardId = boardId,
-                    PlayerId = playerId,
-                    GameId = Id,
-                    Stage = pgm.ActualGamePlayStage
-                });
-            }
+            GameRespondingAction?.Invoke(this, new GameResponseActionEventArgs()
+            {
+                Action = GameResponseActions.StartingWithoutSources,
+                BoardId = boardId,
+                PlayerId = playerId,
+                GameId = Id,
+                Stage = pgm.ActualGamePlayStage,
+                ActualElapsedGameTime = ElapsedTime.TotalSeconds
+            });
         }
 
         private void Stage_LoadOfSources(string playerId, string boardId, PlayerGameData pgm)
@@ -323,6 +332,8 @@ namespace LoadShedder.Models
                 var bilance = b.GetActualBilance();
 
                 pgm.LoadNewBilances(bilanceSources, bilanceConsumers, bilance);
+
+                var response = GetResponseAction(bilance);
 
                 // if the player plug the consumer before the grid has 75MW it will cause the blackout
                 if (bilanceConsumers > 0)
@@ -342,7 +353,8 @@ namespace LoadShedder.Models
                         Stage = pgm.ActualGamePlayStage,
                         ActualBilanceSources = bilanceSources,
                         ActualBilanceConsumers = bilanceConsumers,
-                        ActualBilance = bilance
+                        ActualBilance = bilance,
+                        ActualElapsedGameTime = ElapsedTime.TotalSeconds
                     });
 
                     return;
@@ -354,21 +366,7 @@ namespace LoadShedder.Models
 
                     GameRespondingAction?.Invoke(this, new GameResponseActionEventArgs()
                     {
-                        Action = GameResponseActions.Overproduction,
-                        BoardId = boardId,
-                        PlayerId = playerId,
-                        GameId = Id,
-                        Stage = pgm.ActualGamePlayStage,
-                        ActualBilanceSources = bilanceSources,
-                        ActualBilanceConsumers = bilanceConsumers,
-                        ActualBilance = bilance
-                    });
-                }
-                else
-                {
-                    GameRespondingAction?.Invoke(this, new GameResponseActionEventArgs()
-                    {
-                        Action = GameResponseActions.StartingWithoutSources,
+                        Action = response,
                         BoardId = boardId,
                         PlayerId = playerId,
                         GameId = Id,
@@ -376,7 +374,23 @@ namespace LoadShedder.Models
                         ActualBilanceSources = bilanceSources,
                         ActualBilanceConsumers = bilanceConsumers,
                         ActualBilance = bilance,
-                        RestOfThePenalty = 0
+                        ActualElapsedGameTime = ElapsedTime.TotalSeconds
+                    });
+                }
+                else
+                {
+                    GameRespondingAction?.Invoke(this, new GameResponseActionEventArgs()
+                    {
+                        Action = response,
+                        BoardId = boardId,
+                        PlayerId = playerId,
+                        GameId = Id,
+                        Stage = pgm.ActualGamePlayStage,
+                        ActualBilanceSources = bilanceSources,
+                        ActualBilanceConsumers = bilanceConsumers,
+                        ActualBilance = bilance,
+                        RestOfThePenalty = 0,
+                        ActualElapsedGameTime = ElapsedTime.TotalSeconds
                     });
                 }
             }
@@ -393,6 +407,8 @@ namespace LoadShedder.Models
 
                 pgm.LoadNewBilances(bilanceSources, bilanceConsumers, bilance);
 
+                var response = GetResponseAction(bilance);
+
                 if (bilance <= 10000 && bilance >= 0) // next level is when they will plug enough of consumers to have just 10MW over production
                 {
                     pgm.ChangePlayStage(GamePlayStage.BalancingOfNetwork);
@@ -406,7 +422,8 @@ namespace LoadShedder.Models
                         Stage = pgm.ActualGamePlayStage,
                         ActualBilanceSources = bilanceSources,
                         ActualBilanceConsumers = bilanceConsumers,
-                        ActualBilance = bilance
+                        ActualBilance = bilance,
+                        ActualElapsedGameTime = ElapsedTime.TotalSeconds
                     });
                 }
                 else if (bilance < 0) // if the bilance will drop under zero you have a blackout
@@ -424,7 +441,24 @@ namespace LoadShedder.Models
                         RestOfThePenalty = (double)pgm.ActualGameTimePenalty,
                         ActualBilanceSources = bilanceSources,
                         ActualBilanceConsumers = bilanceConsumers,
-                        ActualBilance = bilance
+                        ActualBilance = bilance,
+                        ActualElapsedGameTime = ElapsedTime.TotalSeconds
+                    });
+                }
+                else
+                {
+                    GameRespondingAction?.Invoke(this, new GameResponseActionEventArgs()
+                    {
+                        Action = response,
+                        BoardId = boardId,
+                        PlayerId = playerId,
+                        GameId = Id,
+                        Stage = pgm.ActualGamePlayStage,
+                        ActualBilanceSources = bilanceSources,
+                        ActualBilanceConsumers = bilanceConsumers,
+                        ActualBilance = bilance,
+                        RestOfThePenalty = 0,
+                        ActualElapsedGameTime = ElapsedTime.TotalSeconds
                     });
                 }
             }
@@ -438,12 +472,8 @@ namespace LoadShedder.Models
                 var bilanceConsumers = b.GetActualBilanceForConsumers();
                 var bilance = b.GetActualBilance();
 
-                var response = GameResponseActions.Overproduction;
+                var response = GetResponseAction(bilance);
 
-                if (bilance < 0)
-                    response = GameResponseActions.Overconsumption;
-
-                
                 pgm.LoadNewBilances(bilanceSources, bilanceConsumers, bilance);
 
                 if (bilance == 0) // next level is when they will plug enough of consumers to have just 10MW over production
@@ -459,7 +489,8 @@ namespace LoadShedder.Models
                         Stage = pgm.ActualGamePlayStage,
                         ActualBilanceSources = bilanceSources,
                         ActualBilanceConsumers = bilanceConsumers,
-                        ActualBilance = bilance
+                        ActualBilance = bilance,
+                        ActualElapsedGameTime = ElapsedTime.TotalSeconds
                     });
                 }
                 else if (bilance <= -5000) // too large overconsumption
@@ -477,7 +508,8 @@ namespace LoadShedder.Models
                         RestOfThePenalty = (double)pgm.ActualGameTimePenalty,
                         ActualBilanceSources = bilanceSources,
                         ActualBilanceConsumers = bilanceConsumers,
-                        ActualBilance = bilance
+                        ActualBilance = bilance,
+                        ActualElapsedGameTime = ElapsedTime.TotalSeconds
                     });
 
                 }
@@ -496,7 +528,8 @@ namespace LoadShedder.Models
                         RestOfThePenalty = (double)pgm.ActualGameTimePenalty,
                         ActualBilanceSources = bilanceSources,
                         ActualBilanceConsumers = bilanceConsumers,
-                        ActualBilance = bilance
+                        ActualBilance = bilance,
+                        ActualElapsedGameTime = ElapsedTime.TotalSeconds
                     });
                 }
                 else
@@ -511,7 +544,8 @@ namespace LoadShedder.Models
                         Stage = pgm.ActualGamePlayStage,
                         ActualBilanceSources = bilanceSources,
                         ActualBilanceConsumers = bilanceConsumers,
-                        ActualBilance = bilance
+                        ActualBilance = bilance,
+                        ActualElapsedGameTime = ElapsedTime.TotalSeconds
                     });
                 }
             }
@@ -543,7 +577,8 @@ namespace LoadShedder.Models
                         RestOfThePenalty = (double)pgm.ActualGameTimePenalty - (DateTime.UtcNow - pgm.GamePenaltyStartTime).TotalSeconds,
                         ActualBilanceSources = bilanceSources,
                         ActualBilanceConsumers = bilanceConsumers,
-                        ActualBilance = bilance
+                        ActualBilance = bilance,
+                        ActualElapsedGameTime = ElapsedTime.TotalSeconds
                     });
                 }
                 else
@@ -555,9 +590,7 @@ namespace LoadShedder.Models
                     pgm.ChangePlayStage(prevStage);
                     pgm.ActualGameTimePenalty = GameTimePenalty.NONE;
 
-                    var response = GameResponseActions.Overproduction;
-                    if (bilance < 0)
-                        response = GameResponseActions.Overconsumption;
+                    var response = GetResponseAction(bilance);
 
                     GameRespondingAction?.Invoke(this, new GameResponseActionEventArgs()
                     {
@@ -569,7 +602,8 @@ namespace LoadShedder.Models
                         RestOfThePenalty = 0,
                         ActualBilanceSources = bilanceSources,
                         ActualBilanceConsumers = bilanceConsumers,
-                        ActualBilance = bilance
+                        ActualBilance = bilance,
+                        ActualElapsedGameTime = ElapsedTime.TotalSeconds
                     });
 
                 }
@@ -579,7 +613,18 @@ namespace LoadShedder.Models
 
         private void Stage_EndOfGame(string playerId, string boardId, PlayerGameData pgm)
         {
+            IsEndGame = true;
+            EndGame();
+        }
 
+        private GameResponseActions GetResponseAction(double bilance)
+        {
+            var response = GameResponseActions.Overproduction;
+
+            if (bilance < 0)
+                response = GameResponseActions.Overconsumption;
+
+            return response;
         }
 
     }

@@ -1,4 +1,7 @@
-﻿<Container Fluid Margin="Margin.Is4.FromBottom">
+﻿@inject AppData AppData
+@inject HttpClient Http
+
+<Container Fluid Margin="Margin.Is4.FromBottom">
      <Steps SelectedStep="@selectedStep" SelectedStepChanged="@OnSelectedStepChanged">
          <Items>
              <Step Name="stepIntro">Intro</Step>
@@ -7,10 +10,10 @@
          </Items>
          <Content>
              <StepPanel Name="stepIntro">
-                 <GameStartComponent GameStarted="@gameStartedHandler" GameId="@GameId" />
+                 <GameStartComponent GameStarted="@gameStartedHandler" />
              </StepPanel>
              <StepPanel Name="stepGame">
-                 <GameComponent GameId="@GameId" GameBoardId="@BoardId" GameEndedSuccsess="onGameEndedSuccesHandler" GameOver="onGameOverHandler" />
+                 <GameComponent @ref=gameComponentRef GameBoardId="@BoardId" GameEndedSuccsess="onGameEndedSuccesHandler" GameOver="onGameOverHandler" />
              </StepPanel>
 
              <StepPanel Name="stepFinish">
@@ -57,10 +60,16 @@
     public bool IsGameSuccess = false;
     public bool IsGameOver = false;
 
+    GameComponent? gameComponentRef;
+
     string selectedStep = "stepIntro";
 
     private async Task gameStartedHandler(string gameId)
     {
+        if (gameComponentRef != null)
+            await gameComponentRef.NewGame(gameId);
+        GameId = gameId;
+
         selectedStep = "stepGame";
         IsGameEnded = false;
         IsGameStarted = true;
@@ -76,6 +85,7 @@
         IsGameStarted = false;
         IsGameSuccess = true;
         IsGameOver = false;
+        await EndGame();
         await InvokeAsync(StateHasChanged);
     }
 
@@ -86,6 +96,7 @@
         IsGameStarted = false;
         IsGameSuccess = false;
         IsGameOver = true;
+        await EndGame();
         await InvokeAsync(StateHasChanged);
     }
 
@@ -95,6 +106,37 @@
         return Task.CompletedTask;
     }
 
+    private async Task EndGame()
+    {
+        if (await EndGameRequest())
+        {
+            AppData.GameResponseDataHistory.TryRemove(GameId, out var response);
+            if (gameComponentRef != null)
+                await gameComponentRef.NewGame(GameId);
+        }
+
+    }
+
+    public async Task<bool> EndGameRequest()
+    {
+        try
+        {
+            var response = await Http.GetStringAsync($"api/EndGame/{GameId}");
+            Console.WriteLine("End game response:" + response);
+            if (response == "OK")
+            {
+                await Task.Delay(100);
+                return true;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Cannot end the game: \n" + ex.Message);
+        }
+
+        return false;
+    }
+
     private async Task PlayAgain(MouseEventArgs e)
     {
         selectedStep = "stepIntro";
@@ -102,6 +144,8 @@
         IsGameStarted = false;
         IsGameSuccess = false;
         IsGameOver = false;
+        AppData.GameResponseDataHistory.TryRemove(GameId, out var response);
+        
         await InvokeAsync(StateHasChanged);
     }
 

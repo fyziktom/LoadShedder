@@ -145,7 +145,7 @@
     [Parameter] public double BilanceConsumers { get; set; } = 0.0;
 
     public string ApiCommand { get; set; } = "/api/NewDeviceData";
-    
+
     public async Task Refresh()
     {
         await GetBilance();
@@ -156,22 +156,49 @@
 
     private async Task<double> GetBilance()
     {
-        var response = client.GetStringAsync($"api/GetBoardBilance/{BoardId}");
-        Bilance = double.Parse(await response, System.Globalization.CultureInfo.InvariantCulture);
-        return Bilance;
+        try
+        {
+            var response = client.GetStringAsync($"api/GetBoardBilance/{BoardId}");
+            Bilance = double.Parse(await response, System.Globalization.CultureInfo.InvariantCulture);
+            return Bilance;
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine("Cannot get board bilance");
+        }
+
+        return 0.0;
     }
 
     private async Task<double> GetBilanceForSources()
     {
-        var response = client.GetStringAsync($"api/GetBoardSourcesBilance/{BoardId}");
-        BilanceSources = double.Parse(await response, System.Globalization.CultureInfo.InvariantCulture);
-        return BilanceSources;
+        try
+        {
+            var response = client.GetStringAsync($"api/GetBoardSourcesBilance/{BoardId}");
+            BilanceSources = double.Parse(await response, System.Globalization.CultureInfo.InvariantCulture);
+            return BilanceSources;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Cannot get board bilance");
+        }
+
+        return 0.0;
     }
 
     private async Task<double> GetBilanceForConsumers()
     {
-        var response = client.GetStringAsync($"api/GetBoardConsumersBilance/{BoardId}");
-        BilanceConsumers = double.Parse(await response, System.Globalization.CultureInfo.InvariantCulture);
-        return BilanceConsumers;
+        try
+        {
+            var response = client.GetStringAsync($"api/GetBoardConsumersBilance/{BoardId}");
+            BilanceConsumers = double.Parse(await response, System.Globalization.CultureInfo.InvariantCulture);
+            return BilanceConsumers;
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine("Cannot get board bilance");
+        }
+
+        return 0.0;
     }
 }

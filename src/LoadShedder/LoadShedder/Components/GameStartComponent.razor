@@ -181,7 +181,7 @@
             Console.WriteLine("Start game response:" + response);
             if (response == "OK")
             {
-                await Task.Delay(1000);
+                await Task.Delay(100);
                 isLoading = false;
                 await GameStarted.InvokeAsync(GameId);
             }

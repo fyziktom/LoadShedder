@@ -136,7 +136,7 @@ namespace LoadShedder
             await Console.Out.WriteLineAsync("");
             await Console.Out.WriteLineAsync("");
             await Console.Out.WriteLineAsync("Starting main loop...");
-            var savetimes = 3;
+            var savetimes = 30;
 
             try
             {
@@ -158,7 +158,7 @@ namespace LoadShedder
                                                                 JsonConvert.SerializeObject(MainDataContext.Devices, Formatting.Indented));
                                     FileHelpers.WriteTextToFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "GameBoards.json"),
                                                                 JsonConvert.SerializeObject(MainDataContext.GameBoards, Formatting.Indented));
-                                    savetimes = 3;
+                                    savetimes = 30;
                                 }
                                 else
                                 {
@@ -178,7 +178,7 @@ namespace LoadShedder
                                 Console.WriteLine("Cannot save server state to the file.");
                             }
 
-                            await Task.Delay(10000);
+                            await Task.Delay(1000);
 
                         }
                         catch (Exception ex)
