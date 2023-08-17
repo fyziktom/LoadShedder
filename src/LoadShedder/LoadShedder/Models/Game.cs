@@ -356,7 +356,7 @@ namespace LoadShedder.Models
                 var response = GetResponseAction(bilance);
 
                 // if the player plug the consumer before the grid has 75MW it will cause the blackout
-                if (bilanceConsumers > 0)
+                if (bilanceConsumers > MainDataContext.GameSettings.LOADING_SOURCES_MAXIMUM_CONSUMERS)
                 {
                     // select the type of the penalty
                     pgm.ActualGameTimePenalty = GameTimePenalty.FIFTHTEEN_SECONDS;
@@ -380,7 +380,7 @@ namespace LoadShedder.Models
                     return;
                 }
                 // when they reach the 75MW it will move them to the next level
-                else if (bilanceSources >= 75000) 
+                else if (bilanceSources >= MainDataContext.GameSettings.LOADING_SOURCES_GOAL_TO_REACH) 
                 {
                     pgm.ChangePlayStage(GamePlayStage.LoadOfConsumers);
 
@@ -429,7 +429,8 @@ namespace LoadShedder.Models
 
                 var response = GetResponseAction(bilance);
 
-                if (bilance <= 10000 && bilance >= 0) // next level is when they will plug enough of consumers to have just 10MW over production
+                if (bilance <= MainDataContext.GameSettings.LOADING_CONSUMERS_MAXIMUM_BILANCE_GOAL_TO_REACH && 
+                    bilance >= MainDataContext.GameSettings.LOADING_CONSUMERS_MINIMUM_BILANCE_GOAL_TO_REACH) // next level is when they will plug enough of consumers to have just 10MW over production
                 {
                     pgm.ChangePlayStage(GamePlayStage.BalancingOfNetwork);
 
@@ -446,7 +447,7 @@ namespace LoadShedder.Models
                         ActualElapsedGameTime = ElapsedTime.TotalSeconds
                     });
                 }
-                else if (bilance < 0) // if the bilance will drop under zero you have a blackout
+                else if (bilance < MainDataContext.GameSettings.LOADING_CONSUMERS_BLACKOUT_THRESHOLD) // if the bilance will drop under zero you have a blackout
                 {
                     pgm.ActualGameTimePenalty = GameTimePenalty.FIFTHTEEN_SECONDS;
                     pgm.ChangePlayStage(GamePlayStage.TimePenalty);
@@ -513,7 +514,7 @@ namespace LoadShedder.Models
                         ActualElapsedGameTime = ElapsedTime.TotalSeconds
                     });
                 }
-                else if (bilance <= -5000) // too large overconsumption
+                else if (bilance <= MainDataContext.GameSettings.BALANCING_OVERCONSUMPTION_BLACKOUT_THRESHOLD) // too large overconsumption
                 {
                     pgm.ActualGameTimePenalty = GameTimePenalty.FIFTHTEEN_SECONDS;
                     pgm.ChangePlayStage(GamePlayStage.TimePenalty);
@@ -533,7 +534,7 @@ namespace LoadShedder.Models
                     });
 
                 }
-                else if (bilance >= 15000) // too large overproduction
+                else if (bilance >= MainDataContext.GameSettings.BALANCING_OVERPRODUCTION_BLACKOUT_THRESHOLD) // too large overproduction
                 {
                     pgm.ActualGameTimePenalty = GameTimePenalty.FIFTHTEEN_SECONDS;
                     pgm.ChangePlayStage(GamePlayStage.TimePenalty);

@@ -23,6 +23,10 @@ namespace LoadShedder.Common
         /// </summary>
         public static double ADCVoltageTolerance { get; set; } = 20; //20mV
         /// <summary>
+        /// Settings of the game, constants, etc. It is loaded from the appsettings.json
+        /// </summary>
+        public static GameSettings GameSettings { get; set; } = new GameSettings();
+        /// <summary>
         /// Dictionary of all the devices
         /// </summary>
         public static ConcurrentDictionary<string, Device> Devices { get; set; } = new ConcurrentDictionary<string, Device>();

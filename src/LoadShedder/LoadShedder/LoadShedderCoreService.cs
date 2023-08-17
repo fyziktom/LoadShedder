@@ -26,6 +26,7 @@ namespace LoadShedder
             MainDataContext.ADCMainVoltage = settings.GetValue<double>("ADCMainVoltage", 5000);
 
             settings.GetSection("GamePieces").Bind(MainDataContext.GamePieces);
+            settings.GetSection("GameSettings").Bind(MainDataContext.GameSettings);
 
             #endregion
        }
