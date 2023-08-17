@@ -58,8 +58,50 @@
     </Column>
 </Row>
 
-<GraphBilanceDisplay @ref="graphBilanceDisplayRef" />
-<BilanceDisplay @ref="bilanceDisplayRef" />
+<Row Margin="Margin.Is2.FromTop.Is2.FromBottom">
+    <Column>
+        <Row>
+            <Column Flex="Flex.JustifyContent.Center">
+                <Heading Size="HeadingSize.Is4">Sources</Heading>
+            </Column>
+        </Row>
+        <Row Margin="Margin.Is1.FromTop">
+            <Column Flex="Flex.JustifyContent.Center">
+                <MegaWattMeter @ref=megaWattMeterSourcesRef />
+            </Column>
+        </Row>
+    </Column>
+    <Column>
+        <Row>
+            <Column Flex="Flex.JustifyContent.Center">
+                <Heading Size="HeadingSize.Is4">Total Bilance</Heading>
+            </Column>
+        </Row>
+        <Row Margin="Margin.Is1.FromTop">
+            <Column Flex="Flex.JustifyContent.Center">
+                <MegaWattMeter @ref=megaWattMeterRef />
+            </Column>
+        </Row>
+    </Column>
+    <Column>
+        <Row>
+            <Column Flex="Flex.JustifyContent.Center">
+                <Heading Size="HeadingSize.Is4">Consumers</Heading>
+            </Column>
+        </Row>
+        <Row Margin="Margin.Is1.FromTop">
+            <Column Flex="Flex.JustifyContent.Center">
+                <MegaWattMeter @ref=megaWattMeterConsumersRef />
+            </Column>
+        </Row>
+    </Column>
+</Row>
+
+<BilanceDisplay @ref="bilanceDisplayRef" 
+                IsVisible="false"
+                BilanceChanged="@onBilanceChangedHandler" 
+                BilanceSourcesChanged="@onBilanceSourcesChangedHandler"
+                BilanceConsumersChanged="@onBilanceConsumersChangedHandler"/>
 
 <Row Margin="Margin.Is2.FromTop.Is2.FromBottom.Is2.FromStart">
     <Column Flex="Flex.JustifyContent.Center">
@@ -69,7 +111,10 @@
 
 @code {
     BilanceDisplay? bilanceDisplayRef;
-    GraphBilanceDisplay? graphBilanceDisplayRef;
+    MegaWattMeter? megaWattMeterRef;
+    MegaWattMeter? megaWattMeterSourcesRef;
+    MegaWattMeter? megaWattMeterConsumersRef;
+
     [Parameter] public string GameBoardId { get; set; } = "testBoard";
     [Parameter] public string GameId { get; set; } = "testGame";
     [Parameter] public string DeviceId { get; set; } = "test";
@@ -78,6 +123,10 @@
 
     private Timer _timer;
     AllGamePiecesKeyboard? allGamePiecesKeyboardRef;
+    GameResponseActionEventArgs lastresponse = new GameResponseActionEventArgs();
+    double bilance = 0;
+    double bilanceSources = 0;
+    double bilanceConsumers = 0;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -104,10 +153,13 @@
         if (allGamePiecesKeyboardRef != null)
             await allGamePiecesKeyboardRef.ClearKeyboard(GameBoardId, DeviceId);
 
-        if (bilanceDisplayRef != null)
-            await bilanceDisplayRef.Refresh(GameBoardId);
-        if (graphBilanceDisplayRef != null)
-            await graphBilanceDisplayRef.Refresh(GameBoardId);
+        if (megaWattMeterRef != null)
+            await megaWattMeterRef.LoadValues(0);
+
+        if (megaWattMeterSourcesRef != null)
+            await megaWattMeterSourcesRef.LoadValues(0);
+        if (megaWattMeterConsumersRef != null)
+            await megaWattMeterConsumersRef.LoadValues(0);
 
         await InvokeAsync(StateHasChanged);
         //_timer = new Timer(async (e) => { await Refresh(); }, null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
@@ -123,7 +175,9 @@
                 //_timer = null;
 
                 if (allGamePiecesKeyboardRef != null)
-                    await allGamePiecesKeyboardRef.ClearKeyboard(GameBoardId, DeviceId);
+                    await allGamePiecesKeyboardRef.ClearKeyboard(GameBoardId, DeviceId);               
+                if (bilanceDisplayRef != null)
+                    await bilanceDisplayRef.Refresh(GameBoardId);
 
                 await GameEndedSuccsess.InvokeAsync(GameId);
             }
@@ -138,6 +192,12 @@
                 await GameOver.InvokeAsync(GameId);
             }
 
+            if (megaWattMeterRef != null)
+                await megaWattMeterRef.LoadValues(bilance);
+            if (megaWattMeterSourcesRef != null)
+                await megaWattMeterSourcesRef.LoadValues(bilanceSources);
+            if (megaWattMeterConsumersRef != null)
+                await megaWattMeterConsumersRef.LoadValues(bilanceConsumers);
         }
         catch(Exception ex)
         {
@@ -152,7 +212,10 @@
         get
         {
             if (AppData.GameResponseDataHistory.TryGetValue(GameId, out var response))
+            {
+                lastresponse = response;
                 return response.ActualElapsedGameTime;
+            }
             else
                 return 0.0;
         }
@@ -195,7 +258,31 @@
     {
         if (bilanceDisplayRef != null)
             await bilanceDisplayRef.Refresh(GameBoardId);
-        if (graphBilanceDisplayRef != null)
-            await graphBilanceDisplayRef.Refresh(GameBoardId);
+        if (megaWattMeterRef != null)
+            await megaWattMeterRef.LoadValues(bilance);
+    }
+
+    public async Task onBilanceChangedHandler(double newBilance)
+    {
+        bilance = newBilance;
+
+        if (megaWattMeterRef != null)
+            await megaWattMeterRef.LoadValues(bilance);
+    }
+
+    public async Task onBilanceSourcesChangedHandler(double newBilance)
+    {
+        bilanceSources = newBilance;
+
+        if (megaWattMeterSourcesRef != null)
+            await megaWattMeterSourcesRef.LoadValues(bilanceSources);
+    }
+
+    public async Task onBilanceConsumersChangedHandler(double newBilance)
+    {
+        bilanceConsumers = newBilance;
+
+        if (megaWattMeterConsumersRef != null)
+            await megaWattMeterConsumersRef.LoadValues(bilanceConsumers);
     }
 }

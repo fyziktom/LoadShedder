@@ -7,6 +7,8 @@
     </Column>
 </Row>
 -->
+@if (IsVisible)
+{
 <Row Margin="Margin.Is1.FromTop">
     <Column Flex="Flex.JustifyContent.Center">
         <Row>
@@ -133,6 +135,7 @@
         </Row>
     </Column>
 </Row>
+}
 
 @code {
     [Parameter]
@@ -143,6 +146,10 @@
     public double Bilance { get; set; } = 0.0;
     [Parameter] public double BilanceSources { get; set; } = 0.0;
     [Parameter] public double BilanceConsumers { get; set; } = 0.0;
+    [Parameter] public EventCallback<double> BilanceChanged { get; set; }
+    [Parameter] public EventCallback<double> BilanceSourcesChanged { get; set; }
+    [Parameter] public EventCallback<double> BilanceConsumersChanged { get; set; }
+    [Parameter] public bool IsVisible { get; set; } = true;
 
     public string ApiCommand { get; set; } = "/api/NewDeviceData";
 
@@ -163,6 +170,7 @@
         {
             var response = client.GetStringAsync($"api/GetBoardBilance/{BoardId}");
             Bilance = double.Parse(await response, System.Globalization.CultureInfo.InvariantCulture);
+            await BilanceChanged.InvokeAsync(Bilance);
             return Bilance;
         }
         catch(Exception ex)
@@ -179,6 +187,7 @@
         {
             var response = client.GetStringAsync($"api/GetBoardSourcesBilance/{BoardId}");
             BilanceSources = double.Parse(await response, System.Globalization.CultureInfo.InvariantCulture);
+            await BilanceSourcesChanged.InvokeAsync(BilanceSources);
             return BilanceSources;
         }
         catch (Exception ex)
@@ -195,6 +204,7 @@
         {
             var response = client.GetStringAsync($"api/GetBoardConsumersBilance/{BoardId}");
             BilanceConsumers = double.Parse(await response, System.Globalization.CultureInfo.InvariantCulture);
+            await BilanceConsumersChanged.InvokeAsync(BilanceConsumers);
             return BilanceConsumers;
         }
         catch(Exception ex)

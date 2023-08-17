@@ -1,0 +1,66 @@
+﻿<svg width="210" height="110" xmlns="http://www.w3.org/2000/svg" style="background-color: @BgColor;">
+    <!-- Pozadí stupnice -->
+    <path d="M 5 105 A 100 100 0 0 1 205 105" fill="none" stroke="#DDD" stroke-width="10" />
+    <!-- Ukazatel -->
+    <path id="pointer" d="M 105 5 L 105 20" fill="none" stroke="black" stroke-width="3" transform="rotate(@(Angle) 105 105)" />
+    <!-- Textové popisky -->
+    <text x="5" y="110" font-family="Arial" font-size="12" fill="black">-100 MW</text>
+    <text x="95" y="110" font-family="Arial" font-size="12" fill="black">0</text>
+    <text x="170" y="110" font-family="Arial" font-size="12" fill="black">100 MW</text>
+    <!-- Aktuální hodnota vprostřed měřáku -->
+    <text x="105" y="80" font-family="Arial" font-size="14" fill="black" text-anchor="middle">@ValueInMW.ToString("F2") MW</text>
+</svg>
+
+
+@code {
+    [Parameter] public double ValueInkW { get; set; } = 0;
+    [Parameter] public double MaxScaleInMW { get; set; } = 100;  // default range is -100 to +100 MW
+
+    private double ValueInMW { get; set; } = 0;
+    private double angle = 0;
+
+    public string BgColor
+    {
+        get
+        {
+            var bgColor = "rgba(100, 255, 100, 0.6)";
+            if (ValueInMW < 0)
+            {
+                bgColor = "rgba(255, 100, 100, 0.6)"; // světle červená
+            }
+            else if (ValueInMW == 0)
+            {
+                bgColor = "rgba(100, 255, 100, 0.6)"; // světle zelená
+            }
+            else
+            {
+                bgColor = "rgba(100, 100, 255, 0.6)";
+            }
+
+            return bgColor;
+        }
+    }
+
+    public double Angle { get => CalcAngle(); }
+
+    private double CalcAngle()
+    {
+        ValueInMW = ValueInkW / 1000; // convert to MW
+
+        // Limit value between -100 and 100
+        ValueInMW = Math.Clamp(ValueInMW, -MaxScaleInMW, MaxScaleInMW);
+
+        // calc the angle. 0 is in the middle it means 0°
+        double scale = 180.0 / (2 * MaxScaleInMW);
+        angle = ValueInMW * scale;
+        return Math.Round(angle, 0);
+    }
+
+    public async Task LoadValues(double valueInKW)
+    {
+        ValueInkW = valueInKW;
+        _ = CalcAngle();
+        await InvokeAsync(StateHasChanged);
+    }
+
+}
