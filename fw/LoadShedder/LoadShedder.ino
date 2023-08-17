@@ -4,6 +4,10 @@
 #include "HTTPClient.h"
 #include "logo.h"
 
+#define M_SIZE 1  // Scale factor
+#define VERTICAL_OFFSET 120
+#define HORIZONTAL_OFFSET 160
+
 #define NUMBER_OF_BITS 8
 // main control pins for switching transistors
 #define BIT_0 5
@@ -32,19 +36,28 @@
 #define READING_INTERVAL 50 //ms
 
 #define DATA_ARRAY_LENGTH NUMBER_OF_BITS * NUMBER_OF_ADCS
+
 int dataToSend[DATA_ARRAY_LENGTH];
 
+int old_analog = -999; // Value last time it was updated
+float ltx = 0;        // Saved x coord of bottom of needle
+uint16_t osx = HORIZONTAL_OFFSET, osy = VERTICAL_OFFSET;  // Center point of the semicircle at the top
+
+String MeterLabel[5] = {"100", "50", "0", "-50", "-100"};
+
+
 String moduleName = "test";
+String GameBoardName = "testBoard";
 String apiCommand = "NewDeviceData";
 
 // please fill IP address
-String DEFAULT_SRVIP = ""; // "IP OF PC WHERE YOU RUN Load Shedder Server App"
+String DEFAULT_SRVIP = "YOUR_IP"; // "IP OF PC WHERE YOU RUN Load Shedder Server App"
 String SERVER_PORT = "5000"; // "Port of LoadShedder Server App 5059 is default port in debug 5000 in full run"
 
 // please fill own network parameters
-//String ssid = "";//"YOUR SSID NAME";
-String ssid = "";//"YOUR SSID NAME";
-String password = "";//"YOUR WIFI PASSWORD";
+//String ssid = "BocaSimon WIFI";//"YOUR SSID NAME";
+String ssid = "WIFI_SSID";//"YOUR SSID NAME";
+String password = "WIFI_PASS";//"YOUR WIFI PASSWORD";
 
 String pathBase = "http://" + DEFAULT_SRVIP + ":" + SERVER_PORT + "/api/";
 
@@ -183,6 +196,14 @@ void setup() {
   delay(2000);
 
   Serial.println("Started.");
+  
+  M5.Lcd.fillScreen(TFT_BLACK);
+
+  analogMeter();
+
+  M5.Lcd.setCursor(145, 180);
+  M5.Lcd.setTextSize(3);
+  M5.Lcd.print("MW");
 
 }
 
@@ -222,10 +243,10 @@ void ReadProcedure() {
   for (int i = 0; i < 8; i++) {
     SetOneDrivingBit(i);
     delay(STABILISATION_INTERVAL);
-    dataToSend[i] = analogReadMilliVolts(ADC_0) * 10;
-    dataToSend[NUMBER_OF_BITS + i] = analogReadMilliVolts(ADC_1) * 10;
-    dataToSend[2 * NUMBER_OF_BITS + i] = analogReadMilliVolts(ADC_2) * 10;
-    dataToSend[3 * NUMBER_OF_BITS + i] = analogReadMilliVolts(ADC_3) * 10;
+    dataToSend[i] = analogReadMilliVolts(ADC_0) * 1;
+    dataToSend[NUMBER_OF_BITS + i] = analogReadMilliVolts(ADC_1) * 1;
+    dataToSend[2 * NUMBER_OF_BITS + i] = analogReadMilliVolts(ADC_2) * 1;
+    dataToSend[3 * NUMBER_OF_BITS + i] = analogReadMilliVolts(ADC_3) * 1;
     
     delay(READING_INTERVAL);
   }
@@ -279,15 +300,115 @@ void SendData() {
   }
 }
 
+
+void analogMeter() {
+  M5.Lcd.fillRect(0, 0, 320, 240, TFT_BLACK);
+
+  for (int i = 0; i <= 180; i += 5) {
+    int len = 5;  
+    if (i % 45 == 0) len = 15;
+    float radian = (i - 180) * DEG_TO_RAD;  // Adjusted the offset
+    int x1 = HORIZONTAL_OFFSET + 100 * cos(radian);
+    int y1 = VERTICAL_OFFSET + 100 * sin(radian);  
+    int x2 = HORIZONTAL_OFFSET + (100-len) * cos(radian);
+    int y2 = VERTICAL_OFFSET + (100-len) * sin(radian);
+    M5.Lcd.drawLine(x1, y1, x2, y2, TFT_WHITE);
+    M5.Lcd.setTextSize(1);
+    if (i % 45 == 0) {
+      int val = map(i, 0, 180, -100, 100);
+      char buf[5];
+      itoa(val, buf, 10);
+      M5.Lcd.drawCentreString(buf, HORIZONTAL_OFFSET + (115) * cos(radian), VERTICAL_OFFSET + (115) * sin(radian), 2);
+    }
+  }
+}
+
+void plotNeedle(int value, byte ms_delay) {
+  static int16_t oldPos = -999;
+  M5.Lcd.setTextColor(TFT_BLACK, TFT_WHITE);
+
+  value = constrain(value, -100, 100);
+  int16_t newPos = map(value, -100, 100, 180, 0);  // Adjusted the mapping
+
+  if (oldPos != -999) {
+    float radian = (oldPos - 180) * DEG_TO_RAD;
+    int x = HORIZONTAL_OFFSET + 95 * cos(radian);
+    int y = VERTICAL_OFFSET + 95 * sin(radian);
+    M5.Lcd.drawLine(HORIZONTAL_OFFSET, VERTICAL_OFFSET, x, y, TFT_BLACK);
+  }
+  
+  float radian = (newPos - 180) * DEG_TO_RAD;
+  int x = HORIZONTAL_OFFSET + 95 * cos(radian);
+  int y = VERTICAL_OFFSET + 95 * sin(radian);
+  M5.Lcd.drawLine(HORIZONTAL_OFFSET, VERTICAL_OFFSET, x, y, TFT_RED);
+
+  oldPos = newPos;
+  delay(ms_delay);
+}
+
+
+void GetBilance() {
+
+  String path = pathBase + "GetBoardBilance" + "/" + GameBoardName;
+
+  Serial.println("Path");
+  Serial.println((char*)path.c_str());
+
+  http.begin((char*)path.c_str());
+  http.addHeader("accept", "*/*");
+
+  // send data in PUT request
+  int httpResponseCode = http.GET();
+    
+  // parse output if code is not error
+  if (httpResponseCode > 0 && httpResponseCode < 400) {
+    String response = http.getString();
+    Serial.println(httpResponseCode);
+    Serial.println(response);
+  
+    Bilance_Request_Success(response);
+  }
+  else {
+    Serial.print("Error on sending GET Request: ");
+    Serial.println(httpResponseCode);
+  }
+}
+
+void Bilance_Request_Success(String response)
+{
+  float value = response.toFloat() / 1000;
+
+    //plotNeedle(value, 5);
+  plotNeedle(map((int)value, -100, 100, 100, -100), 5);
+  
+  //M5.Lcd.fillRect(0, M5.Lcd.height() - 40, M5.Lcd.width(), 40, TFT_BLACK);
+  int start = 123;
+  if (value >= 10 && value < 100) {
+    start = 112;
+  }
+  else if (value >= 100 && value < 1000) {
+    start = 105;
+  }
+
+  M5.Lcd.setCursor(start, M5.Lcd.height() - 90);
+  M5.Lcd.fillRect(start - 30, M5.Lcd.height() - 90, 200, 30, TFT_BLACK);
+  M5.Lcd.setTextColor(WHITE);
+  M5.Lcd.setTextSize(3);
+  M5.Lcd.print(value);
+  
+}
+
 void DataReading() {
-  M5.Lcd.fillScreen(BLACK);
-  M5.Lcd.setTextSize(2);
-  M5.Lcd.setCursor(25, 5); M5.Lcd.print("Load Shedder");
-  M5.Lcd.setCursor(25, 30); M5.Lcd.print("Reading positions");
+  //M5.Lcd.fillScreen(BLACK);
+  //M5.Lcd.setTextSize(2);
+  //M5.Lcd.setCursor(25, 5); M5.Lcd.print("Load Shedder");
+  //M5.Lcd.setCursor(25, 30); M5.Lcd.print("Reading positions");
   Serial.println();
 
   ReadProcedure();
   SendData();
+  delay(100);
+  GetBilance();
 }
 
 
@@ -296,5 +417,5 @@ void loop() {
 
   M5.update();
   // wait 10 seconds before allow new read
-  delay(10000);
+  delay(1000);
 }
