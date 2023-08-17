@@ -1,33 +1,12 @@
 ﻿@inject HttpClient Http
 @inject AppData AppData
 
-<Row Margin="Margin.Is2.FromTop.Is2.FromBottom.Is5.FromStart">
-    <Column Flex="Flex.JustifyContent.Center">
-        @if (GameResponseAction == GameResponseActions.EndOfTheGame_Success)
-        {
-            <Heading Size="HeadingSize.Is3" TextColor="TextColor.Success">
-                Succesfull end of the game. You have reached 0 bilance.
-            </Heading>
-        }
-        else
-        {
-            <Span>
-                Game Response Action: @(
-            Enum.GetName(typeof(GameResponseActions), GameResponseAction) ?? "Waiting for start"
-            )
-            </Span>
-        }
-    </Column>
-    <Column Flex="Flex.JustifyContent.Center">
-        Level: @(
-        Enum.GetName(typeof(GamePlayStage), GameStage) ?? "Waiting for start"
-        )
-    </Column>
+<Row Margin="Margin.Is3.FromTop.Is2.FromBottom">
     <Column Flex="Flex.JustifyContent.Center">
         Elapsed: @(Math.Round(ElapsedTime, 0)) seconds
     </Column>
 </Row>
-<Row Margin="Margin.Is3.FromTop.Is2.FromBottom.Is5.FromStart">
+<Row Margin="Margin.Is3.FromTop.Is2.FromBottom">
     <Column Flex="Flex.JustifyContent.Center">
         @if (GameStage == GamePlayStage.Start || GameStage == GamePlayStage.LoadOfSources)
         {
@@ -49,7 +28,7 @@
         }
     </Column>
 </Row>
-<Row Margin="Margin.Is2.FromTop.Is2.FromBottom.Is5.FromStart">
+<Row Margin="Margin.Is2.FromTop.Is2.FromBottom">
     <Column Flex="Flex.JustifyContent.Center">
         @if (RestOfThePenalty > 0)
         {
@@ -58,7 +37,7 @@
     </Column>
 </Row>
 
-<Row Margin="Margin.Is2.FromTop.Is2.FromBottom">
+<Row Margin="Margin.Is2.FromTop.Is4.FromBottom">
     <Column>
         <Row>
             <Column Flex="Flex.JustifyContent.Center">
@@ -106,6 +85,31 @@
 <Row Margin="Margin.Is2.FromTop.Is2.FromBottom.Is2.FromStart">
     <Column Flex="Flex.JustifyContent.Center">
         <AllGamePiecesKeyboard @ref=allGamePiecesKeyboardRef OnBoardChanged="@onBoardChangedHandler" />
+    </Column>
+</Row>
+
+<Row Margin="Margin.Is5.FromTop.Is2.FromBottom">
+    <Column Flex="Flex.JustifyContent.Center">
+        @if (GameResponseAction == GameResponseActions.EndOfTheGame_Success)
+        {
+            <Heading Size="HeadingSize.Is3" TextColor="TextColor.Success">
+                Succesfull end of the game. You have reached 0 bilance.
+            </Heading>
+        }
+        else
+        {
+            <Span>
+                Game Response Action: @(
+            Enum.GetName(typeof(GameResponseActions), GameResponseAction) ?? "Waiting for start"
+            )
+            </Span>
+        }
+    </Column>
+            
+    <Column Flex="Flex.JustifyContent.Center">
+        Level: @(
+        Enum.GetName(typeof(GamePlayStage), GameStage) ?? "Waiting for start"
+        )
     </Column>
 </Row>
 
