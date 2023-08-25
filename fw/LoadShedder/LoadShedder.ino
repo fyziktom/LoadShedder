@@ -8,34 +8,31 @@
 #define VERTICAL_OFFSET 120
 #define HORIZONTAL_OFFSET 160
 
-#define NUMBER_OF_BITS 8
+#define NUMBER_OF_BITS 4
+#define NUMBER_OF_ADC_MUX_INPUTS 16 //per IC
+#define NUMBER_OF_ADC_MUX_IC 2 // number of ADC MUX ICs
+#define NUMBER_OF_ADC_VIRTUAL_INTPUTS NUMBER_OF_ADC_MUX_INPUTS * NUMBER_OF_ADC_MUX_IC
 // main control pins for switching transistors
-#define BIT_0 5
-#define BIT_1 2
-#define BIT_2 17
-#define BIT_3 16
-#define BIT_4 1
-#define BIT_5 3
-#define BIT_6 21
-#define BIT_7 22
+#define BIT_0 16
+#define BIT_1 17
+#define BIT_2 2
+#define BIT_3 5
+#define ENABLE_MUX 26
 
 // control of the simulators of PVE and WGT
 #define LED_PWM 23
 #define FAN_PWM 19
 
-#define RESERVE_PIN 18
-
 #define NUMBER_OF_ADCS 4
 // ADC pins
-#define ADC_0 25
-#define ADC_1 26
-#define ADC_2 35
-#define ADC_3 36 
+#define ADC_0 35
+#define ADC_1 36
 
-#define STABILISATION_INTERVAL 20 //ms
-#define READING_INTERVAL 50 //ms
+#define ADC_SCALE 1.0
+#define STABILISATION_INTERVAL 42 //ms
+#define READING_INTERVAL 1 //ms
 
-#define DATA_ARRAY_LENGTH NUMBER_OF_BITS * NUMBER_OF_ADCS
+#define DATA_ARRAY_LENGTH NUMBER_OF_ADC_MUX_INPUTS * NUMBER_OF_ADC_MUX_IC
 
 int dataToSend[DATA_ARRAY_LENGTH];
 
@@ -51,13 +48,13 @@ String GameBoardName = "testBoard";
 String apiCommand = "NewDeviceData";
 
 // please fill IP address
-String DEFAULT_SRVIP = "YOUR_IP"; // "IP OF PC WHERE YOU RUN Load Shedder Server App"
+String DEFAULT_SRVIP = "192.168.1.117"; // "IP OF PC WHERE YOU RUN Load Shedder Server App"
 String SERVER_PORT = "5000"; // "Port of LoadShedder Server App 5059 is default port in debug 5000 in full run"
 
 // please fill own network parameters
 //String ssid = "BocaSimon WIFI";//"YOUR SSID NAME";
-String ssid = "WIFI_SSID";//"YOUR SSID NAME";
-String password = "WIFI_PASS";//"YOUR WIFI PASSWORD";
+String ssid = "Linksys00940";//"YOUR SSID NAME";
+String password = "ubackqthyx";//"YOUR WIFI PASSWORD";
 
 String pathBase = "http://" + DEFAULT_SRVIP + ":" + SERVER_PORT + "/api/";
 
@@ -172,13 +169,8 @@ void setup() {
   pinMode(BIT_1,OUTPUT);
   pinMode(BIT_2,OUTPUT);
   pinMode(BIT_3,OUTPUT);
-  //pinMode(BIT_4,OUTPUT);
-  //pinMode(BIT_5,OUTPUT);
-  pinMode(BIT_6,OUTPUT);
-  pinMode(BIT_7,OUTPUT);
-  //pinMode(LED_PWM,OUTPUT);
-  //pinMode(FAN_PWM,OUTPUT);
-  //pinMode(RESERVE_PIN,OUTPUT);
+  pinMode(ENABLE_MUX,OUTPUT);
+  digitalWrite(ENABLE_MUX, 0);
 
   ClearMainDataArray();
 
@@ -213,10 +205,6 @@ void SetOneDrivingBit(int settedBit) {
   digitalWrite(BIT_1,0);
   digitalWrite(BIT_2,0);
   digitalWrite(BIT_3,0);
-  //digitalWrite(BIT_4,0);
-  //digitalWrite(BIT_5,0);
-  digitalWrite(BIT_6,0);
-  digitalWrite(BIT_7,0);
 
   switch(settedBit) {
     case 0: digitalWrite(BIT_0,1);
@@ -226,30 +214,54 @@ void SetOneDrivingBit(int settedBit) {
     case 2: digitalWrite(BIT_0,1);
       break;
     case 3: digitalWrite(BIT_0,1);
-      break;
-    case 4: //digitalWrite(BIT_0,1);
-      break;
-    case 5: //digitalWrite(BIT_0,1);
-      break;
-    case 6: digitalWrite(BIT_0,1);
-      break;
-    case 7: digitalWrite(BIT_0,1);
-      break;
     default : break;
   }
 }
 
+void setValueToBits(int value)
+{
+  digitalWrite(BIT_0, (value >> 0) & 1);
+  digitalWrite(BIT_1, (value >> 1) & 1);
+  digitalWrite(BIT_2, (value >> 2) & 1);
+  digitalWrite(BIT_3, (value >> 3) & 1);
+}
+
 void ReadProcedure() {
-  for (int i = 0; i < 8; i++) {
-    SetOneDrivingBit(i);
+  //digitalWrite(ENABLE_MUX, 0);
+  for (int i = 0; i < NUMBER_OF_ADC_MUX_INPUTS; i++) {
+
+    setValueToBits(i);
     delay(STABILISATION_INTERVAL);
-    dataToSend[i] = analogReadMilliVolts(ADC_0) * 1;
-    dataToSend[NUMBER_OF_BITS + i] = analogReadMilliVolts(ADC_1) * 1;
-    dataToSend[2 * NUMBER_OF_BITS + i] = analogReadMilliVolts(ADC_2) * 1;
-    dataToSend[3 * NUMBER_OF_BITS + i] = analogReadMilliVolts(ADC_3) * 1;
+
+    float value01 = analogReadMilliVolts(ADC_0) * ADC_SCALE;
+    float value11 = analogReadMilliVolts(ADC_1) * ADC_SCALE;
+    delay(READING_INTERVAL);
+    float value02 = analogReadMilliVolts(ADC_0) * ADC_SCALE;
+    float value12 = analogReadMilliVolts(ADC_1) * ADC_SCALE;
+    delay(READING_INTERVAL);
+    float value03 = analogReadMilliVolts(ADC_0) * ADC_SCALE;
+    float value13 = analogReadMilliVolts(ADC_1) * ADC_SCALE;
+    delay(READING_INTERVAL);
+    float value04 = analogReadMilliVolts(ADC_0) * ADC_SCALE;
+    float value14 = analogReadMilliVolts(ADC_1) * ADC_SCALE;
+    delay(READING_INTERVAL);
+    float value05 = analogReadMilliVolts(ADC_0) * ADC_SCALE;
+    float value15 = analogReadMilliVolts(ADC_1) * ADC_SCALE;
+    delay(READING_INTERVAL);
+    float value06 = analogReadMilliVolts(ADC_0) * ADC_SCALE;
+    float value16 = analogReadMilliVolts(ADC_1) * ADC_SCALE;
+    delay(READING_INTERVAL);
+    float value07 = analogReadMilliVolts(ADC_0) * ADC_SCALE;
+    float value17 = analogReadMilliVolts(ADC_1) * ADC_SCALE;
+    float result_ADC0 = (value01 + value02 + value03 + value04 + value05 + value06 + value07) / 7;
+    float result_ADC1 = (value11 + value12 + value13 + value14 + value15 + value06 + value07) / 7;
+
+    dataToSend[i] = result_ADC0;
+    dataToSend[NUMBER_OF_ADC_MUX_INPUTS + i] = result_ADC1;
     
     delay(READING_INTERVAL);
   }
+  //digitalWrite(ENABLE_MUX, 1);
 }
 
 // when POST of tha data is finished
