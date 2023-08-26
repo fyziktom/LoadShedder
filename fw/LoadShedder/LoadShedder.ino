@@ -3,6 +3,8 @@
 #include <Wire.h>
 #include "HTTPClient.h"
 #include "logo.h"
+#include <algorithm>
+
 
 #define M_SIZE 1  // Scale factor
 #define VERTICAL_OFFSET 120
@@ -29,8 +31,9 @@
 #define ADC_1 36
 
 #define ADC_SCALE 1.0
-#define STABILISATION_INTERVAL 42 //ms
-#define READING_INTERVAL 1 //ms
+#define STABILISATION_INTERVAL 22 //ms
+#define READING_INTERVAL 3 //ms
+#define ADC_AVG_COUNT 15
 
 #define DATA_ARRAY_LENGTH NUMBER_OF_ADC_MUX_INPUTS * NUMBER_OF_ADC_MUX_IC
 
@@ -226,6 +229,68 @@ void setValueToBits(int value)
   digitalWrite(BIT_3, (value >> 3) & 1);
 }
 
+void ReadAverageADCValues(float* resultADC_0, float* resultADC_1)
+{
+  float dataToAvg_0[ADC_AVG_COUNT];
+  float dataToAvg_1[ADC_AVG_COUNT];
+
+  for (int i = 0; i < ADC_AVG_COUNT; i++) {
+    dataToAvg_0[i] = analogReadMilliVolts(ADC_0) * ADC_SCALE;   
+    dataToAvg_1[i] = analogReadMilliVolts(ADC_1) * ADC_SCALE;   
+    delay(READING_INTERVAL);
+  }
+
+  float res_0 = 0.0;
+  float res_1 = 0.0;
+
+  for (int i = 0; i < ADC_AVG_COUNT; i++) {
+    res_0 += dataToAvg_0[i];   
+    res_1 += dataToAvg_1[i];
+
+    delay(READING_INTERVAL);
+  }
+
+  res_0 /= ADC_AVG_COUNT;
+  res_1 /= ADC_AVG_COUNT;
+
+  *resultADC_0 = res_0;
+  *resultADC_1 = res_1;
+}
+
+void ReadMedianADCValues(float* resultADC_0, float* resultADC_1)
+{
+  float dataToAvg_0[ADC_AVG_COUNT];
+  float dataToAvg_1[ADC_AVG_COUNT];
+
+  for (int i = 0; i < ADC_AVG_COUNT; i++) {
+    dataToAvg_0[i] = analogReadMilliVolts(ADC_0) * ADC_SCALE;   
+    dataToAvg_1[i] = analogReadMilliVolts(ADC_1) * ADC_SCALE;   
+    delay(READING_INTERVAL);
+  }
+
+  // Seřazení polí
+  std::sort(dataToAvg_0, dataToAvg_0 + ADC_AVG_COUNT);
+  std::sort(dataToAvg_1, dataToAvg_1 + ADC_AVG_COUNT);
+
+  float median_0, median_1;
+
+  // Výpočet mediánu pro první pole
+  if (ADC_AVG_COUNT % 2 != 0)
+    median_0 = dataToAvg_0[ADC_AVG_COUNT / 2];
+  else
+    median_0 = (dataToAvg_0[(ADC_AVG_COUNT - 1) / 2] + dataToAvg_0[ADC_AVG_COUNT / 2]) / 2.0;
+
+  // Výpočet mediánu pro druhé pole
+  if (ADC_AVG_COUNT % 2 != 0)
+    median_1 = dataToAvg_1[ADC_AVG_COUNT / 2];
+  else
+    median_1 = (dataToAvg_1[(ADC_AVG_COUNT - 1) / 2] + dataToAvg_1[ADC_AVG_COUNT / 2]) / 2.0;
+
+  *resultADC_0 = median_0;
+  *resultADC_1 = median_1;
+}
+
+
 void ReadProcedure() {
   //digitalWrite(ENABLE_MUX, 0);
   for (int i = 0; i < NUMBER_OF_ADC_MUX_INPUTS; i++) {
@@ -233,29 +298,10 @@ void ReadProcedure() {
     setValueToBits(i);
     delay(STABILISATION_INTERVAL);
 
-    float value01 = analogReadMilliVolts(ADC_0) * ADC_SCALE;
-    float value11 = analogReadMilliVolts(ADC_1) * ADC_SCALE;
-    delay(READING_INTERVAL);
-    float value02 = analogReadMilliVolts(ADC_0) * ADC_SCALE;
-    float value12 = analogReadMilliVolts(ADC_1) * ADC_SCALE;
-    delay(READING_INTERVAL);
-    float value03 = analogReadMilliVolts(ADC_0) * ADC_SCALE;
-    float value13 = analogReadMilliVolts(ADC_1) * ADC_SCALE;
-    delay(READING_INTERVAL);
-    float value04 = analogReadMilliVolts(ADC_0) * ADC_SCALE;
-    float value14 = analogReadMilliVolts(ADC_1) * ADC_SCALE;
-    delay(READING_INTERVAL);
-    float value05 = analogReadMilliVolts(ADC_0) * ADC_SCALE;
-    float value15 = analogReadMilliVolts(ADC_1) * ADC_SCALE;
-    delay(READING_INTERVAL);
-    float value06 = analogReadMilliVolts(ADC_0) * ADC_SCALE;
-    float value16 = analogReadMilliVolts(ADC_1) * ADC_SCALE;
-    delay(READING_INTERVAL);
-    float value07 = analogReadMilliVolts(ADC_0) * ADC_SCALE;
-    float value17 = analogReadMilliVolts(ADC_1) * ADC_SCALE;
-    float result_ADC0 = (value01 + value02 + value03 + value04 + value05 + value06 + value07) / 7;
-    float result_ADC1 = (value11 + value12 + value13 + value14 + value15 + value06 + value07) / 7;
-
+    float result_ADC0 = 0.0;
+    float result_ADC1 = 0.0;
+    ReadMedianADCValues(&result_ADC0, &result_ADC1);
+    
     dataToSend[i] = result_ADC0;
     dataToSend[NUMBER_OF_ADC_MUX_INPUTS + i] = result_ADC1;
     
