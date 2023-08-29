@@ -1,4 +1,4 @@
-﻿using LoadShedder.Common;
+using LoadShedder.Common;
 using LoadShedder.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -896,6 +896,101 @@ namespace LoadShedder.Controllers
             catch (Exception ex)
             {
                 throw new HttpResponseException((HttpStatusCode)501, $"Cannot get Game Response Action!");
+            }
+        }        
+        
+        
+        [AllowCrossSiteJsonAttribute]
+        [HttpGet]
+        [Route("GetGamePlayerDataByDeviceId/{deviceId}")]
+        public PlayerGameData? GetGamePlayerDataByDeviceId(string deviceId)
+        {
+            try
+            {
+                var gb = MainDataContext.GameBoards.Values.Where(gb => gb.DeviceId == deviceId).FirstOrDefault();
+                if (gb != null)
+                {
+                    if (!string.IsNullOrEmpty(gb.PlayerId))
+                    {
+                        var game = MainDataContext.Games.Values.Where(g => g.PlayersIds.Contains(gb.PlayerId)).FirstOrDefault();
+                        if (game != null)
+                        {
+
+                            if (game.PlayersGameData.TryGetValue(gb.PlayerId, out var pgd))
+                            {
+                                return pgd;
+                            }
+                        }
+                    }
+                }
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw new HttpResponseException((HttpStatusCode)501, $"Cannot get Game Player data by deviceId Action!");
+            }
+        }
+
+        [AllowCrossSiteJsonAttribute]
+        [HttpGet]
+        [Route("ActualGamePlayStageByDeviceId/{deviceId}")]
+        public int BlackoutStatusByDeviceId(string deviceId)
+        {
+            try
+            {
+                var gb = MainDataContext.GameBoards.Values.Where(gb => gb.DeviceId == deviceId).FirstOrDefault();
+                if (gb != null)
+                {
+                    if (!string.IsNullOrEmpty(gb.PlayerId))
+                    {
+                        var game = MainDataContext.Games.Values.Where(g => g.PlayersIds.Contains(gb.PlayerId)).FirstOrDefault();
+                        if (game != null)
+                        {
+                            if (game.PlayersGameData.TryGetValue(gb.PlayerId, out var pgd))
+                            {
+                                return (int)pgd.ActualGamePlayStage;
+                            }
+                        }
+                    }
+                }
+
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                throw new HttpResponseException((HttpStatusCode)501, $"Cannot get Game Play Stage by deviceId Action!");
+            }
+        }
+
+        [AllowCrossSiteJsonAttribute]
+        [HttpGet]
+        [Route("GameResponseActionsByDeviceId/{deviceId}")]
+        public int GameResponseActionsByDeviceId(string deviceId)
+        {
+            try
+            {
+                var gb = MainDataContext.GameBoards.Values.Where(gb => gb.DeviceId == deviceId).FirstOrDefault();
+                if (gb != null)
+                {
+                    if (!string.IsNullOrEmpty(gb.PlayerId))
+                    {
+                        var game = MainDataContext.Games.Values.Where(g => g.PlayersIds.Contains(gb.PlayerId)).FirstOrDefault();
+                        if (game != null)
+                        {
+                            if (game.PlayersGameData.TryGetValue(gb.PlayerId, out var pgd))
+                            {
+                                return (int)pgd.ActualGameResponseAction;
+                            }
+                        }
+                    }
+                }
+
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                throw new HttpResponseException((HttpStatusCode)501, $"Cannot get Game Response Action by deviceId Action!");
             }
         }
 

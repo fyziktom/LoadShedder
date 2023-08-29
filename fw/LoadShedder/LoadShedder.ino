@@ -31,9 +31,9 @@
 #define ADC_1 36
 
 #define ADC_SCALE 1.0
-#define STABILISATION_INTERVAL 22 //ms
-#define READING_INTERVAL 3 //ms
-#define ADC_AVG_COUNT 15
+#define STABILISATION_INTERVAL 40 //ms 1 - 5ms is ideal
+#define READING_INTERVAL 200 //us 25 - 50 us is ideal
+#define ADC_AVG_COUNT 25
 
 #define DATA_ARRAY_LENGTH NUMBER_OF_ADC_MUX_INPUTS * NUMBER_OF_ADC_MUX_IC
 
@@ -237,7 +237,7 @@ void ReadAverageADCValues(float* resultADC_0, float* resultADC_1)
   for (int i = 0; i < ADC_AVG_COUNT; i++) {
     dataToAvg_0[i] = analogReadMilliVolts(ADC_0) * ADC_SCALE;   
     dataToAvg_1[i] = analogReadMilliVolts(ADC_1) * ADC_SCALE;   
-    delay(READING_INTERVAL);
+    delayMicroseconds(READING_INTERVAL);
   }
 
   float res_0 = 0.0;
@@ -247,7 +247,7 @@ void ReadAverageADCValues(float* resultADC_0, float* resultADC_1)
     res_0 += dataToAvg_0[i];   
     res_1 += dataToAvg_1[i];
 
-    delay(READING_INTERVAL);
+    delayMicroseconds(READING_INTERVAL);
   }
 
   res_0 /= ADC_AVG_COUNT;
@@ -265,7 +265,7 @@ void ReadMedianADCValues(float* resultADC_0, float* resultADC_1)
   for (int i = 0; i < ADC_AVG_COUNT; i++) {
     dataToAvg_0[i] = analogReadMilliVolts(ADC_0) * ADC_SCALE;   
     dataToAvg_1[i] = analogReadMilliVolts(ADC_1) * ADC_SCALE;   
-    delay(READING_INTERVAL);
+    delayMicroseconds(READING_INTERVAL);
   }
 
   // Seřazení polí
@@ -305,7 +305,7 @@ void ReadProcedure() {
     dataToSend[i] = result_ADC0;
     dataToSend[NUMBER_OF_ADC_MUX_INPUTS + i] = result_ADC1;
     
-    delay(READING_INTERVAL);
+    //delayMicroseconds(READING_INTERVAL);
   }
   //digitalWrite(ENABLE_MUX, 1);
 }
@@ -432,8 +432,53 @@ void GetBilance() {
   }
 }
 
-void Bilance_Request_Success(String response)
-{
+void Play_A_Chord() {
+    M5.Speaker.tone(880, 2000);
+    delay(250);
+    M5.Speaker.tone(1047, 1250);
+    delay(250);
+    M5.Speaker.tone(1319, 750);
+    delay(250);
+    M5.Speaker.tone(1760, 250);
+    delay(1250);
+}
+
+void GameResponseAction_Request_Success(String response) {
+  int action = response.toInt();
+
+   if (action == 2 || action == 3) {
+     Play_A_Chord();
+   }
+}
+
+void GetGameResponseAction() {
+
+  String path = pathBase + "GameResponseActionsByDeviceId" + "/" + moduleName;
+
+  Serial.println("Path");
+  Serial.println((char*)path.c_str());
+
+  http.begin((char*)path.c_str());
+  http.addHeader("accept", "*/*");
+
+  // send data in PUT request
+  int httpResponseCode = http.GET();
+    
+  // parse output if code is not error
+  if (httpResponseCode > 0 && httpResponseCode < 400) {
+    String response = http.getString();
+    Serial.println(httpResponseCode);
+    Serial.println(response);
+  
+    GameResponseAction_Request_Success(response);
+  }
+  else {
+    Serial.print("Error on sending GET Request: ");
+    Serial.println(httpResponseCode);
+  }
+}
+
+void Bilance_Request_Success(String response) {
   float value = response.toFloat() / 1000;
 
     //plotNeedle(value, 5);
@@ -467,6 +512,7 @@ void DataReading() {
   SendData();
   delay(100);
   GetBilance();
+  GetGameResponseAction();
 }
 
 
