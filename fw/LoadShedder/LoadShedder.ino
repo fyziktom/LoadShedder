@@ -1,10 +1,11 @@
 #include <M5Unified.h>
 #include <WiFi.h>
-#include <Wire.h>
+//#include <Wire.h>
 #include "HTTPClient.h"
 #include "logo.h"
 #include <algorithm>
 
+#define CALIBRATION_MODE 1
 
 #define M_SIZE 1  // Scale factor
 #define VERTICAL_OFFSET 120
@@ -30,10 +31,11 @@
 #define ADC_0 35
 #define ADC_1 36
 
-#define ADC_SCALE 1.0
-#define STABILISATION_INTERVAL 40 //ms 1 - 5ms is ideal
-#define READING_INTERVAL 200 //us 25 - 50 us is ideal
-#define ADC_AVG_COUNT 25
+#define ADC0_SCALE 1.0
+#define ADC1_SCALE 1.0
+#define STABILISATION_INTERVAL 2 //ms 1 - 5ms is ideal
+#define READING_INTERVAL 15 //us 100us
+#define ADC_AVG_COUNT 30
 
 #define DATA_ARRAY_LENGTH NUMBER_OF_ADC_MUX_INPUTS * NUMBER_OF_ADC_MUX_IC
 
@@ -141,7 +143,7 @@ void setup() {
   // put your setup code here, to run once:
   M5.begin();
   M5.Power.begin();
-  //M5.Lcd.setRotation(3);
+  //M5.Lcd.setRotation(0);
   ClearDisplay(false);
   M5.Lcd.setTextColor(WHITE);
   delay(500);
@@ -155,7 +157,7 @@ void setup() {
   //digitalWrite(M5_LED, HIGH);
 
   //setup RFID reader
-  Wire.begin();                   // Initialize I2C
+  //Wire.begin();                   // Initialize I2C
   //ShowReaderDetails();            // Show details of PCD - MFRC522 Card Reader details
 
   M5.Lcd.setCursor(0, 30); M5.Lcd.print("Starting...");
@@ -194,8 +196,10 @@ void setup() {
   
   M5.Lcd.fillScreen(TFT_BLACK);
 
-  analogMeter();
-
+  if (!CALIBRATION_MODE) {
+    analogMeter();
+  }
+  
   M5.Lcd.setCursor(145, 180);
   M5.Lcd.setTextSize(3);
   M5.Lcd.print("MW");
@@ -235,8 +239,13 @@ void ReadAverageADCValues(float* resultADC_0, float* resultADC_1)
   float dataToAvg_1[ADC_AVG_COUNT];
 
   for (int i = 0; i < ADC_AVG_COUNT; i++) {
-    dataToAvg_0[i] = analogReadMilliVolts(ADC_0) * ADC_SCALE;   
-    dataToAvg_1[i] = analogReadMilliVolts(ADC_1) * ADC_SCALE;   
+    dataToAvg_0[0] = 0;
+    dataToAvg_1[0] = 0;
+  }
+  
+  for (int i = 0; i < ADC_AVG_COUNT; i++) {
+    dataToAvg_0[i] = analogReadMilliVolts(ADC_0) * ADC0_SCALE;   
+    dataToAvg_1[i] = analogReadMilliVolts(ADC_1) * ADC1_SCALE;   
     delayMicroseconds(READING_INTERVAL);
   }
 
@@ -263,8 +272,13 @@ void ReadMedianADCValues(float* resultADC_0, float* resultADC_1)
   float dataToAvg_1[ADC_AVG_COUNT];
 
   for (int i = 0; i < ADC_AVG_COUNT; i++) {
-    dataToAvg_0[i] = analogReadMilliVolts(ADC_0) * ADC_SCALE;   
-    dataToAvg_1[i] = analogReadMilliVolts(ADC_1) * ADC_SCALE;   
+      dataToAvg_0[0] = 0;
+      dataToAvg_1[0] = 0;
+  }
+
+  for (int i = 0; i < ADC_AVG_COUNT; i++) {
+    dataToAvg_0[i] = analogReadMilliVolts(ADC_0) * ADC0_SCALE;   
+    dataToAvg_1[i] = analogReadMilliVolts(ADC_1) * ADC1_SCALE;   
     delayMicroseconds(READING_INTERVAL);
   }
 
@@ -292,22 +306,25 @@ void ReadMedianADCValues(float* resultADC_0, float* resultADC_1)
 
 
 void ReadProcedure() {
-  //digitalWrite(ENABLE_MUX, 0);
+  digitalWrite(ENABLE_MUX, 0);
+  delay(1);
   for (int i = 0; i < NUMBER_OF_ADC_MUX_INPUTS; i++) {
 
     setValueToBits(i);
     delay(STABILISATION_INTERVAL);
-
     float result_ADC0 = 0.0;
     float result_ADC1 = 0.0;
     ReadMedianADCValues(&result_ADC0, &result_ADC1);
-    
+    //ReadAverageADCValues(&result_ADC0, &result_ADC1);
+    setValueToBits(0);
+    delay(STABILISATION_INTERVAL);
     dataToSend[i] = result_ADC0;
     dataToSend[NUMBER_OF_ADC_MUX_INPUTS + i] = result_ADC1;
     
     //delayMicroseconds(READING_INTERVAL);
   }
-  //digitalWrite(ENABLE_MUX, 1);
+  digitalWrite(ENABLE_MUX, 1);
+  delay(1);
 }
 
 // when POST of tha data is finished
@@ -515,9 +532,70 @@ void DataReading() {
   GetGameResponseAction();
 }
 
+void CalibrationMode() {
+  ReadProcedure();  
+  //SendData();
+  
+  M5.Lcd.fillScreen(BLACK);
+  M5.Lcd.setTextSize(2);
+  M5.Lcd.fillScreen(BLACK);
+  M5.Lcd.setCursor(25, 25); M5.Lcd.print(dataToSend[0]);
+  M5.Lcd.setCursor(25, 50); M5.Lcd.print(dataToSend[1]);
+  M5.Lcd.setCursor(25, 75); M5.Lcd.print(dataToSend[2]);
+  M5.Lcd.setCursor(25, 100); M5.Lcd.print(dataToSend[3]);
+  M5.Lcd.setCursor(25, 125); M5.Lcd.print(dataToSend[4]);
+  M5.Lcd.setCursor(25, 150); M5.Lcd.print(dataToSend[5]);
+  M5.Lcd.setCursor(25, 175); M5.Lcd.print(dataToSend[6]);
+  M5.Lcd.setCursor(25, 200); M5.Lcd.print(dataToSend[7]);
+
+  M5.Lcd.setCursor(100, 25); M5.Lcd.print(dataToSend[8]);
+  M5.Lcd.setCursor(100, 50); M5.Lcd.print(dataToSend[9]);
+  M5.Lcd.setCursor(100, 75); M5.Lcd.print(dataToSend[10]);
+  M5.Lcd.setCursor(100, 100); M5.Lcd.print(dataToSend[11]);
+  M5.Lcd.setCursor(100, 125); M5.Lcd.print(dataToSend[12]);
+  M5.Lcd.setCursor(100, 150); M5.Lcd.print(dataToSend[13]);
+  M5.Lcd.setCursor(100, 175); M5.Lcd.print(dataToSend[14]);
+  M5.Lcd.setCursor(100, 200); M5.Lcd.print(dataToSend[15]);
+
+  M5.Lcd.setCursor(170, 25); M5.Lcd.print(dataToSend[16]);
+  M5.Lcd.setCursor(170, 50); M5.Lcd.print(dataToSend[17]);
+  M5.Lcd.setCursor(170, 75); M5.Lcd.print(dataToSend[18]);
+  M5.Lcd.setCursor(170, 100); M5.Lcd.print(dataToSend[19]);
+  M5.Lcd.setCursor(170, 125); M5.Lcd.print(dataToSend[20]);
+  M5.Lcd.setCursor(170, 150); M5.Lcd.print(dataToSend[21]);
+  M5.Lcd.setCursor(170, 175); M5.Lcd.print(dataToSend[22]);
+  M5.Lcd.setCursor(170, 200); M5.Lcd.print(dataToSend[23]);
+
+  M5.Lcd.setCursor(250, 25); M5.Lcd.print(dataToSend[24]);
+  M5.Lcd.setCursor(250, 50); M5.Lcd.print(dataToSend[25]);
+  M5.Lcd.setCursor(250, 75); M5.Lcd.print(dataToSend[26]);
+  M5.Lcd.setCursor(250, 100); M5.Lcd.print(dataToSend[27]);
+  M5.Lcd.setCursor(250, 125); M5.Lcd.print(dataToSend[28]);
+  M5.Lcd.setCursor(250, 150); M5.Lcd.print(dataToSend[29]);
+  M5.Lcd.setCursor(250, 175); M5.Lcd.print(dataToSend[30]);
+  M5.Lcd.setCursor(250, 200); M5.Lcd.print(dataToSend[31]);
+/*
+  M5.Lcd.setCursor(100, 25); M5.Lcd.print("Diff");
+  M5.Lcd.setCursor(100, 50); M5.Lcd.print(dataToSend[0] - dataToSend[1]);
+  M5.Lcd.setCursor(100, 75); M5.Lcd.print(dataToSend[1] - dataToSend[2]);
+  M5.Lcd.setCursor(100, 100); M5.Lcd.print(dataToSend[2] - dataToSend[3]);
+  M5.Lcd.setCursor(100, 125); M5.Lcd.print(dataToSend[3] - dataToSend[4]);
+  M5.Lcd.setCursor(100, 150); M5.Lcd.print(dataToSend[4] - dataToSend[5]);
+  M5.Lcd.setCursor(100, 175); M5.Lcd.print(dataToSend[5] - dataToSend[6]);
+  M5.Lcd.setCursor(100, 200); M5.Lcd.print(dataToSend[6] - dataToSend[7]);
+*/
+  delay(100);
+}
+
 
 void loop() {
-  DataReading();
+
+  if (!CALIBRATION_MODE) {
+    DataReading();
+  }
+  else {
+    CalibrationMode();    
+  }
 
   M5.update();
   // wait 10 seconds before allow new read
