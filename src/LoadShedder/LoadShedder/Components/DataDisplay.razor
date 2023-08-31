@@ -1,0 +1,56 @@
+﻿@inject HttpClient client
+<Row Margin="Margin.Is2.FromTop.Is2.FromBottom">
+    <Column>DataDisplay</Column>
+</Row>
+<Row Margin="Margin.Is2.FromTop.Is2.FromBottom">
+    @if (LoadedDevice.RawData != null)
+    {
+        @foreach (var value in LoadedDevice.RawData)
+        {
+            <Card Margin="Margin.Is1.FromStart.Is1.FromEnd.Is1.FromTop" Style="max-width:200px;">
+                <CardBody>
+                    <CardText>@value mV</CardText>
+                    <CardText>GamePiece:</CardText>
+                    <CardText>@(GamePiece.GetGamePieceTypeBasedOnVoltage(value))</CardText>
+                </CardBody>
+            </Card>
+        }
+    }
+</Row>
+
+@code {
+    [Parameter] public string DeviceId { get; set; } = "test";
+    [Parameter]
+    public GamePiece LoadedGamePiece { get; set; } = new GamePiece();
+
+    public Device LoadedDevice { get; set; } = new Device();
+
+    private Timer _timer;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _timer = new Timer(async (e) => { await GetData(); }, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(500));
+
+        }
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private async Task GetData()
+    {
+        try
+        {
+            var response = await client.GetFromJsonAsync<Device>($"api/GetDevice/{DeviceId}");
+            if (response != null)
+            {
+                LoadedDevice = response;
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Cannot get board bilance");
+        }
+    }
+}
