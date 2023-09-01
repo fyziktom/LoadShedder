@@ -156,13 +156,41 @@ namespace LoadShedder
                         Name = "Tomas Svoboda"
                     });
                 }
+
                 if (!MainDataContext.Devices.ContainsKey("test"))
                 {
-                    MainDataContext.Devices.TryAdd("test", new Models.Device()
+                    var device = new Models.Device()
                     {
                         Id = "test",
                         Name = "Test Device"
-                    });
+                    };
+
+                    device.AddChannel(0, "1-Westpunt");
+                    device.AddChannel(1, "2-Barber");
+                    device.AddChannel(2, "3-Soto");
+                    device.AddChannel(3, "4-Wind");
+                    device.AddChannel(4, "5-TeraKora");
+                    device.AddChannel(5, "6-Solar");
+                    device.AddChannel(6, "7-St.Maria");
+                    device.AddChannel(7, "8-Isla");
+                    device.AddChannel(8, "9-Bueheuvel");
+                    device.AddChannel(9, "10-Piscadera");
+                    device.AddChannel(10, "11-Gas");
+                    device.AddChannel(11, "12-Otrobanda");
+                    device.AddChannel(12, "13-Buevengat");
+                    device.AddChannel(13, "14-Wind");
+                    device.AddChannel(14, "15-Solar");
+                    device.AddChannel(15, "16-Diesel_1");
+                    device.AddChannel(16, "17-Diesel_2");
+                    device.AddChannel(17, "18-Diesel_3");
+                    device.AddChannel(18, "19-Punda");
+                    device.AddChannel(19, "20-Koraalspecht");
+                    device.AddChannel(20, "21-Jan_Thiel");
+                    device.AddChannel(21, "22-Montana");
+                    device.AddChannel(22, "23-Wind");
+                    device.AddChannel(23, "24-Fuik");
+
+                    MainDataContext.Devices.TryAdd("test", device);
                 }
 
                 if (!MainDataContext.GameBoards.ContainsKey("testBoard"))
@@ -182,7 +210,7 @@ namespace LoadShedder
                        new GamePiece() { Name = "Solar 2", ExpectedVoltage = 7500, EnergyValue = 5000, GamePieceType = GamePieceTypes.Source},
                     };
 
-                    gameboard.AddPosition("3_Solar 2", "test", 0, gamepieces);
+                    gameboard.AddPosition(null, "3_Solar 2", "test", null, 0, gamepieces);
 
                     gamepieces.Clear();
                     gamepieces = new List<GamePiece>()
@@ -192,7 +220,7 @@ namespace LoadShedder
                        new GamePiece() { Name = "westpunt", ExpectedVoltage = 700, EnergyValue = 5000, GamePieceType = GamePieceTypes.Consumer},
                     };
 
-                    gameboard.AddPosition("1-westpunt", "test", 12, gamepieces);
+                    gameboard.AddPosition(null, "1-westpunt", "test", null, 12, gamepieces);
 
 
                     MainDataContext.GameBoards.TryAdd("testBoard", gameboard);

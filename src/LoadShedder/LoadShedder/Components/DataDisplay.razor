@@ -1,29 +1,161 @@
-﻿@inject HttpClient client
+﻿@using Newtonsoft.Json;
+@inject HttpClient client
 <Row Margin="Margin.Is2.FromTop.Is2.FromBottom">
     <Column>DataDisplay</Column>
 </Row>
 <Row Margin="Margin.Is2.FromTop.Is2.FromBottom">
     @if (LoadedDevice.RawData != null)
     {
-        @foreach (var value in LoadedDevice.RawData)
+        @for (var i = 0; i < LoadedDevice.RawData.Length; i++)
         {
+            var value = LoadedDevice.RawData[i];
+            var index = i;
             <Card Margin="Margin.Is1.FromStart.Is1.FromEnd.Is1.FromTop" Style="max-width:200px;">
                 <CardBody>
+                    <CardText>Channel: @index</CardText>
                     <CardText>@value mV</CardText>
-                    <CardText>GamePiece:</CardText>
-                    <CardText>@(GamePiece.GetGamePieceTypeBasedOnVoltage(value))</CardText>
+                    <Button Color="Color.Primary" Clicked="@(() => OpenRegisterModal(index, value))">Register</Button>
                 </CardBody>
             </Card>
         }
     }
 </Row>
 
+<Modal @ref="addGamePieceToPositionModalRef">
+    <ModalContent Centered Size="ModalSize.Large">
+        <ModalHeader>
+            <ModalTitle>Add new GamePiece</ModalTitle>
+            <CloseButton />
+        </ModalHeader>
+        <ModalBody>
+            <Row>
+                <Column>
+                    <Row>
+                        <Column>
+                             <Span>selectedChannel: @selectedChannel</Span>
+                        </Column>
+                    </Row>
+                     <Row Margin="Margin.Is2.FromTop">
+                         <Column>
+                             <Span>selected Position Id: @selectedPositionId</Span>
+                             <Span>selected Position: @selectedPosition.Name</Span>
+                         </Column>
+                     </Row>
+                    <Row Margin="Margin.Is2.FromTop">
+                        <Column>
+                            <Field>
+                                <FieldLabel>Energy of piece to register</FieldLabel>
+                                <NumericEdit TValue="int" Min="0" Max="3000" @bind-Value="@energyValue"></NumericEdit>
+                            </Field>
+                        </Column>
+                    </Row>
+                     <Row Margin="Margin.Is2.FromTop">
+                         <Column>
+                             <Field>
+                                 <FieldLabel>GamePiece Type</FieldLabel>
+                                 <NumericEdit TValue="int" Min="0" Max="1" @bind-Value="@typeOfGamePiece"></NumericEdit>
+                                 <FieldHelp>0 is the source and 1 is consumer</FieldHelp>
+                             </Field>
+                         </Column>
+                     </Row>
+                     <Row Margin="Margin.Is2.FromTop">
+                        <Column>
+                            <Field>
+                                <FieldLabel>New Name of GamePiece</FieldLabel>
+                                <TextEdit @bind-Text="@newGamePieceName" />
+                            </Field>
+                        </Column>
+                    </Row>
+                     <Row Margin="Margin.Is2.FromTop">
+                         <Column>
+                             <Field>
+                                 <FieldLabel>New Description of GamePiece</FieldLabel>
+                                 <TextEdit @bind-Text="@newGamePieceDescription" />
+                             </Field>
+                         </Column>
+                     </Row>
+                    <Row>
+                        <Column>
+                            <Button Color="Color.Primary" Clicked="@(() => RegisterGamePiece(selectedChannel, selectedExpectedVoltage))">Confirm Registration</Button>
+                        </Column>
+                    </Row>
+                     <Row Margin="Margin.Is2.FromTop">
+                         <Column>
+                             <Span>Registration result: @registrationResult</Span>
+                         </Column>
+                     </Row>
+
+                     <Row Margin="Margin.Is2.FromTop">
+                         <Column>
+                             <Span>Actual Channel Value: @(LoadedDevice.RawData != null ? $"{LoadedDevice.RawData[selectedChannel]}" : $"0") mV</Span>
+                        </Column>
+                    </Row>
+
+                    <Row Margin="Margin.Is2.FromTop">
+                        <Column>
+                            <Button Color="Color.Primary" Clicked="@TestMatchGamePiece"> Test Match </Button>
+                        </Column>
+                    </Row>
+
+                    <Row Margin="Margin.Is2.FromTop">
+                        <Column>
+                            <Span>Matched GamePiece Name: @(matchedGamepiece.Name)</Span>
+                            <Span>Matched GamePiece EnergyValue: @(matchedGamepiece.EnergyValue)</Span>
+                            <Span>Matched GamePiece ExpectedVoltage: @(matchedGamepiece.ExpectedVoltage)</Span>
+                        </Column>
+                    </Row>
+                </Column>
+                <Column>
+                    <Row Margin="Margin.Is2.FromTop">
+                        <Column>
+                            <ListGroup>
+                                @foreach(var value in lastChannelValues)
+                                {
+                                    <ListGroupItem>@value mV</ListGroupItem>
+                                }
+                            </ListGroup>
+                        </Column>
+                    </Row>
+                    <Row Margin="Margin.Is2.FromTop">
+                        <Column>
+                            <Field>
+                                <FieldLabel>Voltage to register</FieldLabel>
+                                <NumericEdit TValue="int" Min="0" Max="3000" @bind-Value="@selectedExpectedVoltage"></NumericEdit>
+                            </Field>
+                        </Column>
+                    </Row>
+                    
+                </Column>
+            </Row>
+            
+        </ModalBody>
+    </ModalContent>
+</Modal>
+
 @code {
     [Parameter] public string DeviceId { get; set; } = "test";
-    [Parameter]
-    public GamePiece LoadedGamePiece { get; set; } = new GamePiece();
+    [Parameter] public string GameBoardId { get; set; } = "testBoard";
+    [Parameter] public GamePiece LoadedGamePiece { get; set; } = new GamePiece();
 
     public Device LoadedDevice { get; set; } = new Device();
+
+    public GameBoard LoadedGameBoard { get; set; } = new GameBoard();
+
+    public string ApiCommand { get; set; } = "/api/AddGamePieceToPosition";
+
+    Modal? addGamePieceToPositionModalRef;
+
+    private string selectedPositionId = string.Empty;
+    private string newGamePieceName = string.Empty;
+    private string newGamePieceDescription = string.Empty;
+    public int selectedExpectedVoltage { get; set; } = 0;
+    private int selectedChannel = 0;
+    private int energyValue = 0;
+    private Models.Position selectedPosition = new Models.Position();
+    private List<int> lastChannelValues = new List<int>();
+    private string registrationResult = string.Empty;
+    public GamePiece matchedGamepiece = new GamePiece();
+    private int typeOfGamePiece = 0;
 
     private Timer _timer;
 
@@ -52,5 +184,154 @@
         {
             Console.WriteLine("Cannot get board bilance");
         }
+
+        try
+        {
+            var response = await client.GetFromJsonAsync<GameBoard>($"api/GetGameBoard/{GameBoardId}");
+            if (response != null)
+            {
+                LoadedGameBoard = response;
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Cannot get board bilance");
+        }
+    }
+
+    public class AddGamePieceToPositionRequest
+    {
+        public string name { get; set; } = string.Empty;
+        public string description { get; set; } = string.Empty;
+        public string gameboardId { get; set; } = string.Empty;
+        public string positionId { get; set; } = string.Empty;
+        public int expectedVoltage { get; set; } = -1;
+        public int energyvalue { get; set; } = -1;
+        public int typeOfGamePiece { get; set; } = 0;
+    }
+
+    private async Task OpenRegisterModal(int channel, int value)
+    {
+        selectedChannel = channel;
+        selectedExpectedVoltage = value;
+        lastChannelValues.Clear();
+
+        if (LoadedDevice.RawData == null)
+            return;
+
+        if (channel < LoadedDevice.RawData.Length)
+        {
+            foreach (var step in LoadedDevice.DeviceRawDataHistory.OrderByDescending(h => h.Key).Take(7))
+                lastChannelValues.Add(step.Value[channel]);
+        }
+
+        if (addGamePieceToPositionModalRef != null)
+            await addGamePieceToPositionModalRef.Show();
+
+        var position = LoadedGameBoard.Positions.Values.FirstOrDefault(p => p.ChannelInputNumber == selectedChannel);
+        if (position != null)
+        {
+            selectedPosition = position;
+            selectedPositionId = position.Id;
+        }
+        selectedExpectedVoltage = (int)lastChannelValues.Average();
+
+    }
+
+    private async Task<string> RegisterGamePiece(int channel, int value)
+    {
+        try
+        {
+
+            var obj = new AddGamePieceToPositionRequest()
+                {
+                    name = newGamePieceName,
+                    description = newGamePieceDescription,
+                    gameboardId = GameBoardId,
+                    positionId = selectedPositionId,
+                    expectedVoltage = selectedExpectedVoltage,
+                    energyvalue = energyValue,
+                    typeOfGamePiece = typeOfGamePiece
+
+                };
+
+            var cnt = JsonConvert.SerializeObject(obj);
+
+            using (var content = new StringContent(cnt, System.Text.Encoding.UTF8, "application/json"))
+            {
+                HttpResponseMessage result = await client.PostAsync("/" + ApiCommand.TrimStart('/'), content);
+                if (result.StatusCode == System.Net.HttpStatusCode.OK)
+                {
+                    var returnStr = await result.Content.ReadAsStringAsync();
+
+                    if (returnStr != null)
+                    {
+                        registrationResult = !string.IsNullOrEmpty(returnStr) ? returnStr : "cannot read response piece.";
+                        return returnStr;
+                    }
+                    else
+                        return "ERROR:Cannot read return message.";
+                }
+            }
+
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine("ERROR. cannot add the gamepiece:\n" + ex.Message);
+            return "ERROR. cannot add the gamepiece:\n" + ex.Message;
+        }
+
+        return "ERROR";
+    }
+
+
+
+    public class TestMatchOfGamePieceInPositionRequest
+    {
+        public string gameboardId { get; set; } = string.Empty;
+        public string positionId { get; set; } = string.Empty;
+        public int measuredVoltage { get; set; } = -1;
+    }
+    private async Task<string> TestMatchGamePiece()
+    {
+        try
+        {
+
+            var obj = new TestMatchOfGamePieceInPositionRequest()
+                {
+                    gameboardId = GameBoardId,
+                    positionId = selectedPositionId,
+                    measuredVoltage = LoadedDevice.RawData != null ? LoadedDevice.RawData[selectedChannel] : 0
+                };
+
+            var cnt = JsonConvert.SerializeObject(obj);
+
+            using (var content = new StringContent(cnt, System.Text.Encoding.UTF8, "application/json"))
+            {
+                HttpResponseMessage result = await client.PostAsync("api/TestMatchOfGamePieceInPosition", content);
+                if (result.StatusCode == System.Net.HttpStatusCode.OK)
+                {
+                    var gamepiece = await result.Content.ReadFromJsonAsync<GamePiece>();
+
+                    if (gamepiece != null)
+                    {
+                        matchedGamepiece = gamepiece;
+                        await InvokeAsync(StateHasChanged);
+                        return matchedGamepiece.Name;
+                    }
+                    else
+                        return "ERROR:Cannot read return message.";
+                }
+            }
+
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine("ERROR. cannot match the gamepiece:\n" + ex.Message);
+            return "ERROR. cannot match the gamepiece:\n" + ex.Message;
+        }
+
+        return "ERROR";
     }
 }

@@ -79,6 +79,7 @@
     </Column>
 </Row>
 @code {
+
     [Parameter]
     public EventCallback<string> OnBoardChanged { get; set; }
     [Parameter] public string DeviceId { get; set; } = "test";
@@ -106,7 +107,7 @@
         if (firstRender)
         {
             await getGamePieces();
-            _timer = new Timer(async (e) => { await PeriodicPost(); }, null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
+            //_timer = new Timer(async (e) => { await PeriodicPost(); }, null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
         }
 
         await base.OnAfterRenderAsync(firstRender);

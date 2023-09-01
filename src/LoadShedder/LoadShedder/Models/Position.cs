@@ -5,6 +5,13 @@ namespace LoadShedder.Models
 {
     public class Position
     {
+        public Position(string id = null)
+        {
+            if (string.IsNullOrEmpty(id))
+                Id = Guid.NewGuid().ToString();
+            else
+                Id = id;
+        }
         public string Id { get; set; } = Guid.NewGuid().ToString();
         /// <summary>
         /// Nickname of the device
@@ -18,6 +25,10 @@ namespace LoadShedder.Models
         /// Channel on the device input
         /// </summary>
         public string ChannelId { get; set; } = string.Empty;
+        /// <summary>
+        /// Gameboard Id which unnder this position belongs
+        /// </summary>
+        public string GameBoardId { get; set; } = string.Empty;
         /// <summary>
         /// Channel number as element in Device RawData array
         /// </summary>
@@ -54,7 +65,7 @@ namespace LoadShedder.Models
         /// </summary>
         /// <param name="voltage"></param>
         /// <returns></returns>
-        public GamePiece? IsGamePieceAllowed(double voltage)
+        public GamePiece? IsGamePieceAllowed(int voltage)
         {
             if (voltage > 0.0 + MainDataContext.ADCVoltageTolerance)
             {
@@ -67,20 +78,20 @@ namespace LoadShedder.Models
 
         public GamePiece? FindMatchGamePiece(int value)
         {
-            foreach (var gm in MainDataContext.GamePieces.Values)
+            foreach (var gm in AllowedGamePieces.Values)
                 if (gm.IsVoltageMatch(value))
                     return gm;
 
             return null;
         }
 
-        public bool TryToPlacePiece(double voltage)
+        public bool TryToPlacePiece(int voltage)
         {
             if (voltage > 0.0  + MainDataContext.ADCVoltageTolerance)
             {
                 if (IsGamePieceAllowed(voltage) != null)
                 {
-                    var gm = FindMatchGamePiece((int)voltage);
+                    var gm = FindMatchGamePiece(voltage);
 
                     if (gm != null)
                     {

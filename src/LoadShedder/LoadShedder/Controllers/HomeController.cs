@@ -247,6 +247,27 @@ namespace LoadShedder.Controllers
 
         [AllowCrossSiteJsonAttribute]
         [HttpGet]
+        [Route("GetGameBoardPositions/{id}")]
+        public Dictionary<string,Position> GetGameBoardPositions(string id)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(id))
+                    return new Dictionary<string, Position>();
+
+                if (MainDataContext.GameBoards.TryGetValue(id, out var gb))
+                    return gb.Positions;
+                else
+                    return new Dictionary<string, Position>();
+            }
+            catch (Exception ex)
+            {
+                throw new HttpResponseException((HttpStatusCode)501, $"Cannot get data for device id: {id}!");
+            }
+        }
+
+        [AllowCrossSiteJsonAttribute]
+        [HttpGet]
         [Route("GetBoardStatus/{id}")]
         public GameBoard? GetBoardStatus(string id)
         {
@@ -444,6 +465,200 @@ namespace LoadShedder.Controllers
                 }
 
                 return gameboard.Id;
+            }
+            catch (Exception ex)
+            {
+                throw new HttpResponseException((HttpStatusCode)501, $"Cannot Add GameBoard! Exception: " + ex.Message);
+            }
+        }
+
+        public class AddPositionRequest
+        {
+            public string id { get; set; } = string.Empty;
+            public string name { get; set; } = string.Empty;
+            public string gameboardId { get; set; } = string.Empty;
+            public string deviceId { get; set; } = string.Empty;
+            public string channelId { get; set; } = string.Empty;
+            public int channelInputNumber { get; set; } = -1;
+            public List<GamePiece> gamePieces { get; set; } = new List<GamePiece>();
+        }
+
+        [AllowCrossSiteJsonAttribute]
+        [HttpPost]
+        [Route("AddPosition")]
+        public async Task<string> AddPosition([FromBody] AddPositionRequest data)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(data.name))
+                    return "ERROR_NO_NAME";
+                if (string.IsNullOrEmpty(data.deviceId))
+                    return "ERROR_NO_DEVICE_ID";
+                if (string.IsNullOrEmpty(data.gameboardId))
+                    return "ERROR_NO_GAMEBOARD_ID";
+                if (string.IsNullOrEmpty(data.channelId))
+                    return "ERROR_NO_CHANNEL_ID";
+                if (data.channelInputNumber < 0)
+                    return "ERROR_NO_CHANNEL_INPUT_NUMBER";
+
+                if (MainDataContext.GameBoards.TryGetValue(data.gameboardId, out var gameboard))
+                { 
+                    var res = gameboard.AddPosition(data.id, data.name, data.deviceId, data.channelId, data.channelInputNumber, data.gamePieces);
+                    return res;
+                }
+                else
+                {
+                    throw new HttpResponseException((HttpStatusCode)501, $"Cannot Find GameBoard!");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new HttpResponseException((HttpStatusCode)501, $"Cannot Add GameBoard! Exception: " + ex.Message);
+            }
+        }
+
+
+        public class RemovePositionRequest
+        {
+            public string id { get; set; } = string.Empty;
+            public string gameboardId { get; set; } = string.Empty;
+        }
+
+        [AllowCrossSiteJsonAttribute]
+        [HttpPost]
+        [Route("RemovePosition")]
+        public async Task<string> RemovePosition([FromBody] RemovePositionRequest data)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(data.id))
+                    return "ERROR_NO_ID";
+                if (string.IsNullOrEmpty(data.gameboardId))
+                    return "ERROR_NO_GAMEBOARD_ID";
+
+                if (MainDataContext.GameBoards.TryGetValue(data.gameboardId, out var gameboard))
+                    gameboard.RemovePosition(data.id);
+                else
+                    throw new HttpResponseException((HttpStatusCode)501, $"Cannot Find GameBoard!");
+
+                return "OK";
+            }
+            catch (Exception ex)
+            {
+                throw new HttpResponseException((HttpStatusCode)501, $"Cannot remove position from gameboard GameBoard! Exception: " + ex.Message);
+            }
+        }
+
+        public class TestMatchOfGamePieceInPositionRequest 
+        { 
+            public string gameboardId { get; set; } = string.Empty;
+            public string positionId { get; set; } = string.Empty;
+            public int measuredVoltage { get; set; } = -1;
+        }
+
+        [AllowCrossSiteJsonAttribute]
+        [HttpPost]
+        [Route("TestMatchOfGamePieceInPosition")]
+        public async Task<GamePiece> TestMatchOfGamePieceInPosition([FromBody] TestMatchOfGamePieceInPositionRequest data)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(data.gameboardId))
+                    throw new HttpResponseException((HttpStatusCode)501, $"ERROR_NO_GAMEBOARD_ID");
+                if (string.IsNullOrEmpty(data.positionId))
+                    throw new HttpResponseException((HttpStatusCode)501, $"ERROR_NO_POSITION_ID");
+                if (data.measuredVoltage < 0)
+                    throw new HttpResponseException((HttpStatusCode)501, $"ERROR_IN_MEASURED_VALUE");
+
+                if (MainDataContext.GameBoards.TryGetValue(data.gameboardId, out var gameboard))
+                {
+                    if (gameboard.Positions.TryGetValue(data.positionId, out var position))
+                    {
+                        var gp = position.FindMatchGamePiece(data.measuredVoltage);
+                        if (gp != null)
+                            return gp;
+                        else
+                            return new GamePiece();
+                    }
+                    else
+                    {
+                        throw new HttpResponseException((HttpStatusCode)501, $"Cannot Find Position in GameBoard, Add position first!");
+                    }
+
+                    throw new HttpResponseException((HttpStatusCode)501, $"ERROR!");
+                }
+                else
+                {
+                    throw new HttpResponseException((HttpStatusCode)501, $"Cannot Find GameBoard!");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new HttpResponseException((HttpStatusCode)501, $"Cannot Add GameBoard! Exception: " + ex.Message);
+            }
+        }
+
+        public class AddGamePieceToPositionRequest
+        {
+            public string name { get; set; } = string.Empty;
+            public string description { get; set; } = string.Empty;
+            public string gameboardId { get; set; } = string.Empty;
+            public string positionId { get; set; } = string.Empty;
+            public int expectedVoltage { get; set; } = -1;
+            public int energyvalue { get; set; } = -1;
+            public int typeOfGamePiece { get; set; } = 0;
+        }
+
+        [AllowCrossSiteJsonAttribute]
+        [HttpPost]
+        [Route("AddGamePieceToPosition")]
+        public async Task<string> AddGamePieceToPosition([FromBody] AddGamePieceToPositionRequest data)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(data.name))
+                    return "ERROR_NO_NAME";
+                if (string.IsNullOrEmpty(data.gameboardId))
+                    return "ERROR_NO_GAMEBOARD_ID";
+                if (string.IsNullOrEmpty(data.positionId))
+                    return "ERROR_NO_POSITION_ID";
+                if (data.energyvalue < 0)
+                    return "ERROR_NO_ENERGY_VALUE";
+                if (data.expectedVoltage < 0)
+                    return "ERROR_NO_EXPECTED_VOLTAGE";
+
+                if (MainDataContext.GameBoards.TryGetValue(data.gameboardId, out var gameboard))
+                {
+                    if (gameboard.Positions.TryGetValue(data.positionId, out var position))
+                    {
+                        if (position.IsGamePieceAllowed(data.expectedVoltage) == null)
+                        {
+                            var gamepiece = new GamePiece()
+                            {
+                                Id = data.expectedVoltage.ToString(),
+                                Name = data.name,
+                                Description = data.description,
+                                EnergyValue = data.energyvalue,
+                                ExpectedVoltage = data.expectedVoltage,
+                                GamePieceType = data.typeOfGamePiece == 0 ? GamePieceTypes.Source : GamePieceTypes.Consumer
+                            };
+
+                            position.AddGamePiece(gamepiece);
+
+                            return gamepiece.Id;
+                        }
+                    }
+                    else
+                    {
+                        throw new HttpResponseException((HttpStatusCode)501, $"Cannot Find Position in GameBoard, Add position first!");
+                    }
+
+                    throw new HttpResponseException((HttpStatusCode)501, $"ERROR!");
+                }
+                else
+                {
+                    throw new HttpResponseException((HttpStatusCode)501, $"Cannot Find GameBoard!");
+                }
             }
             catch (Exception ex)
             {

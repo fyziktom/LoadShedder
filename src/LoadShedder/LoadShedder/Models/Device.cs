@@ -73,9 +73,25 @@ namespace LoadShedder.Models
                                                                 JsonConvert.SerializeObject(obj, Formatting.Indented));
             }
 
-            //DeviceRawDataHistory.TryAdd(DateTime.UtcNow, data);
+            if (DeviceRawDataHistory.Count > 100)
+            {
+                var oldest = DeviceRawDataHistory.Keys.Order().FirstOrDefault();
+                if (DeviceRawDataHistory.ContainsKey(oldest))
+                    DeviceRawDataHistory.Remove(oldest);
+            }
+            DeviceRawDataHistory.TryAdd(DateTime.UtcNow, data);
 
             return true;
+        }
+
+
+        public IEnumerable<int> GetChannelDataHistory(int channelNumber)
+        {
+            if (channelNumber < RawData.Length)
+            {
+                foreach (var step in DeviceRawDataHistory.Values)
+                    yield return step[channelNumber];
+            }
         }
 
         /// <summary>

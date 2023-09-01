@@ -6,6 +6,7 @@ using VEDriversLite.EntitiesBlocks.Blocks;
 using VEDriversLite.EntitiesBlocks.Consumers;
 using VEDriversLite.EntitiesBlocks.Entities;
 using VEDriversLite.EntitiesBlocks.Handlers;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace LoadShedder.Models
 {
@@ -236,38 +237,45 @@ namespace LoadShedder.Models
             return 0.0;
         }
 
-        public bool AddPosition(string name, string deviceId, int channelNumber, List<GamePiece> gamePieces)
+        public string AddPosition(string? id, string name, string deviceId, string? channelId, int channelNumber, List<GamePiece>? gamePieces)
         {
             if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(deviceId))
-                return false;
+                return "NO_NAME_OR_DEVICE_ID";
             if (MainDataContext.Devices.TryGetValue(deviceId, out var device))
             {
                 if (device.Channels.TryGetValue(channelNumber, out var channel))
                 {
                     var pos = new Position()
                     {
-                        ChannelId = channelNumber.ToString(),
+                        Id = !string.IsNullOrEmpty(id) ? id : Guid.NewGuid().ToString(),
+                        ChannelId = !string.IsNullOrEmpty(channelId) ? channelId : channelNumber.ToString(),
                         Name = name,
                         ChannelInputNumber = channelNumber,
-                        DeviceId = deviceId
+                        DeviceId = deviceId,
+                        GameBoardId = Id
                     };
 
-                    foreach (var piece in gamePieces) 
-                        pos.AllowedGamePieces.TryAdd(piece.ExpectedVoltage.ToString(), piece);
-                            
+                    channel.PositionId = pos.Id;
+
+                    if (gamePieces != null)
+                    {
+                        foreach (var piece in gamePieces)
+                            pos.AllowedGamePieces.TryAdd(piece.ExpectedVoltage.ToString(), piece);
+                    }
+
                     Positions.TryAdd(pos.Id, pos);
 
-                    return true;
+                    return pos.Id;
                 }
             }
 
-            return false;
+            return "ERROR";
         }
 
-        public void RemovePosition(string expectedVoltage)
+        public void RemovePosition(string id)
         {
-            if (Positions.ContainsKey(expectedVoltage))
-                Positions.Remove(expectedVoltage);
+            if (Positions.ContainsKey(id))
+                Positions.Remove(id);
         }
 
     }
