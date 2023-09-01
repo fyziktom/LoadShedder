@@ -41,7 +41,7 @@ namespace LoadShedder.Common
         /// <summary>
         /// Dictionary of all available GamePieces
         /// </summary>
-        public static Dictionary<ResistorsCombos, GamePiece> GamePieces { get; set; } = new Dictionary<ResistorsCombos, GamePiece>();
+        public static Dictionary<double, GamePiece> GamePieces { get; set; } = new Dictionary<double, GamePiece>();
         /// <summary>
         /// Dictionary of all gameboards.
         /// </summary>

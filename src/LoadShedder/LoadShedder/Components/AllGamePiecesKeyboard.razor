@@ -16,7 +16,7 @@
                     {
                         @if (!gamepiece.IsPlugged)
                         {
-                            <Button Clicked="@(() => PlacePiece(gamepiece.ResistorsCombo))" 
+                            <Button Clicked="@(() => PlacePiece(gamepiece.ExpectedVoltage.ToString()))" 
                             Color="Color.Primary" 
                             Style="width:230px"
                             Margin="Margin.Is1.FromStart.Is1.FromEnd.Is1.FromTop.Is1.FromBottom">
@@ -28,7 +28,7 @@
                         }
                         else
                         {
-                            <Button Clicked="@(() => RemovePiece(gamepiece.ResistorsCombo))"
+                            <Button Clicked="@(() => RemovePiece(gamepiece.ExpectedVoltage.ToString()))"
                             Color="Color.Secondary"
                             Style="width:230px"
                             Margin="Margin.Is1.FromStart.Is1.FromEnd.Is1.FromTop.Is1.FromBottom">
@@ -55,7 +55,7 @@
                 {
                     @if (!gamepiece.IsPlugged)
                     {
-                        <Button Clicked="@(() => PlacePiece(gamepiece.ResistorsCombo))"
+                        <Button Clicked="@(() => PlacePiece(gamepiece.ExpectedVoltage.ToString()))"
                                 Color="Color.Primary"
                                 Style="width:230px"
                                 Margin="Margin.Is1.FromStart.Is1.FromEnd.Is1.FromTop.Is1.FromBottom">
@@ -65,7 +65,7 @@
                     }
                     else
                     {
-                        <Button Clicked="@(() => RemovePiece(gamepiece.ResistorsCombo))"
+                        <Button Clicked="@(() => RemovePiece(gamepiece.ExpectedVoltage.ToString()))"
                                 Color="Color.Secondary"
                                 Style="width:230px"
                                 Margin="Margin.Is1.FromStart.Is1.FromEnd.Is1.FromTop.Is1.FromBottom">
@@ -97,7 +97,7 @@
         get => GamePieces.Values.Where(p => p.GamePieceType == GamePieceTypes.Consumer).ToList();
     }
 
-    Dictionary<ResistorsCombos, GamePiece> GamePieces = new Dictionary<ResistorsCombos, GamePiece>();
+    Dictionary<string, GamePiece> GamePieces = new Dictionary<string, GamePiece>();
 
     private Timer _timer;
 
@@ -146,7 +146,7 @@
     {
         try
         {
-            var result = await Http.GetFromJsonAsync<Dictionary<ResistorsCombos, GamePiece>>("api/GetGamePieces");
+            var result = await Http.GetFromJsonAsync<Dictionary<string, GamePiece>>("api/GetGamePieces");
             if (result != null)
                 GamePieces = result;
         }
@@ -157,7 +157,7 @@
         await InvokeAsync(StateHasChanged);
     }
 
-    private async Task PlacePiece(ResistorsCombos gamePieceId)
+    private async Task PlacePiece(string gamePieceId)
     {
         var index = -1;
         for(int i = 0; i < Board.Length; i++)
@@ -180,7 +180,7 @@
         }
     }
 
-    private async Task RemovePiece(ResistorsCombos gamePieceId)
+    private async Task RemovePiece(string gamePieceId)
     {
         var index = -1;
         if (GamePieces.TryGetValue(gamePieceId, out var gamePiece))

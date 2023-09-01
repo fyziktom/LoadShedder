@@ -55,9 +55,16 @@ namespace LoadShedder.Controllers
         [AllowCrossSiteJsonAttribute]
         [HttpGet]
         [Route("GetGamePieces")]
-        public Dictionary<ResistorsCombos, GamePiece> GetGamePieces()
+        public Dictionary<string, GamePiece> GetGamePieces()
         {
-            return MainDataContext.GamePieces;
+            var gps = new Dictionary<string, GamePiece>();
+
+            foreach (var b in MainDataContext.GameBoards)
+                foreach (var p in b.Value.Positions)
+                    foreach (var g in p.Value.AllowedGamePieces)
+                        gps.TryAdd(g.Key, g.Value);
+
+            return gps;
         }
 
         [AllowCrossSiteJsonAttribute]
@@ -212,18 +219,25 @@ namespace LoadShedder.Controllers
 
         [AllowCrossSiteJsonAttribute]
         [HttpGet]
-        [Route("GetDeviceGamePieces/{id}")]
-        public string GetDeviceGamePieces(string id)
+        [Route("GetGameBoardGamePieces/{id}")]
+        public List<GamePiece> GetGameBoardGamePieces(string id)
         {
             try
             {
                 if (string.IsNullOrEmpty(id))
-                    return string.Empty;
+                    return new List<GamePiece>();
 
-                if (MainDataContext.Devices.TryGetValue(id, out var device))
-                    return JsonConvert.SerializeObject(device.GamePieces);
+                if (MainDataContext.GameBoards.TryGetValue(id, out var gb))
+                {
+                    var gps = new List<GamePiece>();
+                    foreach (var pos in gb.Positions)
+                        foreach (var g in pos.Value.AllowedGamePieces)
+                            gps.Add(g.Value);
+
+                    return gps;
+                }
                 else
-                    return string.Empty;
+                    return new List<GamePiece>();
             }
             catch (Exception ex)
             {

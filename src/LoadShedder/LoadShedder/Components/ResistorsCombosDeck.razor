@@ -9,7 +9,7 @@
 </Div>
 
 @code {
-    Dictionary< ResistorsCombos, GamePiece> GamePieces = new Dictionary<ResistorsCombos, GamePiece>();
+    Dictionary< string, GamePiece> GamePieces = new Dictionary<string, GamePiece>();
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -19,7 +19,7 @@
 
     private async Task getGamePieces()
     {
-        var result = await Http.GetFromJsonAsync<Dictionary<ResistorsCombos, GamePiece>>("api/GetGamePieces");
+        var result = await Http.GetFromJsonAsync<Dictionary<string, GamePiece>>("api/GetGamePieces");
         if (result != null)
             GamePieces = result;
 

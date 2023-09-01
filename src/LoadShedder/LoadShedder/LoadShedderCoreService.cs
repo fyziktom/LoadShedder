@@ -3,6 +3,7 @@ using LoadShedder.Common;
 using LoadShedder.Models;
 using Newtonsoft.Json;
 using System.Collections.Concurrent;
+using System.Text;
 using VEDriversLite.Common;
 
 namespace LoadShedder
@@ -21,11 +22,72 @@ namespace LoadShedder
             #region LoadConfigData
 
             MainDataContext.ADCVoltageTolerance = settings.GetValue<double>("ADCVoltageTolerance", 5);
-            MainDataContext.ADCMainDividingResistor = settings.GetValue<double>("ADCMainDividingResistor", 100000);
+            MainDataContext.ADCMainDividingResistor = settings.GetValue<double>("ADCMainDividingResistor", 2000);
             MainDataContext.ADCResolution = settings.GetValue<double>("ADCResolution", 4096);
             MainDataContext.ADCMainVoltage = settings.GetValue<double>("ADCMainVoltage", 5000);
 
+            /*
             settings.GetSection("GamePieces").Bind(MainDataContext.GamePieces);
+            var newgpcs = new Dictionary<ResistorsCombos1, GamePiece>();
+
+            if (!File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "GamePiecesResistorsCombosValues.txt")))
+            {
+                var newrcs = new List<int>();
+
+                var comboValues = new StringBuilder();
+
+                comboValues.AppendLine($"ComboName;Value;Resistors;MainADCResistorVoltage;ComboVoltage;");
+                foreach (int rc in Enum.GetValues(typeof(ResistorsCombos1)))
+                {
+                    if ((ResistorsCombos1)rc != ResistorsCombos1.None)
+                    {
+                        newrcs.Add((int)rc);
+                        var res = GamePiece.DecomposeCombo1IntoResistors((ResistorsCombos1)rc);
+                        var r = new StringBuilder();
+                        var ix = 0;
+                        foreach (var rr in res)
+                        {
+                            r.Append($"{rr.ToString()}");
+                            if (ix < res.Count - 1)
+                                r.Append(" + ");
+                            //else if (ix == res.Count - 1)
+                            //r.Append("\n");
+                            ix++;
+                        }
+                        var tmpgp = new GamePiece() { ResistorsCombo1 = (ResistorsCombos1)rc };
+
+                        comboValues.AppendLine($"{Enum.GetName(typeof(ResistorsCombos1), rc)};{rc};{r.ToString()};{Math.Round(tmpgp.GetMainResistorVoltage(), 0)};{Math.Round(tmpgp.GetGamePieceResistorVoltage(), 0)}");
+                    }
+                }
+                var index = 1;
+
+                newrcs.Sort();
+
+                foreach (var g in MainDataContext.GamePieces.Values)
+                {
+                    if (index < newrcs.Count)
+                    {
+                        newgpcs.TryAdd((ResistorsCombos1)newrcs[index], new GamePiece()
+                        {
+                            Description = g.Description,
+                            EnergyValue = g.EnergyValue,
+                            GamePieceType = g.GamePieceType,
+                            Id = g.Id,
+                            Name = g.Name,
+                            ResistorsCombo1 = (ResistorsCombos1)newrcs[index]
+                        });
+                        index++;
+                    }
+                }
+
+                FileHelpers.WriteTextToFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "GamePiecesResistorsCombosValues.txt"), comboValues.ToString());
+            }
+
+            var obj = JsonConvert.SerializeObject(newgpcs, Formatting.Indented);
+            FileHelpers.WriteTextToFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "GamePieces1.json"), obj);
+            */
+
+
             settings.GetSection("GameSettings").Bind(MainDataContext.GameSettings);
 
             #endregion
@@ -105,13 +167,35 @@ namespace LoadShedder
 
                 if (!MainDataContext.GameBoards.ContainsKey("testBoard"))
                 {
-                    MainDataContext.GameBoards.TryAdd("testBoard", new Models.GameBoard()
+                    var gameboard = new Models.GameBoard()
                     {
                         DeviceId = "test",
                         Id = "testBoard",
                         Name = "Test Board",
                         PlayerId = "fyziktom"
-                    });
+                    };
+
+                    var gamepieces = new List<GamePiece>()
+                    {
+                       new GamePiece() { Name = "Solar 2", ExpectedVoltage = 3000, EnergyValue = 10000, GamePieceType = GamePieceTypes.Source },
+                       new GamePiece() { Name = "Solar 2", ExpectedVoltage = 0, EnergyValue = 7500, GamePieceType = GamePieceTypes.Source},
+                       new GamePiece() { Name = "Solar 2", ExpectedVoltage = 7500, EnergyValue = 5000, GamePieceType = GamePieceTypes.Source},
+                    };
+
+                    gameboard.AddPosition("3_Solar 2", "test", 0, gamepieces);
+
+                    gamepieces.Clear();
+                    gamepieces = new List<GamePiece>()
+                    {
+                       new GamePiece() { Name = "westpunt", ExpectedVoltage = 2100, EnergyValue = 10000, GamePieceType = GamePieceTypes.Consumer },
+                       new GamePiece() { Name = "westpunt", ExpectedVoltage = 1654, EnergyValue = 7500, GamePieceType = GamePieceTypes.Consumer},
+                       new GamePiece() { Name = "westpunt", ExpectedVoltage = 700, EnergyValue = 5000, GamePieceType = GamePieceTypes.Consumer},
+                    };
+
+                    gameboard.AddPosition("1-westpunt", "test", 12, gamepieces);
+
+
+                    MainDataContext.GameBoards.TryAdd("testBoard", gameboard);
                 }
 
                 if (!MainDataContext.Games.ContainsKey("testGame"))
