@@ -3,7 +3,7 @@
 
 <Row Margin="Margin.Is3.FromTop.Is2.FromBottom">
     <Column Flex="Flex.JustifyContent.Center">
-        Elapsed: @(Math.Round(ElapsedTime, 0)) seconds
+        Elapsed time: @(Math.Round(ElapsedTime, 0)) seconds
     </Column>
 </Row>
 <Row Margin="Margin.Is3.FromTop.Is2.FromBottom">
@@ -11,7 +11,7 @@
         @if (GameStage == GamePlayStage.Start || GameStage == GamePlayStage.LoadOfSources)
         {
             <Span>
-                Please Start adding the Sources until you will reach 75 MW. You cannot add consumers otherwise it will cause a blackout.
+                Let's get started by adding energy sources until you reach a total of 75 MW. Avoid adding consumers rightaway, as they could lead to a BLACKOUT.
             </Span>
         }
         else if (GameStage == GamePlayStage.LoadOfConsumers)
@@ -41,7 +41,7 @@
     <Column>
         <Row>
             <Column Flex="Flex.JustifyContent.Center">
-                <Heading Size="HeadingSize.Is4">Sources</Heading>
+                <Heading Size="HeadingSize.Is4">Energy Sources</Heading>
             </Column>
         </Row>
         <Row Margin="Margin.Is1.FromTop">
@@ -53,7 +53,7 @@
     <Column>
         <Row>
             <Column Flex="Flex.JustifyContent.Center">
-                <Heading Size="HeadingSize.Is4">Total Bilance</Heading>
+                <Heading Size="HeadingSize.Is4">Total Balance</Heading>
             </Column>
         </Row>
         <Row Margin="Margin.Is1.FromTop">
@@ -65,7 +65,7 @@
     <Column>
         <Row>
             <Column Flex="Flex.JustifyContent.Center">
-                <Heading Size="HeadingSize.Is4">Consumers</Heading>
+                <Heading Size="HeadingSize.Is4">Energy Consumers</Heading>
             </Column>
         </Row>
         <Row Margin="Margin.Is1.FromTop">
