@@ -10,19 +10,29 @@
         {
             var value = LoadedDevice.RawData[i];
             var index = i;
-            <Card Margin="Margin.Is1.FromStart.Is1.FromEnd.Is1.FromTop" Style="max-width:200px;">
-                <CardBody>
-                    <CardText>Channel: @index</CardText>
-                    <CardText>@value mV</CardText>
-                    <Button Color="Color.Primary" Clicked="@(() => OpenRegisterModal(index, value))">Register</Button>
-                </CardBody>
-            </Card>
+            var position = LoadedGameBoard.Positions.Values.Where(p => p.ChannelInputNumber == index).FirstOrDefault();
+            if (position != null)
+            {
+                if (!string.IsNullOrEmpty(position.Name))
+                {
+                    <Card Margin="Margin.Is1.FromStart.Is1.FromEnd.Is1.FromTop" Style="max-width:200px;">
+                        <CardHeader>
+                            <CardTitle>@position.Name</CardTitle>
+                        </CardHeader>
+                        <CardBody>
+                            <CardText>Channel: @index</CardText>
+                            <CardText>@value mV</CardText>                       
+                            <Button Color="Color.Primary" Clicked="@(() => OpenRegisterModal(index, value))">Register</Button>
+                        </CardBody>
+                    </Card>
+                }
+            }
         }
     }
 </Row>
 
 <Modal @ref="addGamePieceToPositionModalRef">
-    <ModalContent Centered Size="ModalSize.Large">
+    <ModalContent Centered Size="ModalSize.ExtraLarge">
         <ModalHeader>
             <ModalTitle>Add new GamePiece</ModalTitle>
             <CloseButton />
@@ -45,7 +55,7 @@
                         <Column>
                             <Field>
                                 <FieldLabel>Energy of piece to register</FieldLabel>
-                                <NumericEdit TValue="int" Min="0" Max="3000" @bind-Value="@energyValue"></NumericEdit>
+                                <NumericEdit TValue="int" Min="0" Max="100000" Value="@energyValue" ValueChanged="@onEnergyValueChangedHandler"></NumericEdit>
                             </Field>
                         </Column>
                     </Row>
@@ -124,7 +134,21 @@
                             </Field>
                         </Column>
                     </Row>
-                    
+                    <Row Margin="Margin.Is2.FromTop">
+                        <Column>
+                            <Span>Alloed GamePieces in this position</Span>
+                        </Column>
+                    </Row>
+                    <Row Margin="Margin.Is2.FromTop">
+                        <Column>
+                            <ListGroup>
+                                @foreach (var gp in selectedPosition.AllowedGamePieces)
+                                {
+                                    <ListGroupItem>@($"{gp.Value.Name} - {gp.Value.EnergyValue} kW, Voltage: {gp.Value.ExpectedVoltage} mV, Diff To Actual: {gp.Value.ExpectedVoltage - selectedExpectedVoltage }")</ListGroupItem>
+                                }
+                            </ListGroup>
+                        </Column>
+                    </Row>
                 </Column>
             </Row>
             
@@ -200,6 +224,15 @@
         }
     }
 
+    public async Task onEnergyValueChangedHandler(int newValue)
+    {
+        energyValue = newValue;
+        if (newValue % 10 > 0)
+            newGamePieceName = $"{selectedPosition.Name} - {Math.Round(((double)newValue / 1000), 0)} MW";
+        else
+            newGamePieceName = $"{selectedPosition.Name} - {Math.Round(((double)newValue / 1000), 1)} MW";
+    }
+
     public class AddGamePieceToPositionRequest
     {
         public string name { get; set; } = string.Empty;
@@ -207,7 +240,7 @@
         public string gameboardId { get; set; } = string.Empty;
         public string positionId { get; set; } = string.Empty;
         public int expectedVoltage { get; set; } = -1;
-        public int energyvalue { get; set; } = -1;
+        public int energyValue { get; set; } = 1000;
         public int typeOfGamePiece { get; set; } = 0;
     }
 
@@ -237,6 +270,8 @@
         }
         selectedExpectedVoltage = (int)lastChannelValues.Average();
 
+        newGamePieceName = selectedPosition.Name;
+
     }
 
     private async Task<string> RegisterGamePiece(int channel, int value)
@@ -251,7 +286,7 @@
                     gameboardId = GameBoardId,
                     positionId = selectedPositionId,
                     expectedVoltage = selectedExpectedVoltage,
-                    energyvalue = energyValue,
+                    energyValue = energyValue,
                     typeOfGamePiece = typeOfGamePiece
 
                 };

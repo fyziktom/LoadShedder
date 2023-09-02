@@ -12,6 +12,19 @@ namespace LoadShedder.Models
 {
     public class GameBoard
     {
+        public GameBoard() { }
+
+        public GameBoard(Dto.GameBoardDto dto)
+        {
+            if (dto != null)
+            {
+                Id = dto.Id;
+                DeviceId = dto.DeviceId;
+                Name = dto.Name;
+                foreach (var position in dto.Positions)
+                    Positions.TryAdd(position.Key, position.Value);
+            }
+        }
         public GameBoard(string id = "", string deviceId = "", string name = "New Board")
         {
             if (!string.IsNullOrEmpty(id))

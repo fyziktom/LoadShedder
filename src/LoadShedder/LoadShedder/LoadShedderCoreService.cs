@@ -87,7 +87,7 @@ namespace LoadShedder
             FileHelpers.WriteTextToFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "GamePieces1.json"), obj);
             */
 
-
+            
             settings.GetSection("GameSettings").Bind(MainDataContext.GameSettings);
 
             #endregion
@@ -126,7 +126,12 @@ namespace LoadShedder
                 var filecontent = FileHelpers.ReadTextFromFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "GameBoards.json"));
                 try
                 {
-                    MainDataContext.GameBoards = JsonConvert.DeserializeObject<ConcurrentDictionary<string, GameBoard>>(filecontent) ?? new ConcurrentDictionary<string, GameBoard>();
+                    var dtos = JsonConvert.DeserializeObject<ConcurrentDictionary<string, Models.Dto.GameBoardDto>>(filecontent) ?? new ConcurrentDictionary<string, Models.Dto.GameBoardDto>();
+                    if (dtos != null)
+                    {
+                        foreach (var d in dtos)
+                            MainDataContext.GameBoards.TryAdd(d.Key, new GameBoard(d.Value));
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -165,30 +170,31 @@ namespace LoadShedder
                         Name = "Test Device"
                     };
 
-                    device.AddChannel(0, "1-Westpunt");
-                    device.AddChannel(1, "2-Barber");
-                    device.AddChannel(2, "3-Soto");
-                    device.AddChannel(3, "4-Wind");
-                    device.AddChannel(4, "5-TeraKora");
-                    device.AddChannel(5, "6-Solar");
-                    device.AddChannel(6, "7-St.Maria");
-                    device.AddChannel(7, "8-Isla");
-                    device.AddChannel(8, "9-Bueheuvel");
-                    device.AddChannel(9, "10-Piscadera");
-                    device.AddChannel(10, "11-Gas");
-                    device.AddChannel(11, "12-Otrobanda");
-                    device.AddChannel(12, "13-Buevengat");
-                    device.AddChannel(13, "14-Wind");
-                    device.AddChannel(14, "15-Solar");
-                    device.AddChannel(15, "16-Diesel_1");
-                    device.AddChannel(16, "17-Diesel_2");
-                    device.AddChannel(17, "18-Diesel_3");
-                    device.AddChannel(18, "19-Punda");
-                    device.AddChannel(19, "20-Koraalspecht");
-                    device.AddChannel(20, "21-Jan_Thiel");
-                    device.AddChannel(21, "22-Montana");
-                    device.AddChannel(22, "23-Wind");
-                    device.AddChannel(23, "24-Fuik");
+                    device.AddChannel(11, "1-Westpunt");
+                    device.AddChannel(24, "2-Barber");
+                    device.AddChannel(9, "3-Soto");
+                    device.AddChannel(13, "4-Wind");
+                    device.AddChannel(14, "5-TeraKora");
+                    device.AddChannel(12, "6-Solar");
+                    device.AddChannel(28, "7-St.Maria");
+                    device.AddChannel(1, "8-Isla");
+                    device.AddChannel(2, "9-Bueheuvel");
+                    device.AddChannel(29, "10-Piscadera");
+                    device.AddChannel(30, "11-Gas");
+                    device.AddChannel(31, "12-Otrobanda");
+                    device.AddChannel(25, "13-Buevengat");
+                    device.AddChannel(17, "14-Wind");
+                    device.AddChannel(18, "15-Solar");
+                    device.AddChannel(5, "16-Diesel_1");
+                    device.AddChannel(22, "17-Diesel_2");
+                    device.AddChannel(6, "18-Diesel_3");
+                    device.AddChannel(4, "19-Punda");
+                    device.AddChannel(7, "20-Koraalspecht");
+                    device.AddChannel(23, "21-Jan_Thiel");
+                    device.AddChannel(19, "22-Montana");
+                    device.AddChannel(21, "23-Wind");
+                    device.AddChannel(20, "24-Fuik");
+
 
                     MainDataContext.Devices.TryAdd("test", device);
                 }
@@ -203,26 +209,30 @@ namespace LoadShedder
                         PlayerId = "fyziktom"
                     };
 
-                    var gamepieces = new List<GamePiece>()
-                    {
-                       new GamePiece() { Name = "Solar 2", ExpectedVoltage = 3000, EnergyValue = 10000, GamePieceType = GamePieceTypes.Source },
-                       new GamePiece() { Name = "Solar 2", ExpectedVoltage = 0, EnergyValue = 7500, GamePieceType = GamePieceTypes.Source},
-                       new GamePiece() { Name = "Solar 2", ExpectedVoltage = 7500, EnergyValue = 5000, GamePieceType = GamePieceTypes.Source},
-                    };
-
-                    gameboard.AddPosition(null, "3_Solar 2", "test", null, 0, gamepieces);
-
-                    gamepieces.Clear();
-                    gamepieces = new List<GamePiece>()
-                    {
-                       new GamePiece() { Name = "westpunt", ExpectedVoltage = 2100, EnergyValue = 10000, GamePieceType = GamePieceTypes.Consumer },
-                       new GamePiece() { Name = "westpunt", ExpectedVoltage = 1654, EnergyValue = 7500, GamePieceType = GamePieceTypes.Consumer},
-                       new GamePiece() { Name = "westpunt", ExpectedVoltage = 700, EnergyValue = 5000, GamePieceType = GamePieceTypes.Consumer},
-                    };
-
-                    gameboard.AddPosition(null, "1-westpunt", "test", null, 12, gamepieces);
-
-
+                    gameboard.AddPosition(null, "1-Westpunt", "test", null, 11, null);
+                    gameboard.AddPosition(null, "2-Barber", "test", null, 24, null);
+                    gameboard.AddPosition(null, "3-Soto", "test", null, 9, null);
+                    gameboard.AddPosition(null, "4-Wind", "test", null, 13, null);
+                    gameboard.AddPosition(null, "5-TeraKora", "test", null, 14, null);
+                    gameboard.AddPosition(null, "6-Solar", "test", null, 12, null);
+                    gameboard.AddPosition(null, "7-St.Maria", "test", null, 28, null);
+                    gameboard.AddPosition(null, "8-Isla", "test", null, 1, null);
+                    gameboard.AddPosition(null, "9-Bueheuvel", "test", null, 2, null);
+                    gameboard.AddPosition(null, "10-Piscadera", "test", null, 29, null);
+                    gameboard.AddPosition(null, "11-Gas", "test", null, 30, null);
+                    gameboard.AddPosition(null, "12-Otrobanda", "test", null, 31, null);
+                    gameboard.AddPosition(null, "13-Buevengat", "test", null, 25, null);
+                    gameboard.AddPosition(null, "14-Wind", "test", null, 17, null);
+                    gameboard.AddPosition(null, "15-Solar", "test", null, 18, null);
+                    gameboard.AddPosition(null, "16-Diesel_1", "test", null, 5, null);
+                    gameboard.AddPosition(null, "17-Diesel_2", "test", null, 22, null);
+                    gameboard.AddPosition(null, "18-Diesel_3", "test", null, 6, null);
+                    gameboard.AddPosition(null, "19-Punda", "test", null, 4, null);
+                    gameboard.AddPosition(null, "20-Koraalspecht", "test", null, 7, null);
+                    gameboard.AddPosition(null, "21-Jan_Thiel", "test", null, 23, null);
+                    gameboard.AddPosition(null, "22-Montana", "test", null, 19, null);
+                    gameboard.AddPosition(null, "23-Wind", "test", null, 21, null);
+                    gameboard.AddPosition(null, "24-Fuik", "test", null, 20, null);
                     MainDataContext.GameBoards.TryAdd("testBoard", gameboard);
                 }
 
