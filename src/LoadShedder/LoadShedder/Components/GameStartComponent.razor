@@ -105,8 +105,9 @@
                 if (returnStr != null)
                 {
                     Console.WriteLine("AddPlayer response: " + returnStr);
+                    PlayerId = returnStr;
                     await PlayerIdChanged.InvokeAsync(PlayerId);
-                    await AddDevice(returnStr);
+                    await AddPlayerToBoard(returnStr);
                     return returnStr;
                 }
                 else
@@ -214,6 +215,36 @@
         return string.Empty;
     }
 
+    private async Task<string> AddBoardToGame()
+    {
+        var obj = new
+        {
+            gameid = GameId,
+            gameboardid = BoardId
+        };
+
+        var cnt = JsonConvert.SerializeObject(obj);
+
+        using (var content = new StringContent(cnt, System.Text.Encoding.UTF8, "application/json"))
+        {
+            HttpResponseMessage result = await Http.PostAsync("api/AddGameBoardToGame", content);
+            if (result.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var returnStr = await result.Content.ReadAsStringAsync();
+
+                if (returnStr != null)
+                {
+                    Console.WriteLine("AddPlayerToBoard response: " + returnStr);
+                    return returnStr;
+                }
+                else
+                    return "ERROR:Cannot read return message.";
+            }
+        }
+
+        return string.Empty;
+    }
+
     private async Task<string> AddGame()
     {
         var obj = new
@@ -254,6 +285,7 @@
 
             await AddPlayer();
             await AddGame();
+            //await AddBoardToGame();
 
             var response = await Http.GetStringAsync($"api/StartGame/{GameId}");
             Console.WriteLine("Start game response:" + response);

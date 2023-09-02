@@ -69,8 +69,12 @@ namespace LoadShedder.Models
         {
             if (voltage > 0.0 + MainDataContext.ADCVoltageTolerance)
             {
-                if (AllowedGamePieces.TryGetValue(voltage.ToString(), out var gm))
-                    return gm;
+                var piece = AllowedGamePieces.Values.FirstOrDefault(p => p.IsVoltageMatch(voltage));
+                if (piece != null)
+                    return piece;
+
+                //if (AllowedGamePieces.TryGetValue(voltage.ToString(), out var gm))
+                    //return gm;
             }
 
             return null;
@@ -89,7 +93,7 @@ namespace LoadShedder.Models
         {
             if (voltage > 0.0  + MainDataContext.ADCVoltageTolerance)
             {
-                if (IsGamePieceAllowed(voltage) != null)
+                //if (IsGamePieceAllowed(voltage) != null)
                 {
                     var gm = FindMatchGamePiece(voltage);
 

@@ -107,7 +107,7 @@
         if (firstRender)
         {
             await getGamePieces();
-            //_timer = new Timer(async (e) => { await PeriodicPost(); }, null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
+            _timer = new Timer(async (e) => { await PeriodicPost(); }, null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
         }
 
         await base.OnAfterRenderAsync(firstRender);
@@ -174,7 +174,7 @@
         {
             if (GamePieces.TryGetValue(gamePieceId, out var gamePiece))
             {
-                Board[index] = (int)gamePiece.GetGamePieceResistorVoltage();
+                Board[index] = (int)gamePiece.ExpectedVoltage;
                 gamePiece.IsPlugged = true;
             }
             await ProcessRequest();
@@ -188,7 +188,7 @@
         {
             for (int i = 0; i < Board.Length; i++)
             {
-                if (Board[i] == (int)gamePiece.GetGamePieceResistorVoltage())
+                if (Board[i] == (int)gamePiece.ExpectedVoltage)
                 {
                     index = i;
                     break;

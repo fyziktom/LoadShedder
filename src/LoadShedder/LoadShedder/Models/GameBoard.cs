@@ -12,7 +12,11 @@ namespace LoadShedder.Models
 {
     public class GameBoard
     {
-        public GameBoard() { }
+        public GameBoard() 
+        {
+            Id = Guid.NewGuid().ToString();
+            ResetBoard();
+        }
 
         public GameBoard(Dto.GameBoardDto dto)
         {
@@ -24,6 +28,8 @@ namespace LoadShedder.Models
                 foreach (var position in dto.Positions)
                     Positions.TryAdd(position.Key, position.Value);
             }
+
+            ResetBoard();
         }
         public GameBoard(string id = "", string deviceId = "", string name = "New Board")
         {
