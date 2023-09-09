@@ -23,6 +23,10 @@ namespace LoadShedder.Common
         /// </summary>
         public static double ADCVoltageTolerance { get; set; } = 20; //20mV
         /// <summary>
+        /// Device and Channels keeps the history of data X steps back. 
+        /// </summary>
+        public static int MaximumHistoryStepsInRAM { get; set; } = 100;
+        /// <summary>
         /// Settings of the game, constants, etc. It is loaded from the appsettings.json
         /// </summary>
         public static GameSettings GameSettings { get; set; } = new GameSettings();

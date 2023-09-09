@@ -1,4 +1,6 @@
-﻿using System.Diagnostics.Contracts;
+﻿using LoadShedder.Common;
+using System.Diagnostics.Contracts;
+using System.Text.Json.Serialization;
 
 namespace LoadShedder.Models
 {
@@ -30,6 +32,7 @@ namespace LoadShedder.Models
         /// <summary>
         /// Channel old data
         /// </summary>
+        [JsonIgnore]
         public Dictionary<DateTime, int> ChannelHistory { get; set; } = new Dictionary<DateTime, int>();
 
         /// <summary>
@@ -49,7 +52,16 @@ namespace LoadShedder.Models
             ActualValue = value;
 
             if (value > 0)
+            {
+                if (ChannelHistory.Count > MainDataContext.MaximumHistoryStepsInRAM)
+                {
+                    var oldest = ChannelHistory.Keys.Order().FirstOrDefault();
+                    if (ChannelHistory.ContainsKey(oldest))
+                        ChannelHistory.Remove(oldest);
+                }
+
                 ChannelHistory.Add(DateTime.UtcNow, value);
+            }
         }
     }
 }

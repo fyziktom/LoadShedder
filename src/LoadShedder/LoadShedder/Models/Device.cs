@@ -21,10 +21,12 @@ namespace LoadShedder.Models
         /// Device Raw data history. 
         /// Based on the datetime in the game you can search through the history of the data of specific device.
         /// </summary>
+        [JsonIgnore]
         public Dictionary<DateTime, int[]> DeviceRawDataHistory { get; set; } = new Dictionary<DateTime, int[]>();
         /// <summary>
         /// Input Channels on the device
         /// </summary>
+        [JsonIgnore]
         public ConcurrentDictionary<int, Channel> Channels { get; set; } = new ConcurrentDictionary<int, Channel>();
         /// <summary>
         /// Log all new received data to the file. It is identified by the ID of the device and placed to separated folder in the root folder/Devices of the app
@@ -73,7 +75,7 @@ namespace LoadShedder.Models
                                                                 JsonConvert.SerializeObject(obj, Formatting.Indented));
             }
 
-            if (DeviceRawDataHistory.Count > 100)
+            if (DeviceRawDataHistory.Count > MainDataContext.MaximumHistoryStepsInRAM)
             {
                 var oldest = DeviceRawDataHistory.Keys.Order().FirstOrDefault();
                 if (DeviceRawDataHistory.ContainsKey(oldest))
