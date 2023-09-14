@@ -1,41 +1,43 @@
 #include <M5Unified.h>
 #include <WiFi.h>
-#include <Wire.h>
+//#include <Wire.h>
 #include "HTTPClient.h"
 #include "logo.h"
+#include <algorithm>
+
+#define CALIBRATION_MODE 1
 
 #define M_SIZE 1  // Scale factor
 #define VERTICAL_OFFSET 120
 #define HORIZONTAL_OFFSET 160
 
-#define NUMBER_OF_BITS 8
+#define NUMBER_OF_BITS 4
+#define NUMBER_OF_ADC_MUX_INPUTS 16 //per IC
+#define NUMBER_OF_ADC_MUX_IC 2 // number of ADC MUX ICs
+#define NUMBER_OF_ADC_VIRTUAL_INTPUTS NUMBER_OF_ADC_MUX_INPUTS * NUMBER_OF_ADC_MUX_IC
 // main control pins for switching transistors
-#define BIT_0 5
-#define BIT_1 2
-#define BIT_2 17
-#define BIT_3 16
-#define BIT_4 1
-#define BIT_5 3
-#define BIT_6 21
-#define BIT_7 22
+#define BIT_0 16
+#define BIT_1 17
+#define BIT_2 2
+#define BIT_3 5
+#define ENABLE_MUX 26
 
 // control of the simulators of PVE and WGT
 #define LED_PWM 23
 #define FAN_PWM 19
 
-#define RESERVE_PIN 18
-
 #define NUMBER_OF_ADCS 4
 // ADC pins
-#define ADC_0 25
-#define ADC_1 26
-#define ADC_2 35
-#define ADC_3 36 
+#define ADC_0 35
+#define ADC_1 36
 
-#define STABILISATION_INTERVAL 20 //ms
-#define READING_INTERVAL 50 //ms
+#define ADC0_SCALE 1.0
+#define ADC1_SCALE 1.0
+#define STABILISATION_INTERVAL 2 //ms 1 - 5ms is ideal
+#define READING_INTERVAL 15 //us 100us
+#define ADC_AVG_COUNT 30
 
-#define DATA_ARRAY_LENGTH NUMBER_OF_BITS * NUMBER_OF_ADCS
+#define DATA_ARRAY_LENGTH NUMBER_OF_ADC_MUX_INPUTS * NUMBER_OF_ADC_MUX_IC
 
 int dataToSend[DATA_ARRAY_LENGTH];
 
@@ -51,13 +53,13 @@ String GameBoardName = "testBoard";
 String apiCommand = "NewDeviceData";
 
 // please fill IP address
-String DEFAULT_SRVIP = "YOUR_IP"; // "IP OF PC WHERE YOU RUN Load Shedder Server App"
+String DEFAULT_SRVIP = "192.168.1.117"; // "IP OF PC WHERE YOU RUN Load Shedder Server App"
 String SERVER_PORT = "5000"; // "Port of LoadShedder Server App 5059 is default port in debug 5000 in full run"
 
 // please fill own network parameters
 //String ssid = "BocaSimon WIFI";//"YOUR SSID NAME";
-String ssid = "WIFI_SSID";//"YOUR SSID NAME";
-String password = "WIFI_PASS";//"YOUR WIFI PASSWORD";
+String ssid = "Linksys00940";//"YOUR SSID NAME";
+String password = "ubackqthyx";//"YOUR WIFI PASSWORD";
 
 String pathBase = "http://" + DEFAULT_SRVIP + ":" + SERVER_PORT + "/api/";
 
@@ -141,7 +143,7 @@ void setup() {
   // put your setup code here, to run once:
   M5.begin();
   M5.Power.begin();
-  //M5.Lcd.setRotation(3);
+  //M5.Lcd.setRotation(0);
   ClearDisplay(false);
   M5.Lcd.setTextColor(WHITE);
   delay(500);
@@ -155,7 +157,7 @@ void setup() {
   //digitalWrite(M5_LED, HIGH);
 
   //setup RFID reader
-  Wire.begin();                   // Initialize I2C
+  //Wire.begin();                   // Initialize I2C
   //ShowReaderDetails();            // Show details of PCD - MFRC522 Card Reader details
 
   M5.Lcd.setCursor(0, 30); M5.Lcd.print("Starting...");
@@ -172,13 +174,8 @@ void setup() {
   pinMode(BIT_1,OUTPUT);
   pinMode(BIT_2,OUTPUT);
   pinMode(BIT_3,OUTPUT);
-  //pinMode(BIT_4,OUTPUT);
-  //pinMode(BIT_5,OUTPUT);
-  pinMode(BIT_6,OUTPUT);
-  pinMode(BIT_7,OUTPUT);
-  //pinMode(LED_PWM,OUTPUT);
-  //pinMode(FAN_PWM,OUTPUT);
-  //pinMode(RESERVE_PIN,OUTPUT);
+  pinMode(ENABLE_MUX,OUTPUT);
+  digitalWrite(ENABLE_MUX, 0);
 
   ClearMainDataArray();
 
@@ -199,8 +196,10 @@ void setup() {
   
   M5.Lcd.fillScreen(TFT_BLACK);
 
-  analogMeter();
-
+  if (!CALIBRATION_MODE) {
+    analogMeter();
+  }
+  
   M5.Lcd.setCursor(145, 180);
   M5.Lcd.setTextSize(3);
   M5.Lcd.print("MW");
@@ -213,10 +212,6 @@ void SetOneDrivingBit(int settedBit) {
   digitalWrite(BIT_1,0);
   digitalWrite(BIT_2,0);
   digitalWrite(BIT_3,0);
-  //digitalWrite(BIT_4,0);
-  //digitalWrite(BIT_5,0);
-  digitalWrite(BIT_6,0);
-  digitalWrite(BIT_7,0);
 
   switch(settedBit) {
     case 0: digitalWrite(BIT_0,1);
@@ -226,30 +221,110 @@ void SetOneDrivingBit(int settedBit) {
     case 2: digitalWrite(BIT_0,1);
       break;
     case 3: digitalWrite(BIT_0,1);
-      break;
-    case 4: //digitalWrite(BIT_0,1);
-      break;
-    case 5: //digitalWrite(BIT_0,1);
-      break;
-    case 6: digitalWrite(BIT_0,1);
-      break;
-    case 7: digitalWrite(BIT_0,1);
-      break;
     default : break;
   }
 }
 
-void ReadProcedure() {
-  for (int i = 0; i < 8; i++) {
-    SetOneDrivingBit(i);
-    delay(STABILISATION_INTERVAL);
-    dataToSend[i] = analogReadMilliVolts(ADC_0) * 1;
-    dataToSend[NUMBER_OF_BITS + i] = analogReadMilliVolts(ADC_1) * 1;
-    dataToSend[2 * NUMBER_OF_BITS + i] = analogReadMilliVolts(ADC_2) * 1;
-    dataToSend[3 * NUMBER_OF_BITS + i] = analogReadMilliVolts(ADC_3) * 1;
-    
-    delay(READING_INTERVAL);
+void setValueToBits(int value)
+{
+  digitalWrite(BIT_0, (value >> 0) & 1);
+  digitalWrite(BIT_1, (value >> 1) & 1);
+  digitalWrite(BIT_2, (value >> 2) & 1);
+  digitalWrite(BIT_3, (value >> 3) & 1);
+}
+
+void ReadAverageADCValues(float* resultADC_0, float* resultADC_1)
+{
+  float dataToAvg_0[ADC_AVG_COUNT];
+  float dataToAvg_1[ADC_AVG_COUNT];
+
+  for (int i = 0; i < ADC_AVG_COUNT; i++) {
+    dataToAvg_0[0] = 0;
+    dataToAvg_1[0] = 0;
   }
+  
+  for (int i = 0; i < ADC_AVG_COUNT; i++) {
+    dataToAvg_0[i] = analogReadMilliVolts(ADC_0) * ADC0_SCALE;   
+    dataToAvg_1[i] = analogReadMilliVolts(ADC_1) * ADC1_SCALE;   
+    delayMicroseconds(READING_INTERVAL);
+  }
+
+  float res_0 = 0.0;
+  float res_1 = 0.0;
+
+  for (int i = 0; i < ADC_AVG_COUNT; i++) {
+    res_0 += dataToAvg_0[i];   
+    res_1 += dataToAvg_1[i];
+
+    delayMicroseconds(READING_INTERVAL);
+  }
+
+  res_0 /= ADC_AVG_COUNT;
+  res_1 /= ADC_AVG_COUNT;
+
+  *resultADC_0 = res_0;
+  *resultADC_1 = res_1;
+}
+
+void ReadMedianADCValues(float* resultADC_0, float* resultADC_1)
+{
+  float dataToAvg_0[ADC_AVG_COUNT];
+  float dataToAvg_1[ADC_AVG_COUNT];
+
+  for (int i = 0; i < ADC_AVG_COUNT; i++) {
+      dataToAvg_0[0] = 0;
+      dataToAvg_1[0] = 0;
+  }
+
+  for (int i = 0; i < ADC_AVG_COUNT; i++) {
+    dataToAvg_0[i] = analogReadMilliVolts(ADC_0) * ADC0_SCALE;   
+    dataToAvg_1[i] = analogReadMilliVolts(ADC_1) * ADC1_SCALE;   
+    delayMicroseconds(READING_INTERVAL);
+  }
+
+  // Seřazení polí
+  std::sort(dataToAvg_0, dataToAvg_0 + ADC_AVG_COUNT);
+  std::sort(dataToAvg_1, dataToAvg_1 + ADC_AVG_COUNT);
+
+  float median_0, median_1;
+
+  // Výpočet mediánu pro první pole
+  if (ADC_AVG_COUNT % 2 != 0)
+    median_0 = dataToAvg_0[ADC_AVG_COUNT / 2];
+  else
+    median_0 = (dataToAvg_0[(ADC_AVG_COUNT - 1) / 2] + dataToAvg_0[ADC_AVG_COUNT / 2]) / 2.0;
+
+  // Výpočet mediánu pro druhé pole
+  if (ADC_AVG_COUNT % 2 != 0)
+    median_1 = dataToAvg_1[ADC_AVG_COUNT / 2];
+  else
+    median_1 = (dataToAvg_1[(ADC_AVG_COUNT - 1) / 2] + dataToAvg_1[ADC_AVG_COUNT / 2]) / 2.0;
+
+  *resultADC_0 = median_0;
+  *resultADC_1 = median_1;
+}
+
+
+void ReadProcedure() {
+  digitalWrite(ENABLE_MUX, 0);
+  delay(1);
+  for (int i = 0; i < NUMBER_OF_ADC_MUX_INPUTS; i++) {
+
+    setValueToBits(i);
+    delay(STABILISATION_INTERVAL);
+    float result_ADC0 = 0.0;
+    float result_ADC1 = 0.0;
+    ReadMedianADCValues(&result_ADC0, &result_ADC1);
+    //ReadAverageADCValues(&result_ADC0, &result_ADC1);
+    setValueToBits(0);
+    delay(STABILISATION_INTERVAL);
+    dataToSend[i] = result_ADC0;
+    dataToSend[NUMBER_OF_ADC_MUX_INPUTS + i] = result_ADC1;
+    
+    //delayMicroseconds(READING_INTERVAL);
+  }
+  digitalWrite(ENABLE_MUX, 1);
+  delay(1);
 }
 
 // when POST of tha data is finished
@@ -374,8 +449,53 @@ void GetBilance() {
   }
 }
 
-void Bilance_Request_Success(String response)
-{
+void Play_A_Chord() {
+    M5.Speaker.tone(880, 2000);
+    delay(250);
+    M5.Speaker.tone(1047, 1250);
+    delay(250);
+    M5.Speaker.tone(1319, 750);
+    delay(250);
+    M5.Speaker.tone(1760, 250);
+    delay(1250);
+}
+
+void GameResponseAction_Request_Success(String response) {
+  int action = response.toInt();
+
+   if (action == 2 || action == 3) {
+     Play_A_Chord();
+   }
+}
+
+void GetGameResponseAction() {
+
+  String path = pathBase + "GameResponseActionsByDeviceId" + "/" + moduleName;
+
+  Serial.println("Path");
+  Serial.println((char*)path.c_str());
+
+  http.begin((char*)path.c_str());
+  http.addHeader("accept", "*/*");
+
+  // send data in PUT request
+  int httpResponseCode = http.GET();
+    
+  // parse output if code is not error
+  if (httpResponseCode > 0 && httpResponseCode < 400) {
+    String response = http.getString();
+    Serial.println(httpResponseCode);
+    Serial.println(response);
+  
+    GameResponseAction_Request_Success(response);
+  }
+  else {
+    Serial.print("Error on sending GET Request: ");
+    Serial.println(httpResponseCode);
+  }
+}
+
+void Bilance_Request_Success(String response) {
   float value = response.toFloat() / 1000;
 
     //plotNeedle(value, 5);
@@ -409,11 +529,73 @@ void DataReading() {
   SendData();
   delay(100);
   GetBilance();
+  GetGameResponseAction();
+}
+
+void CalibrationMode() {
+  ReadProcedure();  
+  //SendData();
+  
+  M5.Lcd.fillScreen(BLACK);
+  M5.Lcd.setTextSize(2);
+  M5.Lcd.fillScreen(BLACK);
+  M5.Lcd.setCursor(25, 25); M5.Lcd.print(dataToSend[0]);
+  M5.Lcd.setCursor(25, 50); M5.Lcd.print(dataToSend[1]);
+  M5.Lcd.setCursor(25, 75); M5.Lcd.print(dataToSend[2]);
+  M5.Lcd.setCursor(25, 100); M5.Lcd.print(dataToSend[3]);
+  M5.Lcd.setCursor(25, 125); M5.Lcd.print(dataToSend[4]);
+  M5.Lcd.setCursor(25, 150); M5.Lcd.print(dataToSend[5]);
+  M5.Lcd.setCursor(25, 175); M5.Lcd.print(dataToSend[6]);
+  M5.Lcd.setCursor(25, 200); M5.Lcd.print(dataToSend[7]);
+
+  M5.Lcd.setCursor(100, 25); M5.Lcd.print(dataToSend[8]);
+  M5.Lcd.setCursor(100, 50); M5.Lcd.print(dataToSend[9]);
+  M5.Lcd.setCursor(100, 75); M5.Lcd.print(dataToSend[10]);
+  M5.Lcd.setCursor(100, 100); M5.Lcd.print(dataToSend[11]);
+  M5.Lcd.setCursor(100, 125); M5.Lcd.print(dataToSend[12]);
+  M5.Lcd.setCursor(100, 150); M5.Lcd.print(dataToSend[13]);
+  M5.Lcd.setCursor(100, 175); M5.Lcd.print(dataToSend[14]);
+  M5.Lcd.setCursor(100, 200); M5.Lcd.print(dataToSend[15]);
+
+  M5.Lcd.setCursor(170, 25); M5.Lcd.print(dataToSend[16]);
+  M5.Lcd.setCursor(170, 50); M5.Lcd.print(dataToSend[17]);
+  M5.Lcd.setCursor(170, 75); M5.Lcd.print(dataToSend[18]);
+  M5.Lcd.setCursor(170, 100); M5.Lcd.print(dataToSend[19]);
+  M5.Lcd.setCursor(170, 125); M5.Lcd.print(dataToSend[20]);
+  M5.Lcd.setCursor(170, 150); M5.Lcd.print(dataToSend[21]);
+  M5.Lcd.setCursor(170, 175); M5.Lcd.print(dataToSend[22]);
+  M5.Lcd.setCursor(170, 200); M5.Lcd.print(dataToSend[23]);
+
+  M5.Lcd.setCursor(250, 25); M5.Lcd.print(dataToSend[24]);
+  M5.Lcd.setCursor(250, 50); M5.Lcd.print(dataToSend[25]);
+  M5.Lcd.setCursor(250, 75); M5.Lcd.print(dataToSend[26]);
+  M5.Lcd.setCursor(250, 100); M5.Lcd.print(dataToSend[27]);
+  M5.Lcd.setCursor(250, 125); M5.Lcd.print(dataToSend[28]);
+  M5.Lcd.setCursor(250, 150); M5.Lcd.print(dataToSend[29]);
+  M5.Lcd.setCursor(250, 175); M5.Lcd.print(dataToSend[30]);
+  M5.Lcd.setCursor(250, 200); M5.Lcd.print(dataToSend[31]);
+/*
+  M5.Lcd.setCursor(100, 25); M5.Lcd.print("Diff");
+  M5.Lcd.setCursor(100, 50); M5.Lcd.print(dataToSend[0] - dataToSend[1]);
+  M5.Lcd.setCursor(100, 75); M5.Lcd.print(dataToSend[1] - dataToSend[2]);
+  M5.Lcd.setCursor(100, 100); M5.Lcd.print(dataToSend[2] - dataToSend[3]);
+  M5.Lcd.setCursor(100, 125); M5.Lcd.print(dataToSend[3] - dataToSend[4]);
+  M5.Lcd.setCursor(100, 150); M5.Lcd.print(dataToSend[4] - dataToSend[5]);
+  M5.Lcd.setCursor(100, 175); M5.Lcd.print(dataToSend[5] - dataToSend[6]);
+  M5.Lcd.setCursor(100, 200); M5.Lcd.print(dataToSend[6] - dataToSend[7]);
+*/
+  delay(100);
 }
 
 
 void loop() {
-  DataReading();
+
+  if (!CALIBRATION_MODE) {
+    DataReading();
+  }
+  else {
+    CalibrationMode();    
+  }
 
   M5.update();
   // wait 10 seconds before allow new read
