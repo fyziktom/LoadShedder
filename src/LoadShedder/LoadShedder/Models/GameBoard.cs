@@ -1,15 +1,36 @@
 ﻿using LoadShedder.Common;
+using LoadShedder.Components;
 using Microsoft.AspNetCore.SignalR;
 using System.Text.Json.Serialization;
 using VEDriversLite.EntitiesBlocks.Blocks;
 using VEDriversLite.EntitiesBlocks.Consumers;
 using VEDriversLite.EntitiesBlocks.Entities;
 using VEDriversLite.EntitiesBlocks.Handlers;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace LoadShedder.Models
 {
     public class GameBoard
     {
+        public GameBoard() 
+        {
+            Id = Guid.NewGuid().ToString();
+            ResetBoard();
+        }
+
+        public GameBoard(Dto.GameBoardDto dto)
+        {
+            if (dto != null)
+            {
+                Id = dto.Id;
+                DeviceId = dto.DeviceId;
+                Name = dto.Name;
+                foreach (var position in dto.Positions)
+                    Positions.TryAdd(position.Key, position.Value);
+            }
+
+            ResetBoard();
+        }
         public GameBoard(string id = "", string deviceId = "", string name = "New Board")
         {
             if (!string.IsNullOrEmpty(id))
@@ -41,6 +62,10 @@ namespace LoadShedder.Models
         /// Player Id
         /// </summary>
         public string PlayerId { get; set; } = string.Empty;
+        /// <summary>
+        /// Positions on the gameboard
+        /// </summary>
+        public Dictionary<string, Position> Positions { get; set; } = new Dictionary<string, Position>();
         /// <summary>
         /// Energetic Grid handler
         /// </summary>
@@ -118,26 +143,38 @@ namespace LoadShedder.Models
         /// </summary>
         /// <param name="gamePieces"></param>
         /// <returns></returns>
-        public bool AddGamePiecesToBoard(List<GamePiece>? gamePieces = null)
+        public bool AddGamePiecesToBoard(int[]? latestData = null)
         {
             eGrid.RemoveAllEntityBlocks(Root.Id);
             if(eGrid.Entities.TryGetValue(Root.Id, out var root))
                 root.Simulators.Clear();                
 
-            if (gamePieces == null && !string.IsNullOrEmpty(DeviceId))
+            if (latestData == null && !string.IsNullOrEmpty(DeviceId))
             {
                 if (MainDataContext.Devices.TryGetValue(DeviceId, out var dev))
-                    gamePieces = dev.GamePieces;
+                    latestData = dev.RawData;
                 else
                     return false;
             }
 
-            foreach(var piece in gamePieces)
+            if (latestData != null)
             {
-                if (!AddGamePieceToBoard(piece))
-                    return false;
+                foreach (var position in Positions)
+                {
+                    if (latestData.Length > position.Value.ChannelInputNumber)
+                    {
+                        if (position.Value.TryToPlacePiece(latestData[position.Value.ChannelInputNumber]))
+                        {
+                            if (position.Value.ActualPlacedGamePiece != null)
+                                AddGamePieceToBoard(position.Value.ActualPlacedGamePiece);
+                        }
+                    }
+                }
+
+                return true;
             }
-            return true;
+
+            return false;
         }
 
         public bool RefreshBoardStatusFromDeviceData()
@@ -217,6 +254,47 @@ namespace LoadShedder.Models
                 return consumption.First().Amount;
             
             return 0.0;
+        }
+
+        public string AddPosition(string? id, string name, string deviceId, string? channelId, int channelNumber, List<GamePiece>? gamePieces)
+        {
+            if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(deviceId))
+                return "NO_NAME_OR_DEVICE_ID";
+            if (MainDataContext.Devices.TryGetValue(deviceId, out var device))
+            {
+                if (device.Channels.TryGetValue(channelNumber, out var channel))
+                {
+                    var pos = new Position()
+                    {
+                        Id = !string.IsNullOrEmpty(id) ? id : Guid.NewGuid().ToString(),
+                        ChannelId = !string.IsNullOrEmpty(channelId) ? channelId : channelNumber.ToString(),
+                        Name = name,
+                        ChannelInputNumber = channelNumber,
+                        DeviceId = deviceId,
+                        GameBoardId = Id
+                    };
+
+                    channel.PositionId = pos.Id;
+
+                    if (gamePieces != null)
+                    {
+                        foreach (var piece in gamePieces)
+                            pos.AllowedGamePieces.TryAdd(piece.ExpectedVoltage.ToString(), piece);
+                    }
+
+                    Positions.TryAdd(pos.Id, pos);
+
+                    return pos.Id;
+                }
+            }
+
+            return "ERROR";
+        }
+
+        public void RemovePosition(string id)
+        {
+            if (Positions.ContainsKey(id))
+                Positions.Remove(id);
         }
 
     }

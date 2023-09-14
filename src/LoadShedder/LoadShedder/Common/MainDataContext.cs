@@ -23,6 +23,10 @@ namespace LoadShedder.Common
         /// </summary>
         public static double ADCVoltageTolerance { get; set; } = 20; //20mV
         /// <summary>
+        /// Device and Channels keeps the history of data X steps back. 
+        /// </summary>
+        public static int MaximumHistoryStepsInRAM { get; set; } = 100;
+        /// <summary>
         /// Settings of the game, constants, etc. It is loaded from the appsettings.json
         /// </summary>
         public static GameSettings GameSettings { get; set; } = new GameSettings();
@@ -41,7 +45,7 @@ namespace LoadShedder.Common
         /// <summary>
         /// Dictionary of all available GamePieces
         /// </summary>
-        public static Dictionary<ResistorsCombos, GamePiece> GamePieces { get; set; } = new Dictionary<ResistorsCombos, GamePiece>();
+        public static Dictionary<double, GamePiece> GamePieces { get; set; } = new Dictionary<double, GamePiece>();
         /// <summary>
         /// Dictionary of all gameboards.
         /// </summary>

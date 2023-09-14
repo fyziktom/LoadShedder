@@ -10,27 +10,36 @@
 
 <Row>
     <Column Flex="Flex.JustifyContent.Center">
-        <Span>Welcome in the Load Shedder game.</Span>
+        <Span>Welcome to Aqualectra's Load Shedder Game!</Span>
     </Column>
 </Row>
 <Row>
     <Column Flex="Flex.JustifyContent.Center">
-        <Span>You can test the balancing of the energetic grid with this game.</Span>
+        <Span>Experience the power grid like never before as you take on the challenge of maintaining balance in the energetic grid. </Span>
     </Column>
 </Row>
 <Row>
     <Column Flex="Flex.JustifyContent.Center">
-        <Span>Please enter your name or nickname before you will start the game</Span>
+        <Span>
+            Get ready to immerse yourself in the world of energy distribution and conservation!
+        </Span>
+    </Column>
+</Row>
+<Row>
+    <Column Flex="Flex.JustifyContent.Center">
+        <Span>
+            Enter your name to start and prepare yourself to become a grid master.
+        </Span>
     </Column>
 </Row>
 
 <Field>
     <FieldLabel>Your name or Nickname</FieldLabel>
-    <TextEdit Placeholder="Enter name or nickname" @bind-Text="PlayerName" @onchange="playerNameChanged" />
+    <TextEdit Placeholder="Please fill in a unique name or nickname" @bind-Text="PlayerName" @onchange="playerNameChanged" />
     @if (!string.IsNullOrEmpty(PlayerName))
     {
         <FieldHelp>
-            Please fill unique name or nickname
+            Please fill in a unique name or nickname
         </FieldHelp>
     }
 </Field>
@@ -96,8 +105,9 @@
                 if (returnStr != null)
                 {
                     Console.WriteLine("AddPlayer response: " + returnStr);
+                    PlayerId = returnStr;
                     await PlayerIdChanged.InvokeAsync(PlayerId);
-                    await AddDevice(returnStr);
+                    await AddPlayerToBoard(returnStr);
                     return returnStr;
                 }
                 else
@@ -205,6 +215,36 @@
         return string.Empty;
     }
 
+    private async Task<string> AddBoardToGame()
+    {
+        var obj = new
+        {
+            gameid = GameId,
+            gameboardid = BoardId
+        };
+
+        var cnt = JsonConvert.SerializeObject(obj);
+
+        using (var content = new StringContent(cnt, System.Text.Encoding.UTF8, "application/json"))
+        {
+            HttpResponseMessage result = await Http.PostAsync("api/AddGameBoardToGame", content);
+            if (result.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var returnStr = await result.Content.ReadAsStringAsync();
+
+                if (returnStr != null)
+                {
+                    Console.WriteLine("AddPlayerToBoard response: " + returnStr);
+                    return returnStr;
+                }
+                else
+                    return "ERROR:Cannot read return message.";
+            }
+        }
+
+        return string.Empty;
+    }
+
     private async Task<string> AddGame()
     {
         var obj = new
@@ -245,6 +285,7 @@
 
             await AddPlayer();
             await AddGame();
+            //await AddBoardToGame();
 
             var response = await Http.GetStringAsync($"api/StartGame/{GameId}");
             Console.WriteLine("Start game response:" + response);
