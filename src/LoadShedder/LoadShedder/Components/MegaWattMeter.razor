@@ -2,15 +2,14 @@
     <!-- Pozadí stupnice -->
     <path d="M 5 105 A 100 100 0 0 1 205 105" fill="none" stroke="#DDD" stroke-width="10" />
     <!-- Ukazatel -->
-    <path id="pointer" d="M 105 5 L 105 20" fill="none" stroke="black" stroke-width="3" transform="rotate(@(Angle) 105 105)" />
+    <path id="pointer" d="M110 5 L105 25 L115 25 Z" transform="rotate(@(Angle) 105 105)" />
     <!-- Textové popisky -->
-    <text x="5" y="110" font-family="Arial" font-size="12" fill="black">-100 MW</text>
-    <text x="95" y="110" font-family="Arial" font-size="12" fill="black">0</text>
-    <text x="170" y="110" font-family="Arial" font-size="12" fill="black">100 MW</text>
+    <text x="15" y="105" font-family="monospace" font-size="14" fill="black">-100 MW</text>
+    <text x="105" y="105" font-family="monospace" font-size="14" fill="black">0</text>
+    <text x="143" y="105" font-family="monospace" font-size="14" fill="black">100 MW</text>
     <!-- Aktuální hodnota vprostřed měřáku -->
-    <text x="105" y="80" font-family="Arial" font-size="14" fill="black" text-anchor="middle">@ValueInMW.ToString("F2") MW</text>
+    <text x="105" y="65" font-family="monospace" font-size="18" fill="black" text-anchor="middle">@ValueInMW.ToString("F2") MW</text>
 </svg>
-
 
 @code {
     [Parameter] public double ValueInkW { get; set; } = 0;
@@ -34,7 +33,7 @@
             }
             else
             {
-                bgColor = "rgba(100, 100, 255, 0.6)";
+                bgColor = "rgba(255, 255, 255, 0.6)";
             }
 
             return bgColor;
