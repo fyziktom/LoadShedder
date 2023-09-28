@@ -2,55 +2,57 @@
 @inject HttpClient Http
 @inject AppData AppData
 
-<Row Margin="Margin.Is2.FromTop">
+<Row Margin="Margin.Is2.FromTop.Is5.FromBottom">
     <Column Flex="Flex.JustifyContent.Center">
-        <Heading Size="HeadingSize.Is2">Load Shedder Game</Heading>
+        <img alt="The Whiteout Game" src="game_logo.png" style="height: 145px;">
     </Column>
 </Row>
 
 <Row>
     <Column Flex="Flex.JustifyContent.Center">
-        <Span>Welcome to Aqualectra's Load Shedder Game!</Span>
+        <Lead TextSize="TextSize.Large">Welcome to Aqualectra's Load Shedder Game!</Lead>
     </Column>
 </Row>
 <Row>
     <Column Flex="Flex.JustifyContent.Center">
-        <Span>Experience the power grid like never before as you take on the challenge of maintaining balance in the energetic grid. </Span>
+        <Paragraph TextSize="TextSize.Large">Experience the power grid like never before as you take on the challenge of maintaining balance in the energetic grid.<br>
+            Get ready to immerse yourself in the world of energy distribution and conservation! 
+            </Paragraph>
     </Column>
 </Row>
-<Row>
+<Row Margin="Margin.Is2.FromTop.Is5.FromBottom">
     <Column Flex="Flex.JustifyContent.Center">
-        <Span>
-            Get ready to immerse yourself in the world of energy distribution and conservation!
-        </Span>
-    </Column>
-</Row>
-<Row>
-    <Column Flex="Flex.JustifyContent.Center">
-        <Span>
+        <Paragraph TextSize="TextSize.Large">
             Enter your name to start and prepare yourself to become a grid master.
-        </Span>
+        </Paragraph>
     </Column>
 </Row>
 
-<Field>
-    <FieldLabel>Your name or Nickname</FieldLabel>
-    <TextEdit Placeholder="Please fill in a unique name or nickname" @bind-Text="PlayerName" @onchange="playerNameChanged" />
-    @if (!string.IsNullOrEmpty(PlayerName))
-    {
-        <FieldHelp>
-            Please fill in a unique name or nickname
-        </FieldHelp>
-    }
-</Field>
+<Row>
+    <Column ColumnSize="ColumnSize.Is6.Is3.WithOffset">
+        <Fields>
+            <Field>
+                <TextEdit Placeholder="name or nickname" @bind-Text="PlayerName" @onchange="playerNameChanged"
+                    Size="Size.Large" />
+                @if (!string.IsNullOrEmpty(PlayerName))
+                {
+                    <FieldHelp>
+                        Please fill in a unique name or nickname
+                    </FieldHelp>
+                }
+            </Field>
+            <Field>
+                <Button Color="Color.Primary" Clicked="StartGame" Loading="@isLoading" Block Size="Size.Large">Start
+                     Game</Button>
+             </Field>
 
-<Row Margin="Margin.Is2.FromTop.Is2.FromBottom">
-    <Column Flex="Flex.JustifyContent.Center">
-        <Button Color="Color.Primary" Clicked="StartGame" Loading="@isLoading" Block>Start Game</Button>
-    </Column>
-</Row>
+         </Fields>
+     </Column>
+ </Row>
 
-@code {
+
+
+ @code {
     [Parameter] public string GameId { get; set; } = "testGame";
     [Parameter] public string DeviceId { get; set; } = "test";
     [Parameter] public string BoardId { get; set; } = "testBoard";
