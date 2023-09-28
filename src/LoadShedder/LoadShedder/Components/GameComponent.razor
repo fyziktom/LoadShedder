@@ -1,48 +1,99 @@
 ﻿@inject HttpClient Http
 @inject AppData AppData
 
-<Row Margin="Margin.Is3.FromTop.Is2.FromBottom">
-    <Column Flex="Flex.JustifyContent.Center">
-        Elapsed time: @(Math.Round(ElapsedTime, 0)) seconds
+<Row HorizontalGutter="32">
+    <Column ColumnSize="ColumnSize.Is6">
+        <CardDeck>
+            <Card Background="Background.Success" WhiteText TextAlignment="TextAlignment.Center">
+                 <CardBody>
+                     <CardTitle Size="3">
+                         Elapsed time:
+                     </CardTitle>
+                     <CardText>
+                         <Text TextSize="TextSize.Heading1" TextWeight="TextWeight.Bold">@(Math.Round(ElapsedTime, 0))</Text>
+                         <Text TextSize="TextSize.Medium">sec.</Text>
+                     </CardText>
+                 </CardBody>
+            </Card>
+
+            <Card Background="Background.Success" WhiteText TextAlignment="TextAlignment.Center">
+                     <CardBody>
+                         <CardTitle Size="3">
+                             Rest of penalty:
+                         </CardTitle>
+                         <CardText>
+                             <Text TextSize="TextSize.Heading1" TextWeight="TextWeight.Bold">@(Math.Round(RestOfThePenalty, 0))</Text> <Text TextSize="TextSize.Medium">sec.</Text>
+                         </CardText>
+                     </CardBody>
+            </Card>
+        </CardDeck>
     </Column>
-</Row>
-<Row Margin="Margin.Is3.FromTop.Is2.FromBottom">
-    <Column Flex="Flex.JustifyContent.Center">
+    <Column ColumnSize="ColumnSize.Is6">
+
         @if (GameStage == GamePlayStage.Start || GameStage == GamePlayStage.LoadOfSources)
         {
-            <Span>
-                Let's get started by adding energy sources until you reach a total of 75 MW. Avoid adding consumers
-                rightaway, as they could lead to a BLACKOUT.
-            </Span>
+            <Alert Color="Color.Primary" Visible>
+             <Span>
+                 Let's get started by adding energy sources until you reach a total of 75 MW. Avoid adding consumers
+                 rightaway, as they could lead to a BLACKOUT.
+             </Span>
+         </Alert>
         }
         else if (GameStage == GamePlayStage.LoadOfConsumers)
         {
-            <Span>
-                Now you can start adding the consumers until you will keep the total bilance under 5MW, but you cannot go to
-                the minus bilance.
-            </Span>
+            <Alert Color="Color.Primary" Visible>
+             <Span>
+                 Now you can start adding the consumers until you will keep the total bilance under 5MW, but you cannot
+                 go to
+                 the minus bilance.
+             </Span>
+         </Alert>
         }
         else if (GameStage == GamePlayStage.BalancingOfNetwork)
         {
-            <Span>
-                Try to keep the balance of the network as long as possible. You can add and remove the sources and
-                consumers.You need to try to find the combination to reach 0 bilance to finish the game.
-            </Span>
+            <Alert Color="Color.Primary" Visible>
+             <Span>
+                 Try to keep the balance of the network as long as possible. You can add and remove the sources and
+                 consumers.You need to try to find the combination to reach 0 bilance to finish the game.
+             </Span>
+         </Alert>
         }
-    </Column>
-</Row>
-<Row Margin="Margin.Is2.FromTop.Is2.FromBottom">
-    <Column Flex="Flex.JustifyContent.Center">
-        @if (RestOfThePenalty > 0)
-        {
-            <Heading Size="HeadingSize.Is3" TextColor="TextColor.Danger">Rest of penalty: @(Math.Round(RestOfThePenalty, 0))
-                seconds</Heading>
-        }
+
     </Column>
 </Row>
 
-<Row Margin="Margin.Is2.FromTop.Is4.FromBottom" Padding="Padding.Is4">
-    <Column ColumnSize="ColumnSize.Is8.Is2.WithOffset">
+<Row Margin="Margin.Is2.FromTop.Is2.FromBottom">
+    <Column>
+        <Alert Color="Color.Primary" Visible>
+            @if (GameResponseAction == GameResponseActions.EndOfTheGame_Success)
+            {
+                <Heading Size="HeadingSize.Is3" TextColor="TextColor.Success">
+                    Succesfull end of the game. You have reached 0 bilance.
+                </Heading>
+            }
+            else
+            {
+                <Span>
+                    Game Response Action: @(
+                Enum.GetName(typeof(GameResponseActions), GameResponseAction) ?? "Waiting for start"
+                )
+                </Span>
+            }
+        </Alert>
+    </Column>
+
+    <Column >
+        <Alert Color="Color.Primary" Visible>
+            Level: @(
+            Enum.GetName(typeof(GamePlayStage), GameStage) ?? "Waiting for start"
+            )
+        </Alert>
+    </Column>
+
+</Row>
+
+<Row Margin="Margin.Is1.FromTop.Is2.FromBottom">
+    <Column ColumnSize="ColumnSize.Is12">
         <Row Background="Background.Secondary" Padding="Padding.Is4" Border="Border.Is3.Rounded.Secondary">
             <Column>
                 <Row>
@@ -88,36 +139,8 @@
     BilanceSourcesChanged="@onBilanceSourcesChangedHandler"
     BilanceConsumersChanged="@onBilanceConsumersChangedHandler" />
 
-<Row Margin="Margin.Is2.FromTop.Is2.FromBottom.Is2.FromStart">
-    <Column Flex="Flex.JustifyContent.Center">
-        <AllGamePiecesKeyboard @ref=allGamePiecesKeyboardRef OnBoardChanged="@onBoardChangedHandler" />
-    </Column>
-</Row>
+<AllGamePiecesKeyboard @ref=allGamePiecesKeyboardRef OnBoardChanged="@onBoardChangedHandler" />
 
-<Row Margin="Margin.Is5.FromTop.Is2.FromBottom">
-    <Column Flex="Flex.JustifyContent.Center">
-        @if (GameResponseAction == GameResponseActions.EndOfTheGame_Success)
-        {
-            <Heading Size="HeadingSize.Is3" TextColor="TextColor.Success">
-                Succesfull end of the game. You have reached 0 bilance.
-            </Heading>
-        }
-        else
-        {
-            <Span>
-                Game Response Action: @(
-            Enum.GetName(typeof(GameResponseActions), GameResponseAction) ?? "Waiting for start"
-            )
-            </Span>
-        }
-    </Column>
-
-    <Column Flex="Flex.JustifyContent.Center">
-        Level: @(
-        Enum.GetName(typeof(GamePlayStage), GameStage) ?? "Waiting for start"
-        )
-    </Column>
-</Row>
 
 @code {
     BilanceDisplay? bilanceDisplayRef;

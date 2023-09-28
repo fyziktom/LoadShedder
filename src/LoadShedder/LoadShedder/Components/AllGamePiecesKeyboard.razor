@@ -1,83 +1,128 @@
 ﻿@using Newtonsoft.Json;
 @inject HttpClient Http
-<Row Margin="Margin.Is2.FromTop">
-    <Column>
+
+<Row HorizontalGutter="32" VerticalGutter="16">
+    <Column Background="Background.Light" ColumnSize="ColumnSize.Is6">
         <Row Margin="Margin.Is1.FromTop">
-            <Column Flex="Flex.JustifyContent.Center">
+            <Column>
                 <Heading Size="HeadingSize.Is4">Producers</Heading>
             </Column>
         </Row>
-        
+
         <Row Margin="Margin.Is1.FromTop">
             <Column Flex="Flex.AlignSelf.Center">
-                @foreach(var gamepiece in Sources)
+                @foreach (var gamepiece in Sources)
                 {
                     @if (gamepiece.EnergyValue != 0)
                     {
                         @if (!gamepiece.IsPlugged)
                         {
-                            <Button Clicked="@(() => PlacePiece(gamepiece.ExpectedVoltage.ToString()))" 
-                            Color="Color.Primary" 
-                            Style="width:230px"
-                            Margin="Margin.Is1.FromStart.Is1.FromEnd.Is1.FromTop.Is1.FromBottom">
-                                <Icon Name="IconName.BatteryFull" Margin="Margin.Is2.FromEnd" />
-                                <small>Plug @gamepiece.Name - @(
-                        gamepiece.EnergyValue / 1000
-                        ) MW</small>  
-                            </Button>
+                            <Column ColumnSize="ColumnSize.Is4" Padding="Padding.Is2">
+                                <CardBody Border="Border.Is1.Rounded.Dark" style="background-color: #eeeeee;">
+                                    <Row>
+                                        <Column ColumnSize="ColumnSize.Is7">
+                                            <Text TextSize="TextSize.Small">@gamepiece.Name</Text><br>
+                                                <Button Clicked="@(() => PlacePiece(gamepiece.ExpectedVoltage.ToString()))"
+                                                    Color="Color.Secondary">
+                                                    <Icon Name="IconName.Add" Margin="Margin.Is2.FromEnd" />
+                                                    <small>Plug</small>
+                                                </Button>
+                                            </Column>
+                                            <Column ColumnSize="ColumnSize.Is5" TextAlignment="TextAlignment.End">
+                                                <Text TextSize="TextSize.Large" TextWeight="TextWeight.Bold">@(gamepiece.EnergyValue /
+                                    1000)</Text><br>
+                                                <Text TextSize="TextSize.Medium">MW</Text>
+                                            </Column>
+                                        </Row>
+                                    </CardBody>
+                                </Column>
                         }
                         else
                         {
-                            <Button Clicked="@(() => RemovePiece(gamepiece.ExpectedVoltage.ToString()))"
-                            Color="Color.Secondary"
-                            Style="width:230px"
-                            Margin="Margin.Is1.FromStart.Is1.FromEnd.Is1.FromTop.Is1.FromBottom">
-                                <Icon Name="IconName.BatteryFull" Margin="Margin.Is2.FromEnd" />
-                                <small>Unplug @gamepiece.Name - @(
-                        gamepiece.EnergyValue / 1000
-                        ) MW</small>
-                            </Button>
+                            <Column ColumnSize="ColumnSize.Is4" Padding="Padding.Is2">
+                                <CardBody Border="Border.Is1.Rounded.Success" style="background-color: #c8f492;">
+                                    <Row>
+                                        <Column ColumnSize="ColumnSize.Is7">
+                                            <Text TextSize="TextSize.Small">@gamepiece.Name</Text><br>
+                                                <Button Clicked="@(() => RemovePiece(gamepiece.ExpectedVoltage.ToString()))"
+                                                    Color="Color.Success">
+                                                    <Icon Name="IconName.Delete" Margin="Margin.Is2.FromEnd" />
+                                                    <small>Unplug</small>
+                                                </Button>
+                                            </Column>
+                                            <Column ColumnSize="ColumnSize.Is5" TextAlignment="TextAlignment.End">
+                                                <Text TextSize="TextSize.Large" TextWeight="TextWeight.Bold">@(gamepiece.EnergyValue /
+                                    1000)</Text><br>
+                                                <Text TextSize="TextSize.Medium">MW</Text>
+                                            </Column>
+                                        </Row>
+                                    </CardBody>
+                                </Column>
                         }
                     }
                 }
             </Column>
         </Row>
     </Column>
-    <Column>
+    <Column Background="Background.Light" ColumnSize="ColumnSize.Is6">
         <Row Margin="Margin.Is1.FromTop">
-            <Column Flex="Flex.JustifyContent.Center">
+            <Column>
                 <Heading Size="HeadingSize.Is4">Consumers</Heading>
             </Column>
         </Row>
         <Row Margin="Margin.Is1.FromTop">
-            <Column>
-                @foreach (var gamepiece in Consumers)
+
+            @foreach (var gamepiece in Consumers)
+            {
+                @if (!gamepiece.IsPlugged)
                 {
-                    @if (!gamepiece.IsPlugged)
-                    {
-                        <Button Clicked="@(() => PlacePiece(gamepiece.ExpectedVoltage.ToString()))"
-                                Color="Color.Primary"
-                                Style="width:230px"
-                                Margin="Margin.Is1.FromStart.Is1.FromEnd.Is1.FromTop.Is1.FromBottom">
-                                    <Icon Name="IconName.Hotel" Margin="Margin.Is2.FromEnd" />
-                                    <small>Plug @gamepiece.Name - @(gamepiece.EnergyValue / 1000) MW</small>
-                        </Button>
-                    }
-                    else
-                    {
-                        <Button Clicked="@(() => RemovePiece(gamepiece.ExpectedVoltage.ToString()))"
-                                Color="Color.Secondary"
-                                Style="width:230px"
-                                Margin="Margin.Is1.FromStart.Is1.FromEnd.Is1.FromTop.Is1.FromBottom">
-                                    <Icon Name="IconName.Hotel" Margin="Margin.Is2.FromEnd" />
-                                    <small>Unplug @gamepiece.Name - @(gamepiece.EnergyValue / 1000) MW</small>
-                        </Button>
-                    }
+                    <Column ColumnSize="ColumnSize.Is4" Padding="Padding.Is2">
+                        <CardBody Border="Border.Is1.Rounded.Dark" style="background-color: #eeeeee;">
+                            <Row>
+                                <Column ColumnSize="ColumnSize.Is7">
+                                    <Text TextSize="TextSize.Small">@gamepiece.Name</Text><br>
+                                        <Button Clicked="@(() => PlacePiece(gamepiece.ExpectedVoltage.ToString()))"
+                                            Color="Color.Secondary">
+                                            <Icon Name="IconName.Add" Margin="Margin.Is2.FromEnd" />
+                                            <small>Plug</small>
+                                        </Button>
+                                    </Column>
+                                    <Column ColumnSize="ColumnSize.Is5" TextAlignment="TextAlignment.End">
+                                        <Text TextSize="TextSize.Large" TextWeight="TextWeight.Bold">@(gamepiece.EnergyValue /
+                                1000)</Text><br>
+                                        <Text TextSize="TextSize.Medium">MW</Text>
+                                    </Column>
+                                </Row>
+                            </CardBody>
+                        </Column>
                 }
-            </Column>
+                else
+                {
+                    <Column ColumnSize="ColumnSize.Is4" Padding="Padding.Is2">
+                        <CardBody Border="Border.Is1.Rounded.Success" style="background-color: #c8f492;">
+                            <Row>
+                                <Column ColumnSize="ColumnSize.Is7">
+                                    <Text TextSize="TextSize.Small">@gamepiece.Name</Text><br>
+                                        <Button Clicked="@(() => RemovePiece(gamepiece.ExpectedVoltage.ToString()))"
+                                            Color="Color.Success">
+                                            <Icon Name="IconName.Delete" Margin="Margin.Is2.FromEnd" />
+                                            <small>Unplug</small>
+                                        </Button>
+                                    </Column>
+                                    <Column ColumnSize="ColumnSize.Is5" TextAlignment="TextAlignment.End">
+                                        <Text TextSize="TextSize.Large" TextWeight="TextWeight.Bold">@(gamepiece.EnergyValue /
+                                1000)</Text><br>
+                                        <Text TextSize="TextSize.Medium">MW</Text>
+                                    </Column>
+                                </Row>
+                            </CardBody>
+                        </Column>
+                }
+            }
         </Row>
     </Column>
 </Row>
+
 @code {
 
     [Parameter]
@@ -89,7 +134,7 @@
 
     public int[] Board { get; set; } = new int[32];
 
-    public List<GamePiece> Sources 
+    public List<GamePiece> Sources
     {
         get => GamePieces.Values.Where(p => p.GamePieceType == GamePieceTypes.Source).ToList();
     }
@@ -124,7 +169,7 @@
         for (int i = 0; i < Board.Length; i++)
             Board[i] = 0;
 
-        foreach(var gp in GamePieces.Values)
+        foreach (var gp in GamePieces.Values)
             gp.IsPlugged = false;
 
         await SendData();
@@ -137,7 +182,7 @@
         {
             await SendData();
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             Console.WriteLine("Cannot send periodic data: \n" + ex.Message);
         }
@@ -161,7 +206,7 @@
     private async Task PlacePiece(string gamePieceId)
     {
         var index = -1;
-        for(int i = 0; i < Board.Length; i++)
+        for (int i = 0; i < Board.Length; i++)
         {
             if (Board[i] == 0)
             {
