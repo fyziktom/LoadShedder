@@ -1,12 +1,12 @@
-﻿@page "/"
+﻿@page "/datadisplay"
 @using Newtonsoft.Json;
 @inject HttpClient client
 
 <PageTitle>Load Shedder - Home</PageTitle>
 
-<Row Margin="Margin.Is1.FromTop">
-    <Column Flex="Flex.JustifyContent.Center">
-        <GameSteps />
+<Row Margin="Margin.Is2.FromTop.Is5.FromBottom">
+    <Column>
+        <DataDisplay />
     </Column>
 </Row>
 
