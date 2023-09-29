@@ -120,7 +120,7 @@ namespace LoadShedder.Models
                         ChannelInputNumber = channelNumber,
                         DeviceId = Id,
                         Name = channelName,
-                        PositionId = positionId
+                        PositionId = positionId == null ? string.Empty : positionId
                     });
                 }
             }
