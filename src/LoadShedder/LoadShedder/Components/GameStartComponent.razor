@@ -109,7 +109,7 @@
                     Console.WriteLine("AddPlayer response: " + returnStr);
                     PlayerId = returnStr;
                     await PlayerIdChanged.InvokeAsync(PlayerId);
-                    await AddPlayerToBoard(returnStr);
+                    //await AddPlayerToBoard(returnStr);
                     return returnStr;
                 }
                 else
@@ -176,7 +176,7 @@
                     Console.WriteLine("AddPlayer response: " + returnStr);
                     BoardId = returnStr;
                     await BoardIdChanged.InvokeAsync(BoardId);
-                    //await AddPlayerToBoard(returnStr);
+                    await AddPlayerToBoard(returnStr);
                     return returnStr;
                 }
                 else
@@ -286,6 +286,7 @@
             isLoading = true;
 
             await AddPlayer();
+            await AddDevice(PlayerId);
             await AddGame();
             await AddBoardToGame();
 
