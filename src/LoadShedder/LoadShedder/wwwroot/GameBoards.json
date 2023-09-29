@@ -1,0 +1,1238 @@
+{
+  "testBoard": {
+    "Id": "testBoard",
+    "Name": "Test Board",
+    "DeviceId": "test",
+    "PlayerId": "fb19aec2-303e-410c-915a-f98db783c435",
+    "Positions": {
+      "dfd601b1-13ae-4c8d-93eb-8dae79a75b7d": {
+        "Id": "dfd601b1-13ae-4c8d-93eb-8dae79a75b7d",
+        "Name": "1-Westpunt",
+        "DeviceId": "test",
+        "ChannelId": "11",
+        "GameBoardId": "testBoard",
+        "ChannelInputNumber": 11,
+        "ActualPlacedGamePiece": {
+          "Id": "61925fd9-aaf6-4878-a338-ccd9e52730ad",
+          "Name": "1-Westpunt-7.5",
+          "Description": "",
+          "EnergyValue": 7500.0,
+          "IsPlugged": false,
+          "ExpectedVoltage": 531.0,
+          "ResistorsCombo": 0,
+          "ResistorsCombo1": 0,
+          "GamePieceType": 1
+        },
+        "AllowedGamePieces": {
+          "531": {
+            "Id": "531",
+            "Name": "1-Westpunt-7.5",
+            "Description": "",
+            "EnergyValue": 7500.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 531.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 1
+          },
+          "908": {
+            "Id": "908",
+            "Name": "1-Westpunt-5",
+            "Description": "",
+            "EnergyValue": 5000.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 908.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 1
+          },
+          "407": {
+            "Id": "407",
+            "Name": "1-Westpunt-10",
+            "Description": "",
+            "EnergyValue": 10000.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 407.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 1
+          }
+        }
+      },
+      "132c0415-1b64-45c9-9007-5cf5fe678773": {
+        "Id": "132c0415-1b64-45c9-9007-5cf5fe678773",
+        "Name": "2-Barber",
+        "DeviceId": "test",
+        "ChannelId": "24",
+        "GameBoardId": "testBoard",
+        "ChannelInputNumber": 24,
+        "ActualPlacedGamePiece": {
+          "Id": "46a7ac79-b8e0-4ec8-9545-857f0212e6af",
+          "Name": "2-Barber-0.5",
+          "Description": "",
+          "EnergyValue": 500.0,
+          "IsPlugged": false,
+          "ExpectedVoltage": 999.0,
+          "ResistorsCombo": 0,
+          "ResistorsCombo1": 0,
+          "GamePieceType": 1
+        },
+        "AllowedGamePieces": {
+          "742": {
+            "Id": "742",
+            "Name": "2-Barber-2.5",
+            "Description": "",
+            "EnergyValue": 2500.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 742.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 1
+          },
+          "1318": {
+            "Id": "1318",
+            "Name": "2-Barber-1",
+            "Description": "",
+            "EnergyValue": 1000.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 1318.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 1
+          },
+          "999": {
+            "Id": "999",
+            "Name": "2-Barber-0.5",
+            "Description": "",
+            "EnergyValue": 500.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 999.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 1
+          }
+        }
+      },
+      "87cfd82b-4bf3-4a58-b9db-1ebe9fcfbe25": {
+        "Id": "87cfd82b-4bf3-4a58-b9db-1ebe9fcfbe25",
+        "Name": "3-Soto",
+        "DeviceId": "test",
+        "ChannelId": "9",
+        "GameBoardId": "testBoard",
+        "ChannelInputNumber": 9,
+        "ActualPlacedGamePiece": {
+          "Id": "80821278-6f8d-4a10-8f80-957bc280c23d",
+          "Name": "3-Soto-0.5",
+          "Description": "",
+          "EnergyValue": 500.0,
+          "IsPlugged": false,
+          "ExpectedVoltage": 413.0,
+          "ResistorsCombo": 0,
+          "ResistorsCombo1": 0,
+          "GamePieceType": 1
+        },
+        "AllowedGamePieces": {
+          "913": {
+            "Id": "913",
+            "Name": "3-Soto-2.5",
+            "Description": "",
+            "EnergyValue": 2500.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 913.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 1
+          },
+          "531": {
+            "Id": "531",
+            "Name": "3-Soto-5",
+            "Description": "",
+            "EnergyValue": 5000.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 531.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 1
+          },
+          "413": {
+            "Id": "413",
+            "Name": "3-Soto-0.5",
+            "Description": "",
+            "EnergyValue": 500.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 413.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 1
+          }
+        }
+      },
+      "8c5e9ecd-fca2-4f1d-89ed-1f1e0c1572a1": {
+        "Id": "8c5e9ecd-fca2-4f1d-89ed-1f1e0c1572a1",
+        "Name": "4-Wind",
+        "DeviceId": "test",
+        "ChannelId": "13",
+        "GameBoardId": "testBoard",
+        "ChannelInputNumber": 13,
+        "ActualPlacedGamePiece": {
+          "Id": "f2b6b540-48da-4499-9224-e9478157d09f",
+          "Name": "4-Wind-10",
+          "Description": "",
+          "EnergyValue": 10000.0,
+          "IsPlugged": false,
+          "ExpectedVoltage": 530.0,
+          "ResistorsCombo": 0,
+          "ResistorsCombo1": 0,
+          "GamePieceType": 0
+        },
+        "AllowedGamePieces": {
+          "530": {
+            "Id": "530",
+            "Name": "4-Wind-10",
+            "Description": "",
+            "EnergyValue": 10000.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 530.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 0
+          },
+          "742": {
+            "Id": "742",
+            "Name": "4-Wind-15",
+            "Description": "",
+            "EnergyValue": 15000.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 742.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 0
+          }
+        }
+      },
+      "c710975f-9b7e-477d-a792-8af33a713904": {
+        "Id": "c710975f-9b7e-477d-a792-8af33a713904",
+        "Name": "5-TeraKora",
+        "DeviceId": "test",
+        "ChannelId": "14",
+        "GameBoardId": "testBoard",
+        "ChannelInputNumber": 14,
+        "ActualPlacedGamePiece": {
+          "Id": "5e47b00c-e690-46c3-baaf-28e22eba61f1",
+          "Name": "5-TeraKora-5",
+          "Description": "",
+          "EnergyValue": 5000.0,
+          "IsPlugged": false,
+          "ExpectedVoltage": 2549.0,
+          "ResistorsCombo": 0,
+          "ResistorsCombo1": 0,
+          "GamePieceType": 1
+        },
+        "AllowedGamePieces": {
+          "581": {
+            "Id": "581",
+            "Name": "5-TeraKora-12.5",
+            "Description": "",
+            "EnergyValue": 12500.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 581.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 1
+          },
+          "1589": {
+            "Id": "1589",
+            "Name": "5-TeraKora-10",
+            "Description": "",
+            "EnergyValue": 10000.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 1589.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 1
+          },
+          "2549": {
+            "Id": "2549",
+            "Name": "5-TeraKora-5",
+            "Description": "",
+            "EnergyValue": 5000.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 2549.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 1
+          }
+        }
+      },
+      "40990fba-4f65-4795-9e87-255f1cd79f03": {
+        "Id": "40990fba-4f65-4795-9e87-255f1cd79f03",
+        "Name": "6-Solar",
+        "DeviceId": "test",
+        "ChannelId": "12",
+        "GameBoardId": "testBoard",
+        "ChannelInputNumber": 12,
+        "ActualPlacedGamePiece": {
+          "Id": "b90790d0-e347-4ec0-b62b-f4a621ee6b61",
+          "Name": "6-Solar-2",
+          "Description": "",
+          "EnergyValue": 2000.0,
+          "IsPlugged": false,
+          "ExpectedVoltage": 660.0,
+          "ResistorsCombo": 0,
+          "ResistorsCombo1": 0,
+          "GamePieceType": 0
+        },
+        "AllowedGamePieces": {
+          "660": {
+            "Id": "660",
+            "Name": "6-Solar-2",
+            "Description": "",
+            "EnergyValue": 2000.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 660.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 0
+          },
+          "395": {
+            "Id": "395",
+            "Name": "6-Solar-5",
+            "Description": "",
+            "EnergyValue": 5000.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 395.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 0
+          }
+        }
+      },
+      "209f2f22-407a-4c27-a13c-59667db9e212": {
+        "Id": "209f2f22-407a-4c27-a13c-59667db9e212",
+        "Name": "7-St.Maria",
+        "DeviceId": "test",
+        "ChannelId": "28",
+        "GameBoardId": "testBoard",
+        "ChannelInputNumber": 28,
+        "ActualPlacedGamePiece": {
+          "Id": "077e76ad-42d3-4a95-ae5f-da9d048a8d0e",
+          "Name": "7-St.Maria-12.5",
+          "Description": "",
+          "EnergyValue": 12500.0,
+          "IsPlugged": false,
+          "ExpectedVoltage": 717.0,
+          "ResistorsCombo": 0,
+          "ResistorsCombo1": 0,
+          "GamePieceType": 1
+        },
+        "AllowedGamePieces": {
+          "597": {
+            "Id": "597",
+            "Name": "7-St.Maria-17.5",
+            "Description": "",
+            "EnergyValue": 17500.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 597.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 1
+          },
+          "648": {
+            "Id": "648",
+            "Name": "7-St.Maria-7.5",
+            "Description": "",
+            "EnergyValue": 7500.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 648.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 1
+          },
+          "717": {
+            "Id": "717",
+            "Name": "7-St.Maria-12.5",
+            "Description": "",
+            "EnergyValue": 12500.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 717.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 1
+          }
+        }
+      },
+      "18fb167d-b058-4a62-968d-e16ff83198f1": {
+        "Id": "18fb167d-b058-4a62-968d-e16ff83198f1",
+        "Name": "8-Isla",
+        "DeviceId": "test",
+        "ChannelId": "1",
+        "GameBoardId": "testBoard",
+        "ChannelInputNumber": 1,
+        "ActualPlacedGamePiece": {
+          "Id": "e65efbc0-b6d6-404f-bb61-6f957e78938d",
+          "Name": "8-Isla-10",
+          "Description": "",
+          "EnergyValue": 10000.0,
+          "IsPlugged": false,
+          "ExpectedVoltage": 407.0,
+          "ResistorsCombo": 0,
+          "ResistorsCombo1": 0,
+          "GamePieceType": 0
+        },
+        "AllowedGamePieces": {
+          "407": {
+            "Id": "407",
+            "Name": "8-Isla-10",
+            "Description": "",
+            "EnergyValue": 10000.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 407.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 0
+          }
+        }
+      },
+      "d05d9bb2-a028-4e5d-9fa6-64ee597aae0b": {
+        "Id": "d05d9bb2-a028-4e5d-9fa6-64ee597aae0b",
+        "Name": "9-Bueheuvel",
+        "DeviceId": "test",
+        "ChannelId": "2",
+        "GameBoardId": "testBoard",
+        "ChannelInputNumber": 2,
+        "ActualPlacedGamePiece": {
+          "Id": "920939f3-667e-4aa8-9049-158e201bbc62",
+          "Name": "9-Bueheuvel-5",
+          "Description": "",
+          "EnergyValue": 5000.0,
+          "IsPlugged": false,
+          "ExpectedVoltage": 1020.0,
+          "ResistorsCombo": 0,
+          "ResistorsCombo1": 0,
+          "GamePieceType": 1
+        },
+        "AllowedGamePieces": {
+          "1334": {
+            "Id": "1334",
+            "Name": "9-Bueheuvel-7.5",
+            "Description": "",
+            "EnergyValue": 7500.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 1334.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 1
+          },
+          "602": {
+            "Id": "602",
+            "Name": "9-Bueheuvel-2",
+            "Description": "",
+            "EnergyValue": 2000.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 602.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 1
+          },
+          "1020": {
+            "Id": "1020",
+            "Name": "9-Bueheuvel-5",
+            "Description": "",
+            "EnergyValue": 5000.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 1020.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 1
+          }
+        }
+      },
+      "555c06f4-de4c-4ca2-b748-56af9fb84d4c": {
+        "Id": "555c06f4-de4c-4ca2-b748-56af9fb84d4c",
+        "Name": "10-Piscadera",
+        "DeviceId": "test",
+        "ChannelId": "29",
+        "GameBoardId": "testBoard",
+        "ChannelInputNumber": 29,
+        "ActualPlacedGamePiece": {
+          "Id": "a4e6b052-6ad7-4b26-a5de-b5e235ad0977",
+          "Name": "10-Piscadera-7.5",
+          "Description": "",
+          "EnergyValue": 7500.0,
+          "IsPlugged": false,
+          "ExpectedVoltage": 1687.0,
+          "ResistorsCombo": 0,
+          "ResistorsCombo1": 0,
+          "GamePieceType": 1
+        },
+        "AllowedGamePieces": {
+          "574": {
+            "Id": "574",
+            "Name": "10-Piscadera-15",
+            "Description": "",
+            "EnergyValue": 15000.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 574.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 1
+          },
+          "691": {
+            "Id": "691",
+            "Name": "10-Piscadera-10",
+            "Description": "",
+            "EnergyValue": 10000.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 691.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 1
+          },
+          "1687": {
+            "Id": "1687",
+            "Name": "10-Piscadera-7.5",
+            "Description": "",
+            "EnergyValue": 7500.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 1687.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 1
+          }
+        }
+      },
+      "57cb91d6-fdc4-4c2d-91a2-438d45479940": {
+        "Id": "57cb91d6-fdc4-4c2d-91a2-438d45479940",
+        "Name": "11-Gas",
+        "DeviceId": "test",
+        "ChannelId": "30",
+        "GameBoardId": "testBoard",
+        "ChannelInputNumber": 30,
+        "ActualPlacedGamePiece": {
+          "Id": "8c5f99cc-c18f-4050-83eb-f0f23a98a5e3",
+          "Name": "11-Gas-20",
+          "Description": "",
+          "EnergyValue": 20000.0,
+          "IsPlugged": false,
+          "ExpectedVoltage": 404.0,
+          "ResistorsCombo": 0,
+          "ResistorsCombo1": 0,
+          "GamePieceType": 0
+        },
+        "AllowedGamePieces": {
+          "404": {
+            "Id": "404",
+            "Name": "11-Gas-20",
+            "Description": "",
+            "EnergyValue": 20000.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 404.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 0
+          },
+          "846": {
+            "Id": "846",
+            "Name": "11-Gas-5",
+            "Description": "",
+            "EnergyValue": 5000.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 846.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 0
+          }
+        }
+      },
+      "75265e1a-a7a2-4a16-835f-cb7ea2dcc3c5": {
+        "Id": "75265e1a-a7a2-4a16-835f-cb7ea2dcc3c5",
+        "Name": "12-Otrobanda",
+        "DeviceId": "test",
+        "ChannelId": "31",
+        "GameBoardId": "testBoard",
+        "ChannelInputNumber": 31,
+        "ActualPlacedGamePiece": {
+          "Id": "9357e88e-1d4b-43e4-b5eb-d69a786d57d7",
+          "Name": "12-Otrobanda-10",
+          "Description": "",
+          "EnergyValue": 10000.0,
+          "IsPlugged": false,
+          "ExpectedVoltage": 735.0,
+          "ResistorsCombo": 0,
+          "ResistorsCombo1": 0,
+          "GamePieceType": 1
+        },
+        "AllowedGamePieces": {
+          "400": {
+            "Id": "400",
+            "Name": "12-Otrobanda-15",
+            "Description": "",
+            "EnergyValue": 15000.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 400.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 1
+          },
+          "735": {
+            "Id": "735",
+            "Name": "12-Otrobanda-10",
+            "Description": "",
+            "EnergyValue": 10000.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 735.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 1
+          },
+          "534": {
+            "Id": "534",
+            "Name": "12-Otrobanda-20",
+            "Description": "",
+            "EnergyValue": 20000.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 534.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 1
+          }
+        }
+      },
+      "37858748-6575-4918-841a-dae3c7a3f190": {
+        "Id": "37858748-6575-4918-841a-dae3c7a3f190",
+        "Name": "13-Buevengat",
+        "DeviceId": "test",
+        "ChannelId": "25",
+        "GameBoardId": "testBoard",
+        "ChannelInputNumber": 25,
+        "ActualPlacedGamePiece": {
+          "Id": "d260b4f4-4fb2-47e8-9d0b-e1811b014374",
+          "Name": "13-Buevengat-5",
+          "Description": "",
+          "EnergyValue": 5000.0,
+          "IsPlugged": false,
+          "ExpectedVoltage": 670.0,
+          "ResistorsCombo": 0,
+          "ResistorsCombo1": 0,
+          "GamePieceType": 1
+        },
+        "AllowedGamePieces": {
+          "929": {
+            "Id": "929",
+            "Name": "13-Buevengat-7.5",
+            "Description": "",
+            "EnergyValue": 7500.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 929.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 1
+          },
+          "670": {
+            "Id": "670",
+            "Name": "13-Buevengat-5",
+            "Description": "",
+            "EnergyValue": 5000.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 670.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 1
+          },
+          "398": {
+            "Id": "398",
+            "Name": "13-Buevengat-2.5",
+            "Description": "",
+            "EnergyValue": 2500.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 398.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 1
+          }
+        }
+      },
+      "ce1f73c8-4128-4e29-9b46-35e941702300": {
+        "Id": "ce1f73c8-4128-4e29-9b46-35e941702300",
+        "Name": "14-Wind",
+        "DeviceId": "test",
+        "ChannelId": "17",
+        "GameBoardId": "testBoard",
+        "ChannelInputNumber": 17,
+        "ActualPlacedGamePiece": {
+          "Id": "9fb9d21a-eb79-4412-bf8b-6c32f0253cde",
+          "Name": "14-Wind - 22.5 MW",
+          "Description": "",
+          "EnergyValue": 22500.0,
+          "IsPlugged": false,
+          "ExpectedVoltage": 1350.0,
+          "ResistorsCombo": 0,
+          "ResistorsCombo1": 0,
+          "GamePieceType": 0
+        },
+        "AllowedGamePieces": {
+          "542": {
+            "Id": "542",
+            "Name": "14-Wind - 17.5 MW",
+            "Description": "",
+            "EnergyValue": 17500.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 542.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 0
+          },
+          "1145": {
+            "Id": "1145",
+            "Name": "14-Wind - 22.5 MW",
+            "Description": "",
+            "EnergyValue": 22500.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 1145.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 0
+          },
+          "1350": {
+            "Id": "1350",
+            "Name": "14-Wind - 22.5 MW",
+            "Description": "",
+            "EnergyValue": 22500.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 1350.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 0
+          }
+        }
+      },
+      "d33ed4f2-8d30-4156-abb5-b79db057b8a2": {
+        "Id": "d33ed4f2-8d30-4156-abb5-b79db057b8a2",
+        "Name": "15-Solar",
+        "DeviceId": "test",
+        "ChannelId": "18",
+        "GameBoardId": "testBoard",
+        "ChannelInputNumber": 18,
+        "ActualPlacedGamePiece": {
+          "Id": "709a4044-1929-4545-88dd-1b59eebd155e",
+          "Name": "15-Solar-7.5",
+          "Description": "",
+          "EnergyValue": 7500.0,
+          "IsPlugged": false,
+          "ExpectedVoltage": 906.0,
+          "ResistorsCombo": 0,
+          "ResistorsCombo1": 0,
+          "GamePieceType": 0
+        },
+        "AllowedGamePieces": {
+          "530": {
+            "Id": "530",
+            "Name": "15-Solar-3",
+            "Description": "",
+            "EnergyValue": 3000.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 530.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 0
+          },
+          "906": {
+            "Id": "906",
+            "Name": "15-Solar-7.5",
+            "Description": "",
+            "EnergyValue": 7500.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 906.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 0
+          }
+        }
+      },
+      "6afe5249-b56c-4eb9-9240-450be00c5b21": {
+        "Id": "6afe5249-b56c-4eb9-9240-450be00c5b21",
+        "Name": "16-Diesel_1",
+        "DeviceId": "test",
+        "ChannelId": "5",
+        "GameBoardId": "testBoard",
+        "ChannelInputNumber": 5,
+        "ActualPlacedGamePiece": {
+          "Id": "6509a918-6e1c-4ee5-8377-143767ad9b62",
+          "Name": "16-Diesel_1-25",
+          "Description": "",
+          "EnergyValue": 25000.0,
+          "IsPlugged": false,
+          "ExpectedVoltage": 734.0,
+          "ResistorsCombo": 0,
+          "ResistorsCombo1": 0,
+          "GamePieceType": 0
+        },
+        "AllowedGamePieces": {
+          "734": {
+            "Id": "734",
+            "Name": "16-Diesel_1-25",
+            "Description": "",
+            "EnergyValue": 25000.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 734.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 0
+          },
+          "1178": {
+            "Id": "1178",
+            "Name": "16-Diesel_1-10",
+            "Description": "",
+            "EnergyValue": 10000.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 1178.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 0
+          }
+        }
+      },
+      "3f89270d-1746-44ee-a073-f1e7acc2b471": {
+        "Id": "3f89270d-1746-44ee-a073-f1e7acc2b471",
+        "Name": "17-Diesel_2",
+        "DeviceId": "test",
+        "ChannelId": "22",
+        "GameBoardId": "testBoard",
+        "ChannelInputNumber": 22,
+        "ActualPlacedGamePiece": {
+          "Id": "21089983-ebd6-46ae-875c-8533d87d50c8",
+          "Name": "17-Diesel_2-10",
+          "Description": "",
+          "EnergyValue": 10000.0,
+          "IsPlugged": false,
+          "ExpectedVoltage": 906.0,
+          "ResistorsCombo": 0,
+          "ResistorsCombo1": 0,
+          "GamePieceType": 0
+        },
+        "AllowedGamePieces": {
+          "528": {
+            "Id": "528",
+            "Name": "17-Diesel_2-20",
+            "Description": "",
+            "EnergyValue": 20000.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 528.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 0
+          },
+          "906": {
+            "Id": "906",
+            "Name": "17-Diesel_2-10",
+            "Description": "",
+            "EnergyValue": 10000.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 906.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 0
+          }
+        }
+      },
+      "d12c226d-a53e-44a3-9dcb-b870d2b75b8a": {
+        "Id": "d12c226d-a53e-44a3-9dcb-b870d2b75b8a",
+        "Name": "18-Diesel_3",
+        "DeviceId": "test",
+        "ChannelId": "6",
+        "GameBoardId": "testBoard",
+        "ChannelInputNumber": 6,
+        "ActualPlacedGamePiece": {
+          "Id": "e7ce902e-ef6a-489f-8465-1baa078dd1de",
+          "Name": "18-Diesel_3-7.5",
+          "Description": "",
+          "EnergyValue": 7500.0,
+          "IsPlugged": false,
+          "ExpectedVoltage": 401.0,
+          "ResistorsCombo": 0,
+          "ResistorsCombo1": 0,
+          "GamePieceType": 0
+        },
+        "AllowedGamePieces": {
+          "979": {
+            "Id": "979",
+            "Name": "18-Diesel_3-10",
+            "Description": "",
+            "EnergyValue": 10000.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 979.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 0
+          },
+          "401": {
+            "Id": "401",
+            "Name": "18-Diesel_3-7.5",
+            "Description": "",
+            "EnergyValue": 7500.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 401.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 0
+          }
+        }
+      },
+      "434fd053-17df-4b77-a909-b81fdf465b54": {
+        "Id": "434fd053-17df-4b77-a909-b81fdf465b54",
+        "Name": "19-Punda",
+        "DeviceId": "test",
+        "ChannelId": "4",
+        "GameBoardId": "testBoard",
+        "ChannelInputNumber": 4,
+        "ActualPlacedGamePiece": {
+          "Id": "18d61aec-dd03-43e8-9555-5fc91d9c7949",
+          "Name": "19-Punda-4",
+          "Description": "",
+          "EnergyValue": 4000.0,
+          "IsPlugged": false,
+          "ExpectedVoltage": 545.0,
+          "ResistorsCombo": 0,
+          "ResistorsCombo1": 0,
+          "GamePieceType": 1
+        },
+        "AllowedGamePieces": {
+          "398": {
+            "Id": "398",
+            "Name": "19-Punda-5",
+            "Description": "",
+            "EnergyValue": 5000.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 398.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 1
+          },
+          "908": {
+            "Id": "908",
+            "Name": "19-Punda-2",
+            "Description": "",
+            "EnergyValue": 2000.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 908.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 1
+          },
+          "545": {
+            "Id": "545",
+            "Name": "19-Punda-4",
+            "Description": "",
+            "EnergyValue": 4000.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 545.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 1
+          }
+        }
+      },
+      "d00825e2-57f3-432b-853c-0228a01938d2": {
+        "Id": "d00825e2-57f3-432b-853c-0228a01938d2",
+        "Name": "20-Koraalspecht",
+        "DeviceId": "test",
+        "ChannelId": "7",
+        "GameBoardId": "testBoard",
+        "ChannelInputNumber": 7,
+        "ActualPlacedGamePiece": {
+          "Id": "1407f6cb-a72f-462e-b052-48e0d1fe5dd4",
+          "Name": "20-Koraalspecht-5",
+          "Description": "",
+          "EnergyValue": 5000.0,
+          "IsPlugged": false,
+          "ExpectedVoltage": 1904.0,
+          "ResistorsCombo": 0,
+          "ResistorsCombo1": 0,
+          "GamePieceType": 1
+        },
+        "AllowedGamePieces": {
+          "2809": {
+            "Id": "2809",
+            "Name": "20-Koraalspecht-10",
+            "Description": "",
+            "EnergyValue": 10000.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 2809.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 1
+          },
+          "1763": {
+            "Id": "1763",
+            "Name": "20-Koraalspecht-7.5",
+            "Description": "",
+            "EnergyValue": 7500.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 1763.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 1
+          },
+          "1904": {
+            "Id": "1904",
+            "Name": "20-Koraalspecht-5",
+            "Description": "",
+            "EnergyValue": 5000.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 1904.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 1
+          }
+        }
+      },
+      "1cfe7a44-515c-4beb-9044-c32ed8a9ea1c": {
+        "Id": "1cfe7a44-515c-4beb-9044-c32ed8a9ea1c",
+        "Name": "21-Jan_Thiel",
+        "DeviceId": "test",
+        "ChannelId": "27",
+        "GameBoardId": "testBoard",
+        "ChannelInputNumber": 27,
+        "ActualPlacedGamePiece": {
+          "Id": "b525c314-9e4f-4502-86bd-ffa49a49fdbd",
+          "Name": "21-Jan_Thiel - 15 MW",
+          "Description": "",
+          "EnergyValue": 15000.0,
+          "IsPlugged": false,
+          "ExpectedVoltage": 399.0,
+          "ResistorsCombo": 0,
+          "ResistorsCombo1": 0,
+          "GamePieceType": 1
+        },
+        "AllowedGamePieces": {
+          "399": {
+            "Id": "399",
+            "Name": "21-Jan_Thiel - 15 MW",
+            "Description": "",
+            "EnergyValue": 15000.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 399.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 1
+          },
+          "913": {
+            "Id": "913",
+            "Name": "21-Jan_Thiel - 10 MW",
+            "Description": "",
+            "EnergyValue": 10000.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 913.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 1
+          },
+          "535": {
+            "Id": "535",
+            "Name": "21-Jan_Thiel - 5 MW",
+            "Description": "",
+            "EnergyValue": 5000.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 535.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 1
+          }
+        }
+      },
+      "8fb29ba4-c1bb-4870-a692-401b52759d8d": {
+        "Id": "8fb29ba4-c1bb-4870-a692-401b52759d8d",
+        "Name": "22-Montana",
+        "DeviceId": "test",
+        "ChannelId": "19",
+        "GameBoardId": "testBoard",
+        "ChannelInputNumber": 19,
+        "ActualPlacedGamePiece": {
+          "Id": "743f5325-5763-478b-94cb-9dfadeef8ba4",
+          "Name": "22-Montana-12.5",
+          "Description": "",
+          "EnergyValue": 12500.0,
+          "IsPlugged": false,
+          "ExpectedVoltage": 533.0,
+          "ResistorsCombo": 0,
+          "ResistorsCombo1": 0,
+          "GamePieceType": 1
+        },
+        "AllowedGamePieces": {
+          "533": {
+            "Id": "533",
+            "Name": "22-Montana-12.5",
+            "Description": "",
+            "EnergyValue": 12500.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 533.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 1
+          },
+          "639": {
+            "Id": "639",
+            "Name": "22-Montana-7",
+            "Description": "",
+            "EnergyValue": 7000.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 639.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 1
+          },
+          "733": {
+            "Id": "733",
+            "Name": "22-Montana-7.5",
+            "Description": "",
+            "EnergyValue": 7500.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 733.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 1
+          }
+        }
+      },
+      "e8e43df7-2608-49cd-9f52-b916e2cd2b16": {
+        "Id": "e8e43df7-2608-49cd-9f52-b916e2cd2b16",
+        "Name": "23-Wind",
+        "DeviceId": "test",
+        "ChannelId": "21",
+        "GameBoardId": "testBoard",
+        "ChannelInputNumber": 21,
+        "ActualPlacedGamePiece": {
+          "Id": "a71fe207-1f8f-4f9a-8c4f-d275c972e070",
+          "Name": "23-Wind-20",
+          "Description": "",
+          "EnergyValue": 20000.0,
+          "IsPlugged": false,
+          "ExpectedVoltage": 352.0,
+          "ResistorsCombo": 0,
+          "ResistorsCombo1": 0,
+          "GamePieceType": 0
+        },
+        "AllowedGamePieces": {
+          "1483": {
+            "Id": "1483",
+            "Name": "23-Wind-25",
+            "Description": "",
+            "EnergyValue": 25000.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 1483.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 0
+          },
+          "352": {
+            "Id": "352",
+            "Name": "23-Wind-20",
+            "Description": "",
+            "EnergyValue": 20000.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 352.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 0
+          }
+        }
+      },
+      "6a63cdcf-07c5-42cd-ae08-46e559e20586": {
+        "Id": "6a63cdcf-07c5-42cd-ae08-46e559e20586",
+        "Name": "24-Fuik",
+        "DeviceId": "test",
+        "ChannelId": "20",
+        "GameBoardId": "testBoard",
+        "ChannelInputNumber": 20,
+        "ActualPlacedGamePiece": {
+          "Id": "4faaec7e-4832-4ce1-a195-a06e611d476f",
+          "Name": "24-Fuik-10",
+          "Description": "",
+          "EnergyValue": 10000.0,
+          "IsPlugged": false,
+          "ExpectedVoltage": 1061.0,
+          "ResistorsCombo": 0,
+          "ResistorsCombo1": 0,
+          "GamePieceType": 1
+        },
+        "AllowedGamePieces": {
+          "1061": {
+            "Id": "1061",
+            "Name": "24-Fuik-10",
+            "Description": "",
+            "EnergyValue": 10000.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 1061.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 1
+          },
+          "616": {
+            "Id": "616",
+            "Name": "24-Fuik-5",
+            "Description": "",
+            "EnergyValue": 5000.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 616.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 1
+          },
+          "973": {
+            "Id": "973",
+            "Name": "24-Fuik-3",
+            "Description": "",
+            "EnergyValue": 3000.0,
+            "IsPlugged": false,
+            "ExpectedVoltage": 973.0,
+            "ResistorsCombo": 0,
+            "ResistorsCombo1": 0,
+            "GamePieceType": 1
+          }
+        }
+      }
+    },
+    "eGrid": {
+      "Sources": [],
+      "Consumers": [],
+      "Entities": {
+        "d6d62990-b17a-4f6e-85e4-ce4d7d86c3e5": {
+          "Type": 0,
+          "Id": "d6d62990-b17a-4f6e-85e4-ce4d7d86c3e5",
+          "Name": "Root",
+          "Description": "",
+          "Coords": {
+            "Latitude": 0.0,
+            "Longitude": 0.0
+          },
+          "ParentId": "Grid",
+          "Children": [],
+          "IsParent": false,
+          "Blocks": {},
+          "BlocksOrderByTime": [],
+          "LastChange": "2023-09-04T01:21:33.298021Z",
+          "Simulators": {}
+        }
+      },
+      "AlocationSchemes": {},
+      "UnitLabel": "kWh"
+    },
+    "Root": {
+      "Type": 0,
+      "Id": "d6d62990-b17a-4f6e-85e4-ce4d7d86c3e5",
+      "Name": "Root",
+      "Description": "",
+      "Coords": {
+        "Latitude": 0.0,
+        "Longitude": 0.0
+      },
+      "ParentId": "Grid",
+      "Children": [],
+      "IsParent": false,
+      "Blocks": {},
+      "BlocksOrderByTime": [],
+      "LastChange": "2023-09-04T01:21:33.298021Z",
+      "Simulators": {}
+    }
+  }
+}

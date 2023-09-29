@@ -18,4 +18,13 @@
     <PackageReference Include="VEFramework.VEDriversLite.EntitiesBlocks" Version="0.4.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="wwwroot\Devices.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\GameBoards.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

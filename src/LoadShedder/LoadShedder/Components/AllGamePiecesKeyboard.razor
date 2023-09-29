@@ -204,47 +204,25 @@
 
     private async Task PlacePiece(string gamePieceId)
     {
-        var index = -1;
-        for (int i = 0; i < Board.Length; i++)
+        if (GamePieces.TryGetValue(gamePieceId, out var gamePiece))
         {
-            if (Board[i] == 0)
-            {
-                index = i;
-                break;
-            }
-        }
+            Board[gamePiece.DedicatedChannelNumber] = (int)gamePiece.ExpectedVoltage;
 
-        if (index >= 0)
-        {
-            if (GamePieces.TryGetValue(gamePieceId, out var gamePiece))
-            {
-                Board[index] = (int)gamePiece.ExpectedVoltage;
-                gamePiece.IsPlugged = true;
-            }
-            await ProcessRequest();
+            foreach (var gp in GamePieces.Values.Where(p => p.DedicatedChannelNumber == gamePiece.DedicatedChannelNumber))
+                gp.IsPlugged = false;
+
+            gamePiece.IsPlugged = true;
         }
+        await ProcessRequest();
     }
 
     private async Task RemovePiece(string gamePieceId)
     {
-        var index = -1;
         if (GamePieces.TryGetValue(gamePieceId, out var gamePiece))
         {
-            for (int i = 0; i < Board.Length; i++)
-            {
-                if (Board[i] == (int)gamePiece.ExpectedVoltage)
-                {
-                    index = i;
-                    break;
-                }
-            }
-
-            if (index >= 0)
-            {
-                Board[index] = 0;
-                gamePiece.IsPlugged = false;
-                await ProcessRequest();
-            }
+            Board[gamePiece.DedicatedChannelNumber] = 0;
+            gamePiece.IsPlugged = false;
+            await ProcessRequest();
         }
     }
 
