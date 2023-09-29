@@ -1,4 +1,5 @@
-﻿<svg width="210" height="110" xmlns="http://www.w3.org/2000/svg" style="background-color: @BgColor;">
+﻿<Div Border="Border.Is4.Rounded.Light">
+<svg width="210" height="110" xmlns="http://www.w3.org/2000/svg" style="background-color: @BgColor;">
     <!-- Pozadí stupnice -->
     <path d="M 5 105 A 100 100 0 0 1 205 105" fill="none" stroke="#DDD" stroke-width="10" />
     <!-- Ukazatel -->
@@ -10,7 +11,7 @@
     <!-- Aktuální hodnota vprostřed měřáku -->
     <text x="105" y="65" font-family="monospace" font-size="18" font-weight="bold" fill="black" text-anchor="middle">@ValueInMW.ToString("F2") MW</text>
 </svg>
-
+</Div>
 @code {
     [Parameter] public double ValueInkW { get; set; } = 0;
     [Parameter] public double MaxScaleInMW { get; set; } = 100;  // default range is -100 to +100 MW
