@@ -109,7 +109,7 @@
                     Console.WriteLine("AddPlayer response: " + returnStr);
                     PlayerId = returnStr;
                     await PlayerIdChanged.InvokeAsync(PlayerId);
-                    //await AddPlayerToBoard(returnStr);
+                    await AddPlayerToBoard(returnStr);
                     return returnStr;
                 }
                 else
@@ -286,9 +286,10 @@
             isLoading = true;
 
             await AddPlayer();
-            await AddDevice(PlayerId);
+            //await AddDevice(PlayerId);
+            //await AddGameBoard(DeviceId, PlayerId);
             await AddGame();
-            await AddBoardToGame();
+            //await AddBoardToGame();
 
             var response = await Http.GetStringAsync($"api/StartGame/{GameId}");
             Console.WriteLine("Start game response:" + response);

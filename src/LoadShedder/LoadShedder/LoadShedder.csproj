@@ -19,10 +19,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Update="wwwroot\Devices.json">
+    <Content Update="Devices.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Update="wwwroot\GameBoards.json">
+    <Content Update="GameBoards.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

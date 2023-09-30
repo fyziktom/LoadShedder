@@ -139,8 +139,10 @@
     BilanceSourcesChanged="@onBilanceSourcesChangedHandler"
     BilanceConsumersChanged="@onBilanceConsumersChangedHandler" />
 
-<AllGamePiecesKeyboard @ref=allGamePiecesKeyboardRef OnBoardChanged="@onBoardChangedHandler" />
-
+@if (DisplayVirtualKeyboard)
+{
+    <AllGamePiecesKeyboard @ref=allGamePiecesKeyboardRef OnBoardChanged="@onBoardChangedHandler" />
+}
 
 @code {
     BilanceDisplay? bilanceDisplayRef;
@@ -153,6 +155,8 @@
     [Parameter] public string DeviceId { get; set; } = "test";
     [Parameter] public EventCallback<string> GameEndedSuccsess { get; set; }
     [Parameter] public EventCallback<string> GameOver { get; set; }
+
+    [Parameter] public bool DisplayVirtualKeyboard { get; set; } = false;
 
     private Timer _timer;
     AllGamePiecesKeyboard? allGamePiecesKeyboardRef;
