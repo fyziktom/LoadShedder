@@ -5,13 +5,15 @@ namespace LoadShedder.Models
 {
     public class Position
     {
-        public Position(string id = null)
+        public Position() { }
+        /*
+        public Position(string id)
         {
             if (string.IsNullOrEmpty(id))
                 Id = Guid.NewGuid().ToString();
             else
                 Id = id;
-        }
+        }*/
         public string Id { get; set; } = Guid.NewGuid().ToString();
         /// <summary>
         /// Nickname of the device

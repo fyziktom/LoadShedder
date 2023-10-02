@@ -208,6 +208,10 @@ namespace LoadShedder.Models
         /// Voltage which shoud be measured to get this gamepiece.
         /// </summary>
         public double ExpectedVoltage { get; set; } = 0.0;
+        /// <summary>
+        /// Dedicated Channel number
+        /// </summary>
+        public int DedicatedChannelNumber { get; set; } = -1;
 
         /// <summary>
         /// Selected Resistors Combos

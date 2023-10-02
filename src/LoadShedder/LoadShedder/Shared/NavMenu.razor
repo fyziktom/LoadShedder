@@ -1,58 +1,32 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">Load Shedder</a>
-        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-    </div>
-</div>
-
-<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
-    <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="oi oi-home" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
-        <!--
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="gamescreen">
-                <span class="oi oi-tablet" aria-hidden="true"></span> Board Screen
-            </NavLink>
-        </div>
-        -->
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="leaderboard">
-                <span class="oi oi-book" aria-hidden="true"></span> Leaderboard
-            </NavLink>
-        </div>
-        <!--
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="tvscreen">
-                <span class="oi oi-monitor" aria-hidden="true"></span> TV Screen
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="settings">
-                <span class="oi oi-wrench" aria-hidden="true"></span> Settings
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="combos">
-                <span class="oi oi-wrench" aria-hidden="true"></span> Combos
-            </NavLink>
-        </div>
-        -->
-    </nav>
-</div>
+﻿<Bar Breakpoint="Breakpoint.Desktop" ThemeContrast="ThemeContrast.Dark">
+    <BarBrand>
+        <img src="aqualectra_logo_fullwhite.svg" style="height: 2.5rem;" alt="Aqualectra">
+    </BarBrand>
+    <BarToggler />
+    <BarMenu>
+        <BarStart>
+            <BarItem>
+                <BarLink To="/">Home</BarLink>
+            </BarItem>
+            <BarItem>
+                <BarLink To="leaderboard">Leaderboard</BarLink>
+            </BarItem>
+        </BarStart>
+        <BarEnd>
+            <BarItem>
+                <BarLink To="https://www.aqualectra.com" Target="Target.Blank">About Us</BarLink>
+            </BarItem>
+        </BarEnd>
+    </BarMenu>
+</Bar>
 
 @code {
-    private bool collapseNavMenu = true;
+    @* private bool collapseNavMenu = true;
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
-    }
+    } *@
 }

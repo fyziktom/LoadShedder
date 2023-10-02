@@ -256,6 +256,15 @@ namespace LoadShedder
                 await Console.Out.WriteLineAsync("Cannot init the basic configuration" + ex);
             }
 
+            foreach(var gb in MainDataContext.GameBoards.Values)
+            {
+                foreach(var p in gb.Positions.Values)
+                {
+                    foreach (var gp in p.AllowedGamePieces.Values)
+                        gp.DedicatedChannelNumber = p.ChannelInputNumber;
+                }
+            }
+
             await Console.Out.WriteLineAsync("");
             await Console.Out.WriteLineAsync("");
             await Console.Out.WriteLineAsync("Starting main loop...");

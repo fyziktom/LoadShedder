@@ -26,7 +26,6 @@ namespace LoadShedder.Models
         /// <summary>
         /// Input Channels on the device
         /// </summary>
-        [JsonIgnore]
         public ConcurrentDictionary<int, Channel> Channels { get; set; } = new ConcurrentDictionary<int, Channel>();
         /// <summary>
         /// Log all new received data to the file. It is identified by the ID of the device and placed to separated folder in the root folder/Devices of the app
@@ -121,7 +120,7 @@ namespace LoadShedder.Models
                         ChannelInputNumber = channelNumber,
                         DeviceId = Id,
                         Name = channelName,
-                        PositionId = positionId
+                        PositionId = positionId == null ? string.Empty : positionId
                     });
                 }
             }

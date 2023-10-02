@@ -2,6 +2,7 @@
 @inject HttpClient Http
 @inject AppData AppData
 
+<Blazorise.ThemeProvider Theme="@theme">
 <Router AppAssembly="@typeof(App).Assembly">
     <Found Context="routeData">
         <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
@@ -14,9 +15,25 @@
         </LayoutView>
     </NotFound>
 </Router>
+</Blazorise.ThemeProvider>
 <NotificationProvider />
 
 @code {
+    private Theme theme = new Theme
+    {
+
+        ColorOptions = new ThemeColorOptions
+        {
+            Primary = "#0cb3b1",
+            Secondary = "#160b8b",
+            // other
+        },
+        BackgroundOptions = new ThemeBackgroundOptions
+        {
+            Primary =  "#0cb3b1",
+            Secondary =  "#160b8b"
+        }
+    };
 
     [Inject] INotificationService NotificationService { get; set; }
 

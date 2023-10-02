@@ -459,6 +459,20 @@ namespace LoadShedder.Controllers
                     DeviceId = data.deviceId,
                 };
 
+                var temp = MainDataContext.GameBoards.Values.FirstOrDefault();
+                if (temp != null)
+                {
+                    foreach(var p in temp.Positions.Values)
+                    {
+                        gameboard.AddPosition(null, 
+                                              p.Name, 
+                                              data.deviceId, 
+                                              null, 
+                                              p.ChannelInputNumber,
+                                              p.AllowedGamePieces.Values.ToList());
+                    }
+                }
+
                 if (!MainDataContext.GameBoards.TryAdd(gameboard.Id, gameboard))
                 {
                     return "ERROR_CANNOT_ADD_GAMEBOARD";
@@ -686,6 +700,15 @@ namespace LoadShedder.Controllers
                     Id = Guid.NewGuid().ToString(),
                     Name = data.name,
                 };
+
+                var temp = MainDataContext.Devices.Values.FirstOrDefault();
+                if (temp != null)
+                {
+                    foreach(var ch in temp.Channels.Values)
+                    {
+                        device.AddChannel(ch.ChannelInputNumber, ch.Name);
+                    }
+                }
 
                 if (!MainDataContext.Devices.TryAdd(device.Id, device))
                 {
