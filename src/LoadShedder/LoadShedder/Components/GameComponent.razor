@@ -229,6 +229,8 @@
                 await GameOver.InvokeAsync(GameId);
             }
 
+            if (bilanceDisplayRef != null)
+                await bilanceDisplayRef.Refresh(GameBoardId);
             if (megaWattMeterRef != null)
                 await megaWattMeterRef.LoadValues(bilance);
             if (megaWattMeterSourcesRef != null)
