@@ -1,0 +1,260 @@
+{
+  "test": {
+    "Id": "test",
+    "Name": "Test Device",
+    "RawData": [
+      3129,
+      3129,
+      3129,
+      3129,
+      3129,
+      3129,
+      3129,
+      3129,
+      3129,
+      3129,
+      3129,
+      3129,
+      3129,
+      3129,
+      3129,
+      3129,
+      2232,
+      3129,
+      3129,
+      3129,
+      3129,
+      3129,
+      3129,
+      3129,
+      3129,
+      3129,
+      3129,
+      3129,
+      3129,
+      3129,
+      3129,
+      3129
+    ],
+	"DeviceRawDataHistory": {},
+  "Channels": {
+      "1": {
+        "Id": "b8255314-1fc4-4485-a2df-68221a223116",
+        "Name": "8-Isla",
+        "DeviceId": "test",
+        "PositionId": "118fb167d-b058-4a62-968d-e16ff83198f1",
+        "ChannelInputNumber": 1,
+        "ActualValue": 3129,
+        "ChannelHistory": {}
+      },
+      "2": {
+        "Id": "1e75393f-1103-4547-87cd-acb8d0b4fae5",
+        "Name": "9-Bueheuvel",
+        "DeviceId": "test",
+        "PositionId": "d05d9bb2-a028-4e5d-9fa6-64ee597aae0b",
+        "ChannelInputNumber": 2,
+        "ActualValue": 3129,
+        "ChannelHistory": {}
+      },
+      "4": {
+        "Id": "faf88fd1-dd10-414f-9357-7d9847165e18",
+        "Name": "19-Punda",
+        "DeviceId": "test",
+        "PositionId": "434fd053-17df-4b77-a909-b81fdf465b54",
+        "ChannelInputNumber": 4,
+        "ActualValue": 3129,
+        "ChannelHistory": {}
+      },
+      "5": {
+        "Id": "83ad4d83-c52a-4c70-9f21-0c73b036fe32",
+        "Name": "16-Diesel_1",
+        "DeviceId": "test",
+        "PositionId": "6afe5249-b56c-4eb9-9240-450be00c5b21",
+        "ChannelInputNumber": 5,
+        "ActualValue": 3129,
+        "ChannelHistory": {}
+      },
+      "6": {
+        "Id": "6c5289d6-7732-41b0-90df-d632b704536d",
+        "Name": "18-Diesel_3",
+        "DeviceId": "test",
+        "PositionId": "d12c226d-a53e-44a3-9dcb-b870d2b75b8a",
+        "ChannelInputNumber": 6,
+        "ActualValue": 3129,
+        "ChannelHistory": {}
+      },
+      "7": {
+        "Id": "2abd1a20-2375-46fe-a83b-e165538c356c",
+        "Name": "20-Koraalspecht",
+        "DeviceId": "test",
+        "PositionId": "d00825e2-57f3-432b-853c-0228a01938d2",
+        "ChannelInputNumber": 7,
+        "ActualValue": 3129,
+        "ChannelHistory": {}
+      },
+      "9": {
+        "Id": "131d8b56-a76e-4aaf-b105-82ad175d0182",
+        "Name": "3-Soto",
+        "DeviceId": "test",
+        "PositionId": "87cfd82b-4bf3-4a58-b9db-1ebe9fcfbe25",
+        "ChannelInputNumber": 9,
+        "ActualValue": 3129,
+        "ChannelHistory": {}
+      },
+      "11": {
+        "Id": "2d53a398-4d5a-4147-9edd-120574039d0b",
+        "Name": "1-Westpunt",
+        "DeviceId": "test",
+        "PositionId": "dfd601b1-13ae-4c8d-93eb-8dae79a75b7d",
+        "ChannelInputNumber": 11,
+        "ActualValue": 3129,
+        "ChannelHistory": {}
+      },
+      "12": {
+        "Id": "fffdd055-9b3f-4286-8cbd-742cdc2241cc",
+        "Name": "6-Solar",
+        "DeviceId": "test",
+        "PositionId": "40990fba-4f65-4795-9e87-255f1cd79f03",
+        "ChannelInputNumber": 12,
+        "ActualValue": 3129,
+        "ChannelHistory": {}
+      },
+      "13": {
+        "Id": "525a32b1-7d48-44ed-b32d-238e44d7452e",
+        "Name": "4-Wind",
+        "DeviceId": "test",
+        "PositionId": "8c5e9ecd-fca2-4f1d-89ed-1f1e0c1572a1",
+        "ChannelInputNumber": 13,
+        "ActualValue": 3129,
+        "ChannelHistory": {}
+      },
+      "14": {
+        "Id": "ae5edcb4-b8e3-497f-8d58-e688e625c0af",
+        "Name": "5-TeraKora",
+        "DeviceId": "test",
+        "PositionId": "c710975f-9b7e-477d-a792-8af33a713904",
+        "ChannelInputNumber": 14,
+        "ActualValue": 3129,
+        "ChannelHistory": {}
+      },
+      "17": {
+        "Id": "ffff5993-26c6-4732-a97d-b4191173a3a5",
+        "Name": "14-Wind",
+        "DeviceId": "test",
+        "PositionId": "ce1f73c8-4128-4e29-9b46-35e941702300",
+        "ChannelInputNumber": 17,
+        "ActualValue": 3129,
+        "ChannelHistory": {}
+      },
+      "18": {
+        "Id": "13e07ada-df20-4832-bfea-0c29709f6912",
+        "Name": "15-Solar",
+        "DeviceId": "test",
+        "PositionId": "d33ed4f2-8d30-4156-abb5-b79db057b8a2",
+        "ChannelInputNumber": 18,
+        "ActualValue": 3129,
+        "ChannelHistory": {}
+      },
+      "19": {
+        "Id": "ee41d996-7128-474f-9b41-318c766c0c87",
+        "Name": "22-Montana",
+        "DeviceId": "test",
+        "PositionId": "8fb29ba4-c1bb-4870-a692-401b52759d8d",
+        "ChannelInputNumber": 19,
+        "ActualValue": 3129,
+        "ChannelHistory": {}
+      },
+      "20": {
+        "Id": "d9713c12-820e-4520-b31e-5ce97964eef7",
+        "Name": "24-Fuik",
+        "DeviceId": "test",
+        "PositionId": "6a63cdcf-07c5-42cd-ae08-46e559e20586",
+        "ChannelInputNumber": 20,
+        "ActualValue": 3129,
+        "ChannelHistory": {}
+      },
+      "21": {
+        "Id": "66c52842-ace6-4773-bb3b-c61282a8f1be",
+        "Name": "23-Wind",
+        "DeviceId": "test",
+        "PositionId": "e8e43df7-2608-49cd-9f52-b916e2cd2b16",
+        "ChannelInputNumber": 21,
+        "ActualValue": 3129,
+        "ChannelHistory": {}
+      },
+      "22": {
+        "Id": "75167b69-3c41-4494-a7c0-9072a7985d4d",
+        "Name": "17-Diesel_2",
+        "DeviceId": "test",
+        "PositionId": "3f89270d-1746-44ee-a073-f1e7acc2b471",
+        "ChannelInputNumber": 22,
+        "ActualValue": 3129,
+        "ChannelHistory": {}
+      },
+      "23": {
+        "Id": "a3710c1c-1a81-4ea3-ac9b-2327960f1be9",
+        "Name": "21-Jan_Thiel",
+        "DeviceId": "test",
+        "PositionId": "1cfe7a44-515c-4beb-9044-c32ed8a9ea1c",
+        "ChannelInputNumber": 23,
+        "ActualValue": 3129,
+        "ChannelHistory": {}
+      },
+      "24": {
+        "Id": "0119297f-3bae-429b-a7d2-dd2d6ffeb441",
+        "Name": "2-Barber",
+        "DeviceId": "test",
+        "PositionId": "132c0415-1b64-45c9-9007-5cf5fe678773",
+        "ChannelInputNumber": 24,
+        "ActualValue": 3129,
+        "ChannelHistory": {}
+      },
+      "25": {
+        "Id": "914e5ea6-a295-4f50-b422-eb0152c025c7",
+        "Name": "13-Buevengat",
+        "DeviceId": "test",
+        "PositionId": "37858748-6575-4918-841a-dae3c7a3f190",
+        "ChannelInputNumber": 25,
+        "ActualValue": 3129,
+        "ChannelHistory": {}
+      },
+      "28": {
+        "Id": "69058122-abde-4224-9070-8ace0d1e7816",
+        "Name": "7-St.Maria",
+        "DeviceId": "test",
+        "PositionId": "209f2f22-407a-4c27-a13c-59667db9e212",
+        "ChannelInputNumber": 28,
+        "ActualValue": 3129,
+        "ChannelHistory": {}
+      },
+      "29": {
+        "Id": "ec4ac2dd-bfe8-4215-8c8b-bc73e067068a",
+        "Name": "10-Piscadera",
+        "DeviceId": "test",
+        "PositionId": "555c06f4-de4c-4ca2-b748-56af9fb84d4c",
+        "ChannelInputNumber": 29,
+        "ActualValue": 3129,
+        "ChannelHistory": {}
+      },
+      "30": {
+        "Id": "2593ad93-fa43-4155-beb3-201e0791025c",
+        "Name": "11-Gas",
+        "DeviceId": "test",
+        "PositionId": "57cb91d6-fdc4-4c2d-91a2-438d45479940",
+        "ChannelInputNumber": 30,
+        "ActualValue": 3129,
+        "ChannelHistory": {}
+      },
+      "31": {
+        "Id": "dd60e946-bbf7-4496-bb4f-7401bf10b7bc",
+        "Name": "12-Otrobanda",
+        "DeviceId": "test",
+        "PositionId": "75265e1a-a7a2-4a16-835f-cb7ea2dcc3c5",
+        "ChannelInputNumber": 31,
+        "ActualValue": 3129,
+        "ChannelHistory": {}
+      }
+    },
+    "StoreTheData": false
+  }
+}
